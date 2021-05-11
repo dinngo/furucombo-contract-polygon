@@ -1,6 +1,14 @@
 const { BN, ether } = require('@openzeppelin/test-helpers');
 const fetch = require('node-fetch');
-const { ETH_PROVIDER, RecordHandlerResultSig } = require('./constants');
+const { expect } = require('chai');
+const {
+  MATIC_PROVIDER,
+  RecordHandlerResultSig,
+  STORAGE_KEY_MSG_SENDER,
+  STORAGE_KEY_CUBE_COUNTER,
+  STORAGE_KEY_FEE_RATE,
+  STORAGE_KEY_FEE_COLLECTOR,
+} = require('./constants');
 
 function profileGas(receipt) {
   receipt.logs.forEach(element => {

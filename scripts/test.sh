@@ -20,6 +20,8 @@ ganache_running() {
 
 start_ganache() {
     TEST_MNEMONIC_PHRASE="dice shove sheriff police boss indoor hospital vivid tenant method game matter"
+    MATIC_PROVIDER='0x986a2fCa9eDa0e06fBf7839B89BfC006eE2a23Dd'
+    WMATIC_PROVIDER='0xc803698a4BE31F0B9035B6eBA17623698f3E2F82'
     DAI_PROVIDER="0x385eD6FbaCEe3B3518D830D003f87Bd3dDEA228A"
     WBTC_PROVIDER="0x27c27151F9BC6330B767BAb8dCADa11A253ccb8c"
     BAT_PROVIDER="0x50b17bd57EDDe87D1c1DFAC65549a74A995E0A18"
@@ -33,7 +35,7 @@ start_ganache() {
     SUSHI_PROVIDER="0xecA41677558025c76BfD20e9289283cb4Ca85f46"
 
     # node_modules/.bin/ganache-cli --gasLimit 0xfffffffffff -m "$TEST_MNEMONIC_PHRASE" > /dev/null &
-    node_modules/.bin/ganache-cli --gasLimit 0xfffffffffff --debug -f $ETH_MAINNET_NODE -m "$TEST_MNEMONIC_PHRASE" -u "$DAI_PROVIDER" -u "$BAT_PROVIDER" -u "$USDT_PROVIDER" -u "$WBTC_PROVIDER" -u "$YFI_PROVIDER" -u "$OMG_PROVIDER" -u "$SUSHI_PROVIDER" > /dev/null &
+    node_modules/.bin/ganache-cli --gasLimit 0xfffffffffff --debug -f $ETH_MAINNET_NODE -m "$TEST_MNEMONIC_PHRASE" -u "$MATIC_PROVIDER" -u "$WMATIC_PROVIDER" -u "$DAI_PROVIDER" -u "$BAT_PROVIDER" -u "$USDT_PROVIDER" -u "$WBTC_PROVIDER" -u "$YFI_PROVIDER" -u "$OMG_PROVIDER" -u "$SUSHI_PROVIDER" > /dev/null &
 
     ganache_pid=$!
 }
