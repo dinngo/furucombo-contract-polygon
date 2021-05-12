@@ -9,6 +9,9 @@ import "../Storage.sol";
 abstract contract HandlerBase is Storage, Config {
     using SafeERC20 for IERC20;
 
+    address private constant MATIC_TOKEN =
+        0x0000000000000000000000000000000000001010;
+
     function postProcess() external payable virtual {
         revert("Invalid post process");
         /* Implementation template
@@ -23,6 +26,7 @@ abstract contract HandlerBase is Storage, Config {
     }
 
     function _updateToken(address token) internal {
+        _notMaticToken(token);
         stack.setAddress(token);
         // Ignore token type to fit old handlers
         // stack.setHandlerType(uint256(HandlerType.Token));
@@ -106,6 +110,17 @@ abstract contract HandlerBase is Storage, Config {
         try IERC20Usdt(token).approve(spender, amount) {} catch {
             IERC20(token).safeApprove(spender, 0);
             IERC20(token).safeApprove(spender, amount);
+        }
+    }
+
+    // Do not support matic token (0x0000...1010)
+    function _notMaticToken(address token) internal pure {
+        require(token != MATIC_TOKEN, "Not support matic token");
+    }
+
+    function _notMaticToken(address[] calldata tokens) internal pure {
+        for (uint256 i = 0; i < tokens.length; i++) {
+            require(tokens[i] != MATIC_TOKEN, "Not support matic token");
         }
     }
 }
