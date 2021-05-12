@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/math/SafeMath.sol";
 
 import "../../interface/IProxy.sol";
 import "../HandlerBase.sol";
-import "../weth/IWETH9.sol";
+import "../wmatic/IWMATIC.sol";
 import "./ILendingPoolV2.sol";
 import "./IFlashLoanReceiver.sol";
 import "./ILendingPoolAddressesProviderV2.sol";
@@ -19,7 +19,7 @@ contract HAaveProtocolV2 is HandlerBase, IFlashLoanReceiver {
     // prettier-ignore
     address public constant PROVIDER = 0xB53C1a33016B2DC2fF3653530bfF1848a515c8c5;
     // prettier-ignore
-    address payable public constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
+    address payable public constant WMATIC = 0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270;
     // prettier-ignore
     address payable public constant ETHER = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
     uint16 public constant REFERRAL_CODE = 56;
@@ -35,10 +35,10 @@ contract HAaveProtocolV2 is HandlerBase, IFlashLoanReceiver {
 
     function depositETH(uint256 amount) external payable {
         amount = _getBalance(ETHER, amount);
-        IWETH9(WETH).deposit{value: amount}();
-        _deposit(WETH, amount);
+        IWMATIC(WMATIC).deposit{value: amount}();
+        _deposit(WMATIC, amount);
 
-        _updateToken(WETH);
+        _updateToken(WMATIC);
     }
 
     function withdraw(address asset, uint256 amount)
@@ -56,8 +56,8 @@ contract HAaveProtocolV2 is HandlerBase, IFlashLoanReceiver {
         payable
         returns (uint256 withdrawAmount)
     {
-        withdrawAmount = _withdraw(WETH, amount);
-        IWETH9(WETH).withdraw(withdrawAmount);
+        withdrawAmount = _withdraw(WMATIC, amount);
+        IWMATIC(WMATIC).withdraw(withdrawAmount);
     }
 
     function repay(
@@ -74,10 +74,10 @@ contract HAaveProtocolV2 is HandlerBase, IFlashLoanReceiver {
         uint256 rateMode,
         address onBehalfOf
     ) external payable returns (uint256 remainDebt) {
-        IWETH9(WETH).deposit{value: amount}();
-        remainDebt = _repay(WETH, amount, rateMode, onBehalfOf);
+        IWMATIC(WMATIC).deposit{value: amount}();
+        remainDebt = _repay(WMATIC, amount, rateMode, onBehalfOf);
 
-        _updateToken(WETH);
+        _updateToken(WMATIC);
     }
 
     function borrow(
@@ -92,8 +92,8 @@ contract HAaveProtocolV2 is HandlerBase, IFlashLoanReceiver {
 
     function borrowETH(uint256 amount, uint256 rateMode) external payable {
         address onBehalfOf = _getSender();
-        _borrow(WETH, amount, rateMode, onBehalfOf);
-        IWETH9(WETH).withdraw(amount);
+        _borrow(WMATIC, amount, rateMode, onBehalfOf);
+        IWMATIC(WMATIC).withdraw(amount);
     }
 
     function flashLoan(
