@@ -36,6 +36,9 @@ contract HFunds is HandlerBase {
         address payable receiver
     ) external payable {
         for (uint256 i = 0; i < tokens.length; i++) {
+            // token can't be matic token
+            _notMaticToken(tokens[i]);
+
             uint256 amount = _getBalance(tokens[i], amounts[i]);
             if (amount > 0) {
                 // ETH case
@@ -64,6 +67,9 @@ contract HFunds is HandlerBase {
         uint256 amount,
         address receiver
     ) external payable {
+        // token can't be matic token
+        _notMaticToken(token);
+
         amount = _getBalance(token, amount);
         if (amount > 0) {
             IERC20(token).safeTransfer(receiver, amount);
@@ -79,6 +85,9 @@ contract HFunds is HandlerBase {
         }
 
         for (uint256 i = 0; i < tokens.length; i++) {
+            // token can't be matic token
+            _notMaticToken(tokens[i]);
+
             if (tokens[i] == address(0)) {
                 if (address(this).balance < amounts[i]) {
                     string memory errMsg =

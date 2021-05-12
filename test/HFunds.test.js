@@ -16,6 +16,7 @@ const utils = web3.utils;
 const { expect } = require('chai');
 
 const {
+  MATIC_TOKEN,
   DAI_TOKEN,
   DAI_PROVIDER,
   BAT_TOKEN,
@@ -128,6 +129,44 @@ contract('Funds', function([_, user, someone]) {
       });
       profileGas(receipt);
     });
+
+    it('should revert: inject not support MRC20', async function() {
+      const token = [MATIC_TOKEN];
+      const value = [ether('1')];
+      const to = this.hFunds.address;
+      const data = abi.simpleEncode(
+        'inject(address[],uint256[])',
+        token,
+        value
+      );
+
+      await expectRevert(
+        this.proxy.execMock(to, data, {
+          from: user,
+          value: value[0],
+        }),
+        'Not support matic token'
+      );
+    });
+
+    it('should revert: addFunds not support MRC20', async function() {
+      const token = [MATIC_TOKEN];
+      const value = [ether('1')];
+      const to = this.hFunds.address;
+      const data = abi.simpleEncode(
+        'addFunds(address[],uint256[])',
+        token,
+        value
+      );
+
+      await expectRevert(
+        this.proxy.execMock(to, data, {
+          from: user,
+          value: value[0],
+        }),
+        'Not support matic token'
+      );
+    });
   });
 
   describe('multiple tokens', function() {
@@ -140,7 +179,7 @@ contract('Funds', function([_, user, someone]) {
       const value = [ether('100'), ether('100')];
       const to = this.hFunds.address;
       const data = abi.simpleEncode(
-        'inject(address[],uint256[])',
+        'addFunds(address[],uint256[])',
         token,
         value
       );
@@ -180,6 +219,52 @@ contract('Funds', function([_, user, someone]) {
         value: value[1],
       });
       profileGas(receipt);
+    });
+
+    it('should revert: inject not support MRC20', async function() {
+      const token = [this.token0.address, MATIC_TOKEN];
+      const value = [ether('100'), ether('1')];
+      const to = this.hFunds.address;
+      const data = abi.simpleEncode(
+        'inject(address[],uint256[])',
+        token,
+        value
+      );
+      await this.token0.transfer(user, value[0], {
+        from: providerAddresses[0],
+      });
+      await this.token0.approve(this.proxy.address, value[0], { from: user });
+
+      await expectRevert(
+        this.proxy.execMock(to, data, {
+          from: user,
+          value: value[0],
+        }),
+        'Not support matic token'
+      );
+    });
+
+    it('should revert: AddFunds not support MRC20', async function() {
+      const token = [this.token0.address, MATIC_TOKEN];
+      const value = [ether('100'), ether('1')];
+      const to = this.hFunds.address;
+      const data = abi.simpleEncode(
+        'addFunds(address[],uint256[])',
+        token,
+        value
+      );
+      await this.token0.transfer(user, value[0], {
+        from: providerAddresses[0],
+      });
+      await this.token0.approve(this.proxy.address, value[0], { from: user });
+
+      await expectRevert(
+        this.proxy.execMock(to, data, {
+          from: user,
+          value: value[1],
+        }),
+        'Not support matic token'
+      );
     });
   });
 
@@ -346,6 +431,28 @@ contract('Funds', function([_, user, someone]) {
             from: user,
             value: ether('0.1'),
           })
+        );
+      });
+
+      it('should revert: not support MRC20', async function() {
+        const token = MATIC_TOKEN;
+        const value = ether('1');
+        const receiver = someone;
+        const to = this.hFunds.address;
+        const data = abi.simpleEncode(
+          'sendToken(address,uint256,address)',
+          token,
+          value,
+          receiver
+        );
+
+        await this.proxy.updateTokenMock(this.token.address);
+        await expectRevert(
+          this.proxy.execMock(to, data, {
+            from: user,
+            value: value,
+          }),
+          'Not support matic token'
         );
       });
     });
@@ -623,6 +730,32 @@ contract('Funds', function([_, user, someone]) {
           })
         );
       });
+
+      it('should revert: not support MRC20', async function() {
+        const tokens = [this.token0.address, MATIC_TOKEN];
+        const value = [new BN(10000000), ether('1')];
+        const receiver = someone;
+        const to = this.hFunds.address;
+        const data = abi.simpleEncode(
+          'sendTokens(address[],uint256[],address)',
+          tokens,
+          value,
+          receiver
+        );
+
+        await this.token0.transfer(this.proxy.address, value[0], {
+          from: USDT_PROVIDER,
+        });
+
+        await this.proxy.updateTokenMock(this.token0.address);
+        await expectRevert(
+          this.proxy.execMock(to, data, {
+            from: user,
+            value: value[1],
+          }),
+          'Not support matic token'
+        );
+      });
     });
   });
 
@@ -768,6 +901,29 @@ contract('Funds', function([_, user, someone]) {
           value: value[2],
         }),
         'HFunds_checkSlippage: error: 0_' + revertValue.toString()
+      );
+    });
+
+    it('should revert: not support MRC20', async function() {
+      const token = [this.token0.address, ZERO_ADDRESS, MATIC_TOKEN];
+      const value = [ether('10'), ether('1'), ether('1')];
+      const to = this.hFunds.address;
+      const data = abi.simpleEncode(
+        'checkSlippage(address[],uint256[])',
+        token,
+        value
+      );
+
+      await this.token0.transfer(this.proxy.address, value[0], {
+        from: providerAddresses[0],
+      });
+
+      await expectRevert(
+        this.proxy.execMock(to, data, {
+          from: user,
+          value: value[1].add(value[2]),
+        }),
+        'Not support matic token'
       );
     });
   });
