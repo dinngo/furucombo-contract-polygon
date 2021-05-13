@@ -18,12 +18,12 @@ const utils = web3.utils;
 const { expect } = require('chai');
 
 const {
-  WETH_TOKEN,
-  WETH_PROVIDER,
+  WMATIC_TOKEN,
+  WMATIC_PROVIDER,
   DAI_TOKEN,
   DAI_PROVIDER,
   ADAI_V2,
-  AWETH_V2,
+  AWMATIC_V2,
   AAVEPROTOCOL_V2_PROVIDER,
   AAVE_RATEMODE,
 } = require('./utils/constants');
@@ -48,9 +48,9 @@ contract('Aave V2', function([_, user, someone]) {
   const aTokenAddress = ADAI_V2;
   const tokenAddress = DAI_TOKEN;
   const providerAddress = DAI_PROVIDER;
-  const awethAddress = AWETH_V2;
-  const wethAddress = WETH_TOKEN;
-  const wethProviderAddress = WETH_PROVIDER;
+  const awmaticAddress = AWMATIC_V2;
+  const wmaticAddress = WMATIC_TOKEN;
+  const wmaticProviderAddress = WMATIC_PROVIDER;
 
   let id;
   let balanceUser;
@@ -69,8 +69,8 @@ contract('Aave V2', function([_, user, someone]) {
     this.lendingPool = await ILendingPool.at(this.lendingPoolAddress);
     this.token = await IToken.at(tokenAddress);
     this.aToken = await IAToken.at(aTokenAddress);
-    this.weth = await IToken.at(WETH_TOKEN);
-    this.aweth = await IAToken.at(awethAddress);
+    this.wmatic = await IToken.at(WMATIC_TOKEN);
+    this.awmatic = await IAToken.at(awmaticAddress);
     this.mockToken = await SimpleToken.new();
   });
 
@@ -85,7 +85,7 @@ contract('Aave V2', function([_, user, someone]) {
   });
 
   describe('Deposit', function() {
-    describe('Ether', function() {
+    describe('Matic', function() {
       it('normal', async function() {
         const value = ether('10');
         const to = this.hAaveV2.address;
@@ -96,8 +96,12 @@ contract('Aave V2', function([_, user, someone]) {
           value: value,
         });
         expect(await balanceProxy.get()).to.be.zero;
-        expect(await this.aweth.balanceOf.call(this.proxy.address)).to.be.zero;
-        expect(await this.aweth.balanceOf.call(user)).to.be.bignumber.eq(value);
+        expect(
+          await this.awmatic.balanceOf.call(this.proxy.address)
+        ).to.be.zero;
+        expect(await this.awmatic.balanceOf.call(user)).to.be.bignumber.eq(
+          value
+        );
         expect(await balanceUser.delta()).to.be.bignumber.eq(
           ether('0')
             .sub(value)
@@ -116,8 +120,12 @@ contract('Aave V2', function([_, user, someone]) {
           value: value,
         });
         expect(await balanceProxy.get()).to.be.zero;
-        expect(await this.aweth.balanceOf.call(this.proxy.address)).to.be.zero;
-        expect(await this.aweth.balanceOf.call(user)).to.be.bignumber.eq(value);
+        expect(
+          await this.awmatic.balanceOf.call(this.proxy.address)
+        ).to.be.zero;
+        expect(await this.awmatic.balanceOf.call(user)).to.be.bignumber.eq(
+          value
+        );
         expect(await balanceUser.delta()).to.be.bignumber.eq(
           ether('0')
             .sub(value)
@@ -207,28 +215,28 @@ contract('Aave V2', function([_, user, someone]) {
   describe('Withdraw', function() {
     var depositAmount = ether('5');
 
-    describe('Ether', function() {
+    describe('Matic', function() {
       beforeEach(async function() {
-        await this.weth.approve(this.lendingPool.address, depositAmount, {
-          from: wethProviderAddress,
+        await this.wmatic.approve(this.lendingPool.address, depositAmount, {
+          from: wmaticProviderAddress,
         });
         await this.lendingPool.deposit(
-          this.weth.address,
+          this.wmatic.address,
           depositAmount,
           user,
           0,
-          { from: wethProviderAddress }
+          { from: wmaticProviderAddress }
         );
 
-        depositAmount = await this.aweth.balanceOf.call(user);
+        depositAmount = await this.awmatic.balanceOf.call(user);
       });
 
       it('partial', async function() {
         const value = depositAmount.div(new BN(2));
         const to = this.hAaveV2.address;
         const data = abi.simpleEncode('withdrawETH(uint256)', value);
-        await this.aweth.transfer(this.proxy.address, value, { from: user });
-        await this.proxy.updateTokenMock(this.aweth.address);
+        await this.awmatic.transfer(this.proxy.address, value, { from: user });
+        await this.proxy.updateTokenMock(this.awmatic.address);
         await balanceUser.get();
 
         const receipt = await this.proxy.execMock(to, data, {
@@ -240,13 +248,15 @@ contract('Aave V2', function([_, user, someone]) {
         const handlerReturn = utils.toBN(
           getHandlerReturn(receipt, ['uint256'])[0]
         );
-        const aTokenUserAfter = await this.aweth.balanceOf.call(user);
+        const aTokenUserAfter = await this.awmatic.balanceOf.call(user);
         const interestMax = depositAmount.mul(new BN(1)).div(new BN(10000));
 
         // Verify handler return
         expect(value).to.be.bignumber.eq(handlerReturn);
         // Verify proxy balance
-        expect(await this.aweth.balanceOf.call(this.proxy.address)).to.be.zero;
+        expect(
+          await this.awmatic.balanceOf.call(this.proxy.address)
+        ).to.be.zero;
         // Verify user balance
         // (deposit - withdraw) <= aTokenAfter < (deposit + interestMax - withdraw)
         expect(aTokenUserAfter).to.be.bignumber.gte(depositAmount.sub(value));
@@ -263,8 +273,8 @@ contract('Aave V2', function([_, user, someone]) {
         const value = depositAmount.div(new BN(2));
         const to = this.hAaveV2.address;
         const data = abi.simpleEncode('withdrawETH(uint256)', MAX_UINT256);
-        await this.aweth.transfer(this.proxy.address, value, { from: user });
-        await this.proxy.updateTokenMock(this.aweth.address);
+        await this.awmatic.transfer(this.proxy.address, value, { from: user });
+        await this.proxy.updateTokenMock(this.awmatic.address);
         await balanceUser.get();
 
         const receipt = await this.proxy.execMock(to, data, {
@@ -276,7 +286,7 @@ contract('Aave V2', function([_, user, someone]) {
         const handlerReturn = utils.toBN(
           getHandlerReturn(receipt, ['uint256'])[0]
         );
-        const aTokenUserAfter = await this.aweth.balanceOf.call(user);
+        const aTokenUserAfter = await this.awmatic.balanceOf.call(user);
         const interestMax = depositAmount.mul(new BN(1)).div(new BN(10000));
 
         // Verify handler return
@@ -286,7 +296,9 @@ contract('Aave V2', function([_, user, someone]) {
         expect(mulPercent(value, 101)).to.be.bignumber.gte(handlerReturn);
 
         // Verify proxy balance
-        expect(await this.aweth.balanceOf.call(this.proxy.address)).to.be.zero;
+        expect(
+          await this.awmatic.balanceOf.call(this.proxy.address)
+        ).to.be.zero;
         // Verify user balance
         // (deposit - withdraw) <= aTokenAfter < (deposit + interestMax - withdraw)
         // NOTE: aTokenUserAfter == (depositAmount - withdraw - 1) (sometime, Ganache bug maybe)

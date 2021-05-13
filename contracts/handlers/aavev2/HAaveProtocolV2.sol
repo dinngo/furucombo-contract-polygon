@@ -17,7 +17,7 @@ contract HAaveProtocolV2 is HandlerBase, IFlashLoanReceiver {
     using SafeMath for uint256;
 
     // prettier-ignore
-    address public constant PROVIDER = 0xB53C1a33016B2DC2fF3653530bfF1848a515c8c5;
+    address public constant PROVIDER = 0xd05e3E715d945B59290df0ae8eF85c1BdB684744;
     // prettier-ignore
     address payable public constant WMATIC = 0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270;
     // prettier-ignore
