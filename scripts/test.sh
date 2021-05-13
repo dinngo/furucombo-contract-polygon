@@ -35,7 +35,7 @@ start_ganache() {
     SUSHI_PROVIDER="0xecA41677558025c76BfD20e9289283cb4Ca85f46"
 
     # node_modules/.bin/ganache-cli --gasLimit 0xfffffffffff -m "$TEST_MNEMONIC_PHRASE" > /dev/null &
-    node_modules/.bin/ganache-cli --gasLimit 0xfffffffffff --debug -f $ETH_MAINNET_NODE -m "$TEST_MNEMONIC_PHRASE" -u "$MATIC_PROVIDER" -u "$WMATIC_PROVIDER" -u "$DAI_PROVIDER" -u "$BAT_PROVIDER" -u "$USDT_PROVIDER" -u "$WBTC_PROVIDER" -u "$YFI_PROVIDER" -u "$OMG_PROVIDER" -u "$SUSHI_PROVIDER" > /dev/null &
+    node_modules/.bin/ganache-cli --gasLimit 0xfffffffffff --debug -f $POLYGON_MAINNET_NODE -m "$TEST_MNEMONIC_PHRASE" -u "$MATIC_PROVIDER" -u "$WMATIC_PROVIDER" -u "$DAI_PROVIDER" -u "$BAT_PROVIDER" -u "$USDT_PROVIDER" -u "$WBTC_PROVIDER" -u "$YFI_PROVIDER" -u "$OMG_PROVIDER" -u "$SUSHI_PROVIDER" > /dev/null &
 
     ganache_pid=$!
 }
