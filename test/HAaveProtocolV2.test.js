@@ -1,4 +1,3 @@
-/** To be reopened
 const {
   balance,
   BN,
@@ -506,4 +505,3 @@ contract('Aave V2', function([_, user, someone]) {
     });
   });
 });
-*/

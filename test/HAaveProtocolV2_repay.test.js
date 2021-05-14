@@ -1,4 +1,3 @@
-/** To be reopened
 const {
   balance,
   BN,
@@ -18,15 +17,15 @@ const utils = web3.utils;
 const { expect } = require('chai');
 
 const {
-  WETH_TOKEN,
-  WETH_PROVIDER,
+  WMATIC_TOKEN,
+  WMATIC_PROVIDER,
   DAI_TOKEN,
   DAI_PROVIDER,
   ADAI_V2,
-  AWETH_V2,
+  AWMATIC_V2,
   AAVEPROTOCOL_V2_PROVIDER,
-  AWETH_V2_DEBT_STABLE,
-  AWETH_V2_DEBT_VARIABLE,
+  AWMATIC_V2_DEBT_STABLE,
+  AWMATIC_V2_DEBT_VARIABLE,
   ATUSD_V2_DEBT_STABLE,
   ATUSD_V2_DEBT_VARIABLE,
   AAVE_RATEMODE,
@@ -83,16 +82,17 @@ contract('Aave V2', function([_, user, someone]) {
     await evmRevert(id);
   });
 
+  /** Stable Rate borrow is not available yet
   describe('Repay Stable Rate', function() {
     var depositAmount = ether('10000');
     const borrowAmount = ether('2');
-    const borrowTokenAddr = WETH_TOKEN;
-    const borrowTokenProvider = WETH_PROVIDER;
+    const borrowTokenAddr = WMATIC_TOKEN;
+    const borrowTokenProvider = WMATIC_PROVIDER;
     const rateMode = AAVE_RATEMODE.STABLE;
     const debtTokenAddr =
       rateMode == AAVE_RATEMODE.STABLE
-        ? AWETH_V2_DEBT_STABLE
-        : AWETH_V2_DEBT_VARIABLE;
+        ? AWMATIC_V2_DEBT_STABLE
+        : AWMATIC_V2_DEBT_VARIABLE;
 
     before(async function() {
       this.borrowToken = await IToken.at(borrowTokenAddr);
@@ -182,11 +182,11 @@ contract('Aave V2', function([_, user, someone]) {
       profileGas(receipt);
     });
 
-    it('partial by ETH', async function() {
+    it('partial by MATIC', async function() {
       const value = borrowAmount.div(new BN('2'));
       const to = this.hAaveV2.address;
       const data = abi.simpleEncode(
-        'repayETH(uint256,uint256,address)',
+        'repayMATIC(uint256,uint256,address)',
         value,
         rateMode,
         user
@@ -281,11 +281,11 @@ contract('Aave V2', function([_, user, someone]) {
       profileGas(receipt);
     });
 
-    it('whole by ETH', async function() {
+    it('whole by MATIC', async function() {
       const value = ether('2');
       const to = this.hAaveV2.address;
       const data = abi.simpleEncode(
-        'repayETH(uint256,uint256,address)',
+        'repayMATIC(uint256,uint256,address)',
         value,
         rateMode,
         user
@@ -387,14 +387,15 @@ contract('Aave V2', function([_, user, someone]) {
       );
     });
   });
+  */
 
   describe('Repay Variable Rate', function() {
     var depositAmount = ether('10000');
     const borrowAmount = ether('2');
-    const borrowTokenAddr = WETH_TOKEN;
-    const borrowTokenProvider = WETH_PROVIDER;
+    const borrowTokenAddr = WMATIC_TOKEN;
+    const borrowTokenProvider = WMATIC_PROVIDER;
     const rateMode = AAVE_RATEMODE.VARIABLE;
-    const debtTokenAddr = AWETH_V2_DEBT_VARIABLE;
+    const debtTokenAddr = AWMATIC_V2_DEBT_VARIABLE;
 
     before(async function() {
       this.borrowToken = await IToken.at(borrowTokenAddr);
@@ -489,7 +490,7 @@ contract('Aave V2', function([_, user, someone]) {
       profileGas(receipt);
     });
 
-    it('partial by ETH', async function() {
+    it('partial by MATIC', async function() {
       const value = borrowAmount.div(new BN('2'));
       const to = this.hAaveV2.address;
       const data = abi.simpleEncode(
@@ -591,7 +592,7 @@ contract('Aave V2', function([_, user, someone]) {
       profileGas(receipt);
     });
 
-    it('whole by ETH', async function() {
+    it('whole by MATIC', async function() {
       const value = ether('2');
       const to = this.hAaveV2.address;
       const data = abi.simpleEncode(
@@ -698,4 +699,3 @@ contract('Aave V2', function([_, user, someone]) {
     });
   });
 });
-*/
