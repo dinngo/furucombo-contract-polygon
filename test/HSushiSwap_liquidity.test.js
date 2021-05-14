@@ -15,11 +15,11 @@ const utils = web3.utils;
 const { expect } = require('chai');
 const {
   SUSHI_TOKEN,
-  xSUSHI_TOKEN,
+  USDC_TOKEN,
   SUSHI_PROVIDER,
-  xSUSHI_PROVIDER,
-  SUSHISWAP_SUSHI_ETH,
-  SUSHISWAP_SUSHI_xSUSHI,
+  USDC_PROVIDER,
+  SUSHISWAP_SUSHI_WMATIC,
+  SUSHISWAP_SUSHI_USDC,
   SUSHISWAP_ROUTER,
 } = require('./utils/constants');
 const {
@@ -27,6 +27,7 @@ const {
   evmSnapshot,
   profileGas,
   getHandlerReturn,
+  decimal6,
 } = require('./utils/utils');
 
 const HSushiSwap = artifacts.require('HSushiSwap');
@@ -39,11 +40,11 @@ contract('SushiSwap Liquidity', function([_, user]) {
   /** To be reopened
   let id;
   const tokenAAddress = SUSHI_TOKEN;
-  const tokenBAddress = xSUSHI_TOKEN;
+  const tokenBAddress = USDC_TOKEN;
   const tokenAProviderAddress = SUSHI_PROVIDER;
-  const tokenBProviderAddress = xSUSHI_PROVIDER;
-  const sushiswapPoolAAddress = SUSHISWAP_SUSHI_ETH;
-  const sushiswapPoolBAddress = SUSHISWAP_SUSHI_xSUSHI;
+  const tokenBProviderAddress = USDC_PROVIDER;
+  const sushiswapPoolAAddress = SUSHISWAP_SUSHI_WMATIC;
+  const sushiswapPoolBAddress = SUSHISWAP_SUSHI_USDC;
   const sushiswapRouterAddress = SUSHISWAP_ROUTER;
 
   let balanceUser;
@@ -67,7 +68,7 @@ contract('SushiSwap Liquidity', function([_, user]) {
     await this.tokenA.transfer(user, ether('1000'), {
       from: tokenAProviderAddress,
     });
-    await this.tokenB.transfer(user, ether('1000'), {
+    await this.tokenB.transfer(user, decimal6('1000'), {
       from: tokenBProviderAddress,
     });
   });
@@ -265,10 +266,10 @@ contract('SushiSwap Liquidity', function([_, user]) {
 
     it('normal', async function() {
       // Prepare handler data
-      const tokenAAmount = ether('0.002');
-      const tokenBAmount = ether('0.002');
-      const minTokenAAmount = ether('0.000001');
-      const minTokenBAmount = ether('0.000001');
+      const tokenAAmount = ether('20');
+      const tokenBAmount = decimal6('200');
+      const minTokenAAmount = ether('1');
+      const minTokenBAmount = decimal6('1');
       const to = this.hSushiSwap.address;
       const data = abi.simpleEncode(
         'addLiquidity(address,address,uint256,uint256,uint256,uint256):(uint256,uint256,uint256)',
@@ -350,10 +351,10 @@ contract('SushiSwap Liquidity', function([_, user]) {
 
     it('max amount', async function() {
       // Prepare handler data
-      const tokenAAmount = ether('0.002');
-      const tokenBAmount = ether('0.002');
-      const minTokenAAmount = ether('0.000001');
-      const minTokenBAmount = ether('0.000001');
+      const tokenAAmount = ether('20');
+      const tokenBAmount = decimal6('200');
+      const minTokenAAmount = ether('1');
+      const minTokenBAmount = decimal6('1');
       const to = this.hSushiSwap.address;
       const data = abi.simpleEncode(
         'addLiquidity(address,address,uint256,uint256,uint256,uint256):(uint256,uint256,uint256)',
@@ -614,14 +615,14 @@ contract('SushiSwap Liquidity', function([_, user]) {
         from: tokenAProviderAddress,
       });
 
-      await this.tokenB.transfer(user, ether('100'), {
+      await this.tokenB.transfer(user, decimal6('100'), {
         from: tokenBProviderAddress,
       });
 
       await this.tokenA.approve(this.router.address, ether('1000'), {
         from: user,
       });
-      await this.tokenB.approve(this.router.address, ether('1000'), {
+      await this.tokenB.approve(this.router.address, decimal6('1000'), {
         from: user,
       });
       deadline = (await latest()).add(new BN('100'));
@@ -630,7 +631,7 @@ contract('SushiSwap Liquidity', function([_, user]) {
         this.tokenA.address,
         this.tokenB.address,
         ether('100'),
-        ether('100'),
+        decimal6('100'),
         new BN('1'),
         new BN('1'),
         user,

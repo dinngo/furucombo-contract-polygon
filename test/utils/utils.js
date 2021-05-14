@@ -82,6 +82,10 @@ function cUnit(amount) {
   return new BN(amount).mul(new BN('100000000'));
 }
 
+function decimal6(amount) {
+  return new BN(amount).mul(new BN('1000000'));
+}
+
 function getHandlerReturn(receipt, dataTypes) {
   var handlerResult;
   receipt.receipt.rawLogs.forEach(element => {
@@ -103,5 +107,6 @@ module.exports = {
   evmRevertAndSnapshot,
   mulPercent,
   cUnit,
+  decimal6,
   getHandlerReturn,
 };
