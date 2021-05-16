@@ -130,7 +130,9 @@ contract('SushiSwap Liquidity', function([_, user]) {
       ]);
 
       const tokenAUserAmountEnd = await this.tokenA.balanceOf.call(user);
-      const uniTokenUserAmountEnd = await this.uniTokenMatic.balanceOf.call(user);
+      const uniTokenUserAmountEnd = await this.uniTokenMatic.balanceOf.call(
+        user
+      );
       const userBalanceDelta = await balanceUser.delta();
 
       expect(utils.toBN(handlerReturn[0])).to.be.bignumber.eq(
@@ -213,7 +215,9 @@ contract('SushiSwap Liquidity', function([_, user]) {
       ]);
 
       const tokenAUserAmountEnd = await this.tokenA.balanceOf.call(user);
-      const uniTokenUserAmountEnd = await this.uniTokenMatic.balanceOf.call(user);
+      const uniTokenUserAmountEnd = await this.uniTokenMatic.balanceOf.call(
+        user
+      );
       const userBalanceDelta = await balanceUser.delta();
 
       expect(utils.toBN(handlerReturn[0])).to.be.bignumber.eq(
@@ -274,10 +278,13 @@ contract('SushiSwap Liquidity', function([_, user]) {
         minTokenAmount,
         minMaticAmount
       );
-      await expectRevert(this.proxy.execMock(to, data, {
-        from: user,
-        value: value,
-      }), 'Not support matic token');
+      await expectRevert(
+        this.proxy.execMock(to, data, {
+          from: user,
+          value: value,
+        }),
+        'Not support matic token'
+      );
     });
   });
 
@@ -482,9 +489,12 @@ contract('SushiSwap Liquidity', function([_, user]) {
       await this.proxy.updateTokenMock(this.tokenB.address);
 
       // Execute handler
-      await expectRevert(this.proxy.execMock(to, data, {
-        from: user,
-      }), 'Not support matic token');
+      await expectRevert(
+        this.proxy.execMock(to, data, {
+          from: user,
+        }),
+        'Not support matic token'
+      );
     });
 
     it('tokenB is matic token', async function() {
@@ -513,9 +523,12 @@ contract('SushiSwap Liquidity', function([_, user]) {
       await this.proxy.updateTokenMock(this.tokenA.address);
 
       // Execute handler
-      await expectRevert(this.proxy.execMock(to, data, {
-        from: user,
-      }), 'Not support matic token');
+      await expectRevert(
+        this.proxy.execMock(to, data, {
+          from: user,
+        }),
+        'Not support matic token'
+      );
     });
   });
 
@@ -548,9 +561,13 @@ contract('SushiSwap Liquidity', function([_, user]) {
 
     it('normal', async function() {
       // Get simulation result
-      await this.uniTokenMatic.approve(this.router.address, uniTokenUserAmount, {
-        from: user,
-      });
+      await this.uniTokenMatic.approve(
+        this.router.address,
+        uniTokenUserAmount,
+        {
+          from: user,
+        }
+      );
       const result = await this.router.removeLiquidityETH.call(
         this.tokenA.address,
         uniTokenUserAmount,
@@ -562,9 +579,13 @@ contract('SushiSwap Liquidity', function([_, user]) {
       );
 
       // Send uniToken to proxy and prepare handler data
-      await this.uniTokenMatic.transfer(this.proxy.address, uniTokenUserAmount, {
-        from: user,
-      });
+      await this.uniTokenMatic.transfer(
+        this.proxy.address,
+        uniTokenUserAmount,
+        {
+          from: user,
+        }
+      );
       await this.proxy.updateTokenMock(this.uniTokenMatic.address);
 
       const value = uniTokenUserAmount;
@@ -620,9 +641,13 @@ contract('SushiSwap Liquidity', function([_, user]) {
 
     it('max amount', async function() {
       // Get simulation result
-      await this.uniTokenMatic.approve(this.router.address, uniTokenUserAmount, {
-        from: user,
-      });
+      await this.uniTokenMatic.approve(
+        this.router.address,
+        uniTokenUserAmount,
+        {
+          from: user,
+        }
+      );
       const result = await this.router.removeLiquidityETH.call(
         this.tokenA.address,
         uniTokenUserAmount,
@@ -634,9 +659,13 @@ contract('SushiSwap Liquidity', function([_, user]) {
       );
 
       // Send uniToken to proxy and prepare handler data
-      await this.uniTokenMatic.transfer(this.proxy.address, uniTokenUserAmount, {
-        from: user,
-      });
+      await this.uniTokenMatic.transfer(
+        this.proxy.address,
+        uniTokenUserAmount,
+        {
+          from: user,
+        }
+      );
       await this.proxy.updateTokenMock(this.uniTokenMatic.address);
 
       const value = uniTokenUserAmount;
@@ -702,7 +731,10 @@ contract('SushiSwap Liquidity', function([_, user]) {
       );
 
       // Execute handler
-      await expectRevert(this.proxy.execMock(to, data, { from: user }), 'Not support matic token');
+      await expectRevert(
+        this.proxy.execMock(to, data, { from: user }),
+        'Not support matic token'
+      );
     });
   });
 
@@ -933,7 +965,10 @@ contract('SushiSwap Liquidity', function([_, user]) {
       );
 
       // Execute handler
-      await expectRevert(this.proxy.execMock(to, data, { from: user }), 'Not support matic token');
+      await expectRevert(
+        this.proxy.execMock(to, data, { from: user }),
+        'Not support matic token'
+      );
     });
 
     it('tokenB is matic token', async function() {
@@ -949,7 +984,10 @@ contract('SushiSwap Liquidity', function([_, user]) {
       );
 
       // Execute handler
-      await expectRevert(this.proxy.execMock(to, data, { from: user }), 'Not support matic token');
+      await expectRevert(
+        this.proxy.execMock(to, data, { from: user }),
+        'Not support matic token'
+      );
     });
   });
   */
