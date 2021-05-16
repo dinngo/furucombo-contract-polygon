@@ -21,6 +21,7 @@ const {
   SUSHISWAP_SUSHI_WMATIC,
   SUSHISWAP_SUSHI_USDC,
   SUSHISWAP_ROUTER,
+  MATIC_TOKEN,
 } = require('./utils/constants');
 const {
   evmRevert,
@@ -257,6 +258,27 @@ contract('SushiSwap Liquidity', function([_, user]) {
       // Gas profile
       profileGas(receipt);
     });
+
+    it('matic token', async function() {
+      // Prepare handler data
+      const tokenAmount = ether('100');
+      const minTokenAmount = new BN('1');
+      const minEthAmount = new BN('1');
+      const value = ether('1');
+      const to = this.hSushiSwap.address;
+      const data = abi.simpleEncode(
+        'addLiquidityETH(uint256,address,uint256,uint256,uint256):(uint256,uint256,uint256)',
+        value,
+        MATIC_TOKEN,
+        tokenAmount,
+        minTokenAmount,
+        minEthAmount
+      );
+      await expectRevert(this.proxy.execMock(to, data, {
+        from: user,
+        value: value,
+      }), 'Not support matic token');
+    });
   });
 
   describe('Add Token', function() {
@@ -433,6 +455,68 @@ contract('SushiSwap Liquidity', function([_, user]) {
       // Gas profile
       profileGas(receipt);
     });
+
+    it('tokenA is matic token', async function() {
+      // Prepare handler data
+      const tokenAAmount = ether('20');
+      const tokenBAmount = decimal6('200');
+      const minTokenAAmount = ether('1');
+      const minTokenBAmount = decimal6('1');
+      const to = this.hSushiSwap.address;
+      const data = abi.simpleEncode(
+        'addLiquidity(address,address,uint256,uint256,uint256,uint256):(uint256,uint256,uint256)',
+        MATIC_TOKEN,
+        tokenBAddress,
+        tokenAAmount,
+        tokenBAmount,
+        minTokenAAmount,
+        minTokenBAmount
+      );
+
+      tokenBUserAmount = await this.tokenB.balanceOf.call(user);
+      // Send tokens to proxy
+      await this.tokenB.transfer(this.proxy.address, tokenBAmount, {
+        from: user,
+      });
+      // Add tokens to cache for return user after handler execution
+      await this.proxy.updateTokenMock(this.tokenB.address);
+
+      // Execute handler
+      await expectRevert(this.proxy.execMock(to, data, {
+        from: user,
+      }), 'Not support matic token');
+    });
+
+    it('tokenB is matic token', async function() {
+      // Prepare handler data
+      const tokenAAmount = ether('20');
+      const tokenBAmount = decimal6('200');
+      const minTokenAAmount = ether('1');
+      const minTokenBAmount = decimal6('1');
+      const to = this.hSushiSwap.address;
+      const data = abi.simpleEncode(
+        'addLiquidity(address,address,uint256,uint256,uint256,uint256):(uint256,uint256,uint256)',
+        tokenAAddress,
+        MATIC_TOKEN,
+        tokenAAmount,
+        tokenBAmount,
+        minTokenAAmount,
+        minTokenBAmount
+      );
+
+      tokenAUserAmount = await this.tokenA.balanceOf.call(user);
+      // Send tokens to proxy
+      await this.tokenA.transfer(this.proxy.address, tokenAAmount, {
+        from: user,
+      });
+      // Add tokens to cache for return user after handler execution
+      await this.proxy.updateTokenMock(this.tokenA.address);
+
+      // Execute handler
+      await expectRevert(this.proxy.execMock(to, data, {
+        from: user,
+      }), 'Not support matic token');
+    });
   });
 
   describe('Remove ETH', function() {
@@ -604,6 +688,21 @@ contract('SushiSwap Liquidity', function([_, user]) {
 
       // Gas profile
       profileGas(receipt);
+    });
+
+    it('matic token', async function() {
+      const value = MAX_UINT256;
+      const to = this.hSushiSwap.address;
+      const data = abi.simpleEncode(
+        'removeLiquidityETH(address,uint256,uint256,uint256):(uint256,uint256)',
+        MATIC_TOKEN,
+        value,
+        new BN('1'),
+        new BN('1')
+      );
+
+      // Execute handler
+      await expectRevert(this.proxy.execMock(to, data, { from: user }), 'Not support matic token');
     });
   });
 
@@ -819,6 +918,38 @@ contract('SushiSwap Liquidity', function([_, user]) {
 
       // Gas profile
       profileGas(receipt);
+    });
+
+    it('tokenA is matic token', async function() {
+      const value = MAX_UINT256;
+      const to = this.hSushiSwap.address;
+      const data = abi.simpleEncode(
+        'removeLiquidity(address,address,uint256,uint256,uint256):(uint256,uint256)',
+        MATIC_TOKEN,
+        tokenBAddress,
+        value,
+        new BN('1'),
+        new BN('1')
+      );
+
+      // Execute handler
+      await expectRevert(this.proxy.execMock(to, data, { from: user }), 'Not support matic token');
+    });
+
+    it('tokenB is matic token', async function() {
+      const value = MAX_UINT256;
+      const to = this.hSushiSwap.address;
+      const data = abi.simpleEncode(
+        'removeLiquidity(address,address,uint256,uint256,uint256):(uint256,uint256)',
+        tokenAAddress,
+        MATIC_TOKEN,
+        value,
+        new BN('1'),
+        new BN('1')
+      );
+
+      // Execute handler
+      await expectRevert(this.proxy.execMock(to, data, { from: user }), 'Not support matic token');
     });
   });
   */

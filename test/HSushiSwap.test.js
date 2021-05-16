@@ -17,6 +17,7 @@ const {
   DAI_TOKEN,
   DAI_PROVIDER,
   SUSHI_TOKEN,
+  MATIC_TOKEN,
   WMATIC_TOKEN,
   SUSHISWAP_ROUTER,
 } = require('./utils/constants');
@@ -200,6 +201,22 @@ contract('SushiSwap Swap', function([_, user, someone]) {
           'HSushiSwap_swapExactETHForTokens: UniswapV2Router: INVALID_PATH'
         );
       });
+
+      it('matic token', async function() {
+        const value = ether('1');
+        const to = this.hSushiSwap.address;
+        const path = [WMATIC_TOKEN, MATIC_TOKEN];
+        const data = abi.simpleEncode(
+          'swapExactETHForTokens(uint256,uint256,address[]):(uint256[])',
+          value,
+          new BN('1'),
+          path
+        );
+        await expectRevert(
+          this.proxy.execMock(to, data, { from: user, value: value }),
+          'Not support matic token'
+        );
+      });
     });
 
     describe('Exact output', function() {
@@ -333,6 +350,26 @@ contract('SushiSwap Swap', function([_, user, someone]) {
             value: value,
           }),
           'HSushiSwap_swapETHForExactTokens: UniswapV2Router: INVALID_PATH'
+        );
+      });
+
+      it('matic token', async function() {
+        const value = ether('1');
+        const buyAmt = ether('100');
+        const to = this.hSushiSwap.address;
+        const path = [WMATIC_TOKEN, MATIC_TOKEN];
+        const data = abi.simpleEncode(
+          'swapETHForExactTokens(uint256,uint256,address[]):(uint256[])',
+          value,
+          buyAmt,
+          path
+        );
+        await expectRevert(
+          this.proxy.execMock(to, data, {
+            from: user,
+            value: value,
+          }),
+          'Not support matic token'
         );
       });
     });
@@ -489,6 +526,22 @@ contract('SushiSwap Swap', function([_, user, someone]) {
           'HSushiSwap_swapExactTokensForETH: UniswapV2Router: INVALID_PATH'
         );
       });
+
+      it('matic token', async function() {
+        const value = ether('100');
+        const to = this.hSushiSwap.address;
+        const path = [MATIC_TOKEN, WMATIC_TOKEN];
+        const data = abi.simpleEncode(
+          'swapExactTokensForETH(uint256,uint256,address[]):(uint256[])',
+          value,
+          new BN('1'),
+          path
+        );
+        await expectRevert(
+          this.proxy.execMock(to, data, { from: user }),
+          'Not support matic token'
+        );
+      });
     });
 
     describe('Exact output', function() {
@@ -615,6 +668,23 @@ contract('SushiSwap Swap', function([_, user, someone]) {
         await expectRevert(
           this.proxy.execMock(to, data, { from: user }),
           'HSushiSwap_swapTokensForExactETH: UniswapV2Router: INVALID_PATH'
+        );
+      });
+
+      it('matic token', async function() {
+        const value = ether('1000');
+        const buyAmt = ether('0.1');
+        const to = this.hSushiSwap.address;
+        const path = [MATIC_TOKEN, WMATIC_TOKEN];
+        const data = abi.simpleEncode(
+          'swapTokensForExactETH(uint256,uint256,address[]):(uint256[])',
+          buyAmt,
+          value,
+          path
+        );
+        await expectRevert(
+          this.proxy.execMock(to, data, { from: user }),
+          'Not support matic token'
         );
       });
     });
@@ -773,6 +843,42 @@ contract('SushiSwap Swap', function([_, user, someone]) {
           'HSushiSwap_swapExactTokensForTokens: UniswapV2Library: IDENTICAL_ADDRESSES'
         );
       });
+
+      it('from matic token', async function() {
+        const value = ether('100');
+        const to = this.hSushiSwap.address;
+        const path = [MATIC_TOKEN, WMATIC_TOKEN, token1Address];
+        const data = abi.simpleEncode(
+          'swapExactTokensForTokens(uint256,uint256,address[]):(uint256[])',
+          value,
+          new BN('1'),
+          path
+        );
+        await expectRevert(
+          this.proxy.execMock(to, data, { from: user }),
+          'Not support matic token'
+        );
+      });
+
+      it('to matic token', async function() {
+        const value = ether('100');
+        const to = this.hSushiSwap.address;
+        const path = [token0Address, WMATIC_TOKEN, MATIC_TOKEN];
+        const data = abi.simpleEncode(
+          'swapExactTokensForTokens(uint256,uint256,address[]):(uint256[])',
+          value,
+          new BN('1'),
+          path
+        );
+        await this.token0.transfer(this.proxy.address, value, {
+          from: providerAddress,
+        });
+        await this.proxy.updateTokenMock(this.token0.address);
+        await expectRevert(
+          this.proxy.execMock(to, data, { from: user }),
+          'Not support matic token'
+        );
+      });
     });
 
     describe('Exact output', function() {
@@ -905,6 +1011,44 @@ contract('SushiSwap Swap', function([_, user, someone]) {
         await expectRevert(
           this.proxy.execMock(to, data, { from: user }),
           'HSushiSwap_swapTokensForExactTokens: UniswapV2Library: IDENTICAL_ADDRESSES'
+        );
+      });
+
+      it('from matic token', async function() {
+        const value = ether('100');
+        const buyAmt = ether('1');
+        const to = this.hSushiSwap.address;
+        const path = [MATIC_TOKEN, WMATIC_TOKEN, token1Address];
+        const data = abi.simpleEncode(
+          'swapTokensForExactTokens(uint256,uint256,address[]):(uint256[])',
+          buyAmt,
+          value,
+          path
+        );
+        await expectRevert(
+          this.proxy.execMock(to, data, { from: user }),
+          'Not support matic token'
+        );
+      });
+
+      it('to matic token', async function() {
+        const value = ether('100');
+        const buyAmt = ether('1');
+        const to = this.hSushiSwap.address;
+        const path = [token0Address, WMATIC_TOKEN, MATIC_TOKEN];
+        const data = abi.simpleEncode(
+          'swapTokensForExactTokens(uint256,uint256,address[]):(uint256[])',
+          buyAmt,
+          value,
+          path
+        );
+        await this.token0.transfer(this.proxy.address, value, {
+          from: providerAddress,
+        });
+        await this.proxy.updateTokenMock(this.token0.address);
+        await expectRevert(
+          this.proxy.execMock(to, data, { from: user }),
+          'Not support matic token'
         );
       });
     });
