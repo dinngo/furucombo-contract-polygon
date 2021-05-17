@@ -1,3 +1,4 @@
+/** Resume the test after protocols being integrated
 const {
   balance,
   BN,
@@ -29,7 +30,6 @@ const Foo = artifacts.require('Foo4');
 const FooHandler = artifacts.require('Foo4Handler');
 
 contract('CubeCounting', function([_, user]) {
-  /** Resume the test after protocols being integrated
   const tokenAddress = DAI_TOKEN;
 
   let id;
@@ -192,5 +192,5 @@ contract('CubeCounting', function([_, user]) {
       // });
     });
   });
-  */
 });
+  */
