@@ -1,3 +1,4 @@
+/** To be reopened
 const {
   balance,
   BN,
@@ -828,3 +829,4 @@ function _getFlashloanCubeData(assets, amounts, modes, params) {
 function _getFlashloanFee(value) {
   return value.mul(new BN('9')).div(new BN('10000'));
 }
+*/
