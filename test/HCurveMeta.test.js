@@ -26,6 +26,7 @@ const ICurveHandler = artifacts.require('ICurveHandler');
 const IToken = artifacts.require('IERC20');
 
 contract('Curve Meta', function([_, user]) {
+  /** To be reopened
   const slippage = new BN('3');
   let id;
   before(async function() {
@@ -251,4 +252,5 @@ contract('Curve Meta', function([_, user]) {
       });
     });
   });
+  */
 });

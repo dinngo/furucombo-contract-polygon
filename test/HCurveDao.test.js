@@ -35,6 +35,7 @@ const ILiquidityGauge = artifacts.require('ILiquidityGauge');
 const IToken = artifacts.require('IERC20');
 
 contract('Curve DAO', function([_, user]) {
+  /** To be reopened
   let id;
   // Wait for the gaude to be ready
   const token0Address = CURVE_YCRV;
@@ -302,4 +303,5 @@ contract('Curve DAO', function([_, user]) {
       });
     });
   });
+  */
 });

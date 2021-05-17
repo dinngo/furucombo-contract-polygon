@@ -57,6 +57,7 @@ const IToken = artifacts.require('IERC20');
 const IYToken = artifacts.require('IYToken');
 
 contract('Curve', function([_, user]) {
+  /** To be reopened
   const slippage = new BN('3');
   let id;
   before(async function() {
@@ -1433,4 +1434,5 @@ contract('Curve', function([_, user]) {
       });
     });
   });
+  */
 });
