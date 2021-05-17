@@ -36,6 +36,7 @@ const IToken = artifacts.require('IERC20');
 const UniswapV2Router02 = artifacts.require('IUniswapV2Router02');
 
 contract('SushiSwap Liquidity', function([_, user]) {
+  /** To be reopened
   let id;
   const tokenAAddress = SUSHI_TOKEN;
   const tokenBAddress = xSUSHI_TOKEN;
@@ -819,4 +820,5 @@ contract('SushiSwap Liquidity', function([_, user]) {
       profileGas(receipt);
     });
   });
+  */
 });
