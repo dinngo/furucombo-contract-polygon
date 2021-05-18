@@ -15,10 +15,6 @@ const {
   CURVE_AAVECRV,
   CURVE_AAVECRV_PROVIDER,
   CURVE_AAVE_GAUGE,
-  // CURVE_TCRV,
-  // CURVE_TCRV_PROVIDER,
-  // CURVE_TCRV_GAUGE,
-  // CURVE_MINTER,
 } = require('./utils/constants');
 const {
   evmRevert,
@@ -38,25 +34,18 @@ contract('Curve DAO', function([_, user]) {
   let id;
   // Wait for the gaude to be ready
   const token0Address = CURVE_AAVECRV;
-  // const token1Address = CURVE_TCRV;
   const token0Provider = CURVE_AAVECRV_PROVIDER;
-  // const token1Provider = CURVE_TCRV_PROVIDER;
   const gauge0Address = CURVE_AAVE_GAUGE;
-  // const gauge1Address = CURVE_TCRV_GAUGE;
   const gauge0Amount = ether('0.1');
-  // const gauge1Amount = ether('0.1');
 
   before(async function() {
-    // this.minter = await IMinter.at(CURVE_MINTER);
     this.registry = await Registry.new();
     this.hCurveDao = await HCurveDao.new();
     await this.registry.register(
       this.hCurveDao.address,
       utils.asciiToHex('HCurveDao')
     );
-    // this.crv = await IToken.at(CRV_TOKEN);
     this.token0 = await IToken.at(token0Address);
-    // this.token1 = await IToken.at(token1Address);
     this.gauge0 = await ILiquidityGauge.at(gauge0Address);
     this.gauge1 = await ILiquidityGauge.at(gauge1Address);
     this.proxy = await Proxy.new(this.registry.address);
