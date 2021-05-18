@@ -29,6 +29,7 @@ contract HAaveProtocolV2 is HandlerBase, IFlashLoanReceiver {
     }
 
     function deposit(address asset, uint256 amount) external payable {
+        _notMaticToken(asset);
         amount = _getBalance(asset, amount);
         _deposit(asset, amount);
     }
@@ -46,6 +47,7 @@ contract HAaveProtocolV2 is HandlerBase, IFlashLoanReceiver {
         payable
         returns (uint256 withdrawAmount)
     {
+        _notMaticToken(asset);
         withdrawAmount = _withdraw(asset, amount);
 
         _updateToken(asset);
@@ -66,6 +68,7 @@ contract HAaveProtocolV2 is HandlerBase, IFlashLoanReceiver {
         uint256 rateMode,
         address onBehalfOf
     ) external payable returns (uint256 remainDebt) {
+        _notMaticToken(asset);
         remainDebt = _repay(asset, amount, rateMode, onBehalfOf);
     }
 
@@ -85,6 +88,7 @@ contract HAaveProtocolV2 is HandlerBase, IFlashLoanReceiver {
         uint256 amount,
         uint256 rateMode
     ) external payable {
+        _notMaticToken(asset);
         address onBehalfOf = _getSender();
         _borrow(asset, amount, rateMode, onBehalfOf);
         _updateToken(asset);
@@ -102,6 +106,7 @@ contract HAaveProtocolV2 is HandlerBase, IFlashLoanReceiver {
         uint256[] calldata modes,
         bytes calldata params
     ) external payable {
+        _notMaticToken(assets);
         if (assets.length != amounts.length) {
             _revertMsg("flashLoan", "assets and amounts do not match");
         }
@@ -144,6 +149,7 @@ contract HAaveProtocolV2 is HandlerBase, IFlashLoanReceiver {
         address initiator,
         bytes memory params
     ) external override returns (bool) {
+        _notMaticToken(assets);
         if (
             msg.sender !=
             ILendingPoolAddressesProviderV2(PROVIDER).getLendingPool()
