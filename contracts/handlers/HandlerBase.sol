@@ -118,7 +118,7 @@ abstract contract HandlerBase is Storage, Config {
         require(token != MATIC_TOKEN, "Not support matic token");
     }
 
-    function _notMaticToken(address[] calldata tokens) internal pure {
+    function _notMaticToken(address[] memory tokens) internal pure {
         for (uint256 i = 0; i < tokens.length; i++) {
             require(tokens[i] != MATIC_TOKEN, "Not support matic token");
         }
