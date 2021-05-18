@@ -55,6 +55,7 @@ contract HCurve is HandlerBase {
         uint256 minDy,
         bool useUnderlying
     ) internal returns (uint256) {
+        _notMaticToken(tokenI);
         ICurveHandler curveHandler = ICurveHandler(handler);
         dx = _getBalance(tokenI, dx);
         uint256 beforeDy = _getBalance(tokenJ, uint256(-1));
@@ -147,6 +148,7 @@ contract HCurve is HandlerBase {
         uint256 minMintAmount,
         bool useUnderlying
     ) internal returns (uint256) {
+        _notMaticToken(tokens);
         ICurveHandler curveHandler = ICurveHandler(handler);
         uint256 beforePoolBalance = IERC20(pool).balanceOf(address(this));
 
