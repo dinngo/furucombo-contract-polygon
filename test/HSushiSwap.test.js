@@ -36,7 +36,6 @@ const IToken = artifacts.require('IERC20');
 const IUniswapV2Router = artifacts.require('IUniswapV2Router02');
 
 contract('SushiSwap Swap', function([_, user, someone]) {
-  /** To be reopened
   let id;
   const slippage = new BN('3');
 
@@ -1053,5 +1052,4 @@ contract('SushiSwap Swap', function([_, user, someone]) {
       });
     });
   });
-  */
 });
