@@ -1,5 +1,5 @@
 const Registry = artifacts.require('Registry');
-const Handler = artifacts.require('HUniswapV2');
+const Handler = artifacts.require('HQuickSwap');
 const utils = web3.utils;
 
 module.exports = function(deployer) {
@@ -13,6 +13,6 @@ module.exports = function(deployer) {
     })
     .then(function(instance) {
       registry = instance;
-      return registry.register(Handler.address, utils.asciiToHex('HUniswapV2'));
+      return registry.register(Handler.address, utils.asciiToHex('HQuickSwap'));
     });
 };

@@ -7,15 +7,15 @@ import "../HandlerBase.sol";
 import "./libraries/UniswapV2Library.sol";
 import "./IUniswapV2Router02.sol";
 
-contract HUniswapV2 is HandlerBase {
+contract HQuickSwap is HandlerBase {
     using SafeERC20 for IERC20;
     using SafeMath for uint256;
 
     // prettier-ignore
-    address public constant UNISWAPV2_ROUTER = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
+    address public constant UNISWAPV2_ROUTER = 0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff;
 
     function getContractName() public pure override returns (string memory) {
-        return "HUniswapV2";
+        return "HQuickSwap";
     }
 
     function addLiquidityETH(

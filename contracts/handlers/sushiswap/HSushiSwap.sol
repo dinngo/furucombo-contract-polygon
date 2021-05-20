@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/math/SafeMath.sol";
 
 import "../HandlerBase.sol";
 import "./libraries/SushiSwapLibrary.sol";
-import "../uniswapv2/IUniswapV2Router02.sol";
+import "../quickswap/IUniswapV2Router02.sol";
 
 contract HSushiSwap is HandlerBase {
     using SafeERC20 for IERC20;
