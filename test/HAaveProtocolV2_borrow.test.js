@@ -1,4 +1,3 @@
-/** To be reopened
 const {
   balance,
   BN,
@@ -18,19 +17,19 @@ const utils = web3.utils;
 const { expect } = require('chai');
 
 const {
-  WETH_TOKEN,
-  WETH_PROVIDER,
+  WMATIC_TOKEN,
+  WMATIC_PROVIDER,
   DAI_TOKEN,
   DAI_PROVIDER,
-  TUSD_TOKEN,
+  WETH_TOKEN,
   COMP_TOKEN,
   ADAI_V2,
-  AWETH_V2,
+  AWMATIC_V2,
   AAVEPROTOCOL_V2_PROVIDER,
+  AWMATIC_V2_DEBT_STABLE,
+  AWMATIC_V2_DEBT_VARIABLE,
   AWETH_V2_DEBT_STABLE,
   AWETH_V2_DEBT_VARIABLE,
-  ATUSD_V2_DEBT_STABLE,
-  ATUSD_V2_DEBT_VARIABLE,
   AAVE_RATEMODE,
 } = require('./utils/constants');
 const {
@@ -75,7 +74,7 @@ contract('Aave V2', function([_, user, someone]) {
     this.lendingPool = await ILendingPool.at(this.lendingPoolAddress);
     this.token = await IToken.at(tokenAddress);
     this.aToken = await IAToken.at(aTokenAddress);
-    this.weth = await IToken.at(WETH_TOKEN);
+    this.wmatic = await IToken.at(WMATIC_TOKEN);
     this.mockToken = await SimpleToken.new();
   });
 
@@ -89,21 +88,22 @@ contract('Aave V2', function([_, user, someone]) {
     await evmRevert(id);
   });
 
+  /** Stable Rate borrow is not available yet
   describe('Borrow with Stable Rate', function() {
     const depositAmount = ether('10000');
-    const borrowTokenAddr = TUSD_TOKEN;
+    const borrowTokenAddr = WETH_TOKEN;
     const rateMode = AAVE_RATEMODE.STABLE;
-    const debtTokenAddr = ATUSD_V2_DEBT_STABLE;
-    const debtWETHAddr = AWETH_V2_DEBT_STABLE;
+    const debtTokenAddr = AWETH_V2_DEBT_STABLE;
+    const debtWMATICAddr = AWMATIC_V2_DEBT_STABLE;
 
     let borrowTokenUserBefore;
     let debtTokenUserBefore;
-    let debtWETHUserBefore;
+    let debtWMATICUserBefore;
 
     before(async function() {
       this.borrowToken = await IToken.at(borrowTokenAddr);
-      this.weth = await IToken.at(WETH_TOKEN);
-      this.debtWETH = await IStableDebtToken.at(debtWETHAddr);
+      this.wmatic = await IToken.at(WMATIC_TOKEN);
+      this.debtWMATIC = await IStableDebtToken.at(debtWMATICAddr);
       this.debtToken = await IStableDebtToken.at(debtTokenAddr);
     });
 
@@ -125,13 +125,13 @@ contract('Aave V2', function([_, user, someone]) {
       );
 
       borrowTokenUserBefore = await this.borrowToken.balanceOf.call(user);
-      borrowWETHUserBefore = await this.weth.balanceOf.call(user);
+      borrowWMATICUserBefore = await this.wmatic.balanceOf.call(user);
       debtTokenUserBefore = await this.debtToken.balanceOf.call(user);
-      debtWETHUserBefore = await this.debtWETH.balanceOf.call(user);
+      debtWMATICUserBefore = await this.debtWMATIC.balanceOf.call(user);
     });
 
     it('borrow token', async function() {
-      const borrowAmount = ether('100');
+      const borrowAmount = ether('1');
       const to = this.hAaveV2.address;
       const data = abi.simpleEncode(
         'borrow(address,uint256,uint256)',
@@ -174,26 +174,30 @@ contract('Aave V2', function([_, user, someone]) {
       profileGas(receipt);
     });
 
-    it('borrow weth', async function() {
+    it('borrow wmatic', async function() {
       const borrowAmount = ether('2');
       const to = this.hAaveV2.address;
       const data = abi.simpleEncode(
         'borrow(address,uint256,uint256)',
-        WETH_TOKEN,
+        WMATIC_TOKEN,
         borrowAmount,
         rateMode
       );
 
-      await this.debtWETH.approveDelegation(this.proxy.address, borrowAmount, {
-        from: user,
-      });
+      await this.debtWMATIC.approveDelegation(
+        this.proxy.address,
+        borrowAmount,
+        {
+          from: user,
+        }
+      );
       await balanceUser.get();
       const receipt = await this.proxy.execMock(to, data, {
         from: user,
         value: ether('0.1'),
       });
-      const borrowWETHUserAfter = await this.weth.balanceOf.call(user);
-      const debtWETHUserAfter = await this.debtWETH.balanceOf.call(user);
+      const borrowWMATICUserAfter = await this.wmatic.balanceOf.call(user);
+      const debtWMATICUserAfter = await this.debtWMATIC.balanceOf.call(user);
       // Verify proxy balance
       expect(await balanceProxy.get()).to.be.zero;
       expect(
@@ -204,22 +208,22 @@ contract('Aave V2', function([_, user, someone]) {
       ).to.be.zero;
 
       // Verify user balance
-      expect(borrowWETHUserAfter.sub(borrowWETHUserBefore)).to.be.bignumber.eq(
-        borrowAmount
-      );
+      expect(
+        borrowWMATICUserAfter.sub(borrowWMATICUserBefore)
+      ).to.be.bignumber.eq(borrowAmount);
 
       //  borrowAmount <= (debtTokenUserAfter-debtTokenUserBefore) < borrowAmount + interestMax
       const interestMax = borrowAmount.mul(new BN(1)).div(new BN(10000));
-      expect(debtWETHUserAfter.sub(debtWETHUserBefore)).to.be.bignumber.gte(
+      expect(debtWMATICUserAfter.sub(debtWMATICUserBefore)).to.be.bignumber.gte(
         borrowAmount
       );
-      expect(debtWETHUserAfter.sub(debtWETHUserBefore)).to.be.bignumber.lt(
+      expect(debtWMATICUserAfter.sub(debtWMATICUserBefore)).to.be.bignumber.lt(
         borrowAmount.add(interestMax)
       );
       profileGas(receipt);
     });
 
-    it('borrow eth', async function() {
+    it('borrow matic', async function() {
       const borrowAmount = ether('2');
       const to = this.hAaveV2.address;
       const data = abi.simpleEncode(
@@ -227,9 +231,13 @@ contract('Aave V2', function([_, user, someone]) {
         borrowAmount,
         rateMode
       );
-      await this.debtWETH.approveDelegation(this.proxy.address, borrowAmount, {
-        from: user,
-      });
+      await this.debtWMATIC.approveDelegation(
+        this.proxy.address,
+        borrowAmount,
+        {
+          from: user,
+        }
+      );
       const balancerUserBefore = await balanceUser.get();
       const receipt = await this.proxy.execMock(to, data, {
         from: user,
@@ -237,7 +245,7 @@ contract('Aave V2', function([_, user, someone]) {
       });
 
       const balancerUserAfter = await balanceUser.get();
-      const debtWETHUserAfter = await this.debtWETH.balanceOf.call(user);
+      const debtWMATICUserAfter = await this.debtWMATIC.balanceOf.call(user);
       // Verify proxy balance
       expect(await balanceProxy.get()).to.be.zero;
       expect(
@@ -250,10 +258,10 @@ contract('Aave V2', function([_, user, someone]) {
       );
       //  borrowAmount <= (debtTokenUserAfter-debtTokenUserBefore) < borrowAmount + interestMax
       const interestMax = borrowAmount.mul(new BN(1)).div(new BN(10000));
-      expect(debtWETHUserAfter.sub(debtWETHUserBefore)).to.be.bignumber.gte(
+      expect(debtWMATICUserAfter.sub(debtWMATICUserBefore)).to.be.bignumber.gte(
         borrowAmount
       );
-      expect(debtWETHUserAfter.sub(debtWETHUserBefore)).to.be.bignumber.lt(
+      expect(debtWMATICUserAfter.sub(debtWMATICUserBefore)).to.be.bignumber.lt(
         borrowAmount.add(interestMax)
       );
       profileGas(receipt);
@@ -268,9 +276,13 @@ contract('Aave V2', function([_, user, someone]) {
         borrowAmount,
         rateMode
       );
-      await this.debtWETH.approveDelegation(this.proxy.address, borrowAmount, {
-        from: user,
-      });
+      await this.debtWMATIC.approveDelegation(
+        this.proxy.address,
+        borrowAmount,
+        {
+          from: user,
+        }
+      );
 
       await expectRevert(
         this.proxy.execMock(to, data, { from: user, value: ether('0.1') }),
@@ -366,22 +378,23 @@ contract('Aave V2', function([_, user, someone]) {
       );
     });
   });
+*/
 
   describe('Borrow with Variable Rate', function() {
     const depositAmount = ether('10000');
-    const borrowTokenAddr = TUSD_TOKEN;
+    const borrowTokenAddr = WETH_TOKEN;
     const rateMode = AAVE_RATEMODE.VARIABLE;
-    const debtTokenAddr = ATUSD_V2_DEBT_VARIABLE;
-    const debtWETHAddr = AWETH_V2_DEBT_VARIABLE;
+    const debtTokenAddr = AWETH_V2_DEBT_VARIABLE;
+    const debtWMATICAddr = AWMATIC_V2_DEBT_VARIABLE;
 
     let borrowTokenUserBefore;
     let debtTokenUserBefore;
-    let debtWETHUserBefore;
+    let debtWMATICUserBefore;
 
     before(async function() {
       this.borrowToken = await IToken.at(borrowTokenAddr);
-      this.weth = await IToken.at(WETH_TOKEN);
-      this.debtWETH = await IVariableDebtToken.at(debtWETHAddr);
+      this.wmatic = await IToken.at(WMATIC_TOKEN);
+      this.debtWMATIC = await IVariableDebtToken.at(debtWMATICAddr);
       this.debtToken = await IVariableDebtToken.at(debtTokenAddr);
     });
 
@@ -404,13 +417,13 @@ contract('Aave V2', function([_, user, someone]) {
       );
 
       borrowTokenUserBefore = await this.borrowToken.balanceOf.call(user);
-      borrowWETHUserBefore = await this.weth.balanceOf.call(user);
+      borrowWMATICUserBefore = await this.wmatic.balanceOf.call(user);
       debtTokenUserBefore = await this.debtToken.balanceOf.call(user);
-      debtWETHUserBefore = await this.debtWETH.balanceOf.call(user);
+      debtWMATICUserBefore = await this.debtWMATIC.balanceOf.call(user);
     });
 
     it('borrow token', async function() {
-      const borrowAmount = ether('100');
+      const borrowAmount = ether('1');
       const to = this.hAaveV2.address;
       const data = abi.simpleEncode(
         'borrow(address,uint256,uint256)',
@@ -454,26 +467,30 @@ contract('Aave V2', function([_, user, someone]) {
       profileGas(receipt);
     });
 
-    it('borrow weth', async function() {
+    it('borrow wmatic', async function() {
       const borrowAmount = ether('2');
       const to = this.hAaveV2.address;
       const data = abi.simpleEncode(
         'borrow(address,uint256,uint256)',
-        WETH_TOKEN,
+        WMATIC_TOKEN,
         borrowAmount,
         rateMode
       );
 
-      await this.debtWETH.approveDelegation(this.proxy.address, borrowAmount, {
-        from: user,
-      });
+      await this.debtWMATIC.approveDelegation(
+        this.proxy.address,
+        borrowAmount,
+        {
+          from: user,
+        }
+      );
       await balanceUser.get();
       const receipt = await this.proxy.execMock(to, data, {
         from: user,
         value: ether('0.1'),
       });
-      const borrowWETHUserAfter = await this.weth.balanceOf.call(user);
-      const debtWETHUserAfter = await this.debtWETH.balanceOf.call(user);
+      const borrowWMATICUserAfter = await this.wmatic.balanceOf.call(user);
+      const debtWMATICUserAfter = await this.debtWMATIC.balanceOf.call(user);
       // Verify proxy balance
       expect(await balanceProxy.get()).to.be.zero;
       expect(
@@ -484,23 +501,23 @@ contract('Aave V2', function([_, user, someone]) {
       ).to.be.zero;
 
       // Verify user balance
-      expect(borrowWETHUserAfter.sub(borrowWETHUserBefore)).to.be.bignumber.eq(
-        borrowAmount
-      );
+      expect(
+        borrowWMATICUserAfter.sub(borrowWMATICUserBefore)
+      ).to.be.bignumber.eq(borrowAmount);
 
       //  borrowAmount <= (debtTokenUserAfter-debtTokenUserBefore) < borrowAmount + interestMax
       const interestMax = borrowAmount.mul(new BN(1)).div(new BN(10000));
-      expect(debtWETHUserAfter.sub(debtWETHUserBefore)).to.be.bignumber.gte(
+      expect(debtWMATICUserAfter.sub(debtWMATICUserBefore)).to.be.bignumber.gte(
         borrowAmount
       );
-      expect(debtWETHUserAfter.sub(debtWETHUserBefore)).to.be.bignumber.lt(
+      expect(debtWMATICUserAfter.sub(debtWMATICUserBefore)).to.be.bignumber.lt(
         borrowAmount.add(interestMax)
       );
 
       profileGas(receipt);
     });
 
-    it('borrow eth', async function() {
+    it('borrow matic', async function() {
       const borrowAmount = ether('2');
       const to = this.hAaveV2.address;
       const data = abi.simpleEncode(
@@ -508,9 +525,13 @@ contract('Aave V2', function([_, user, someone]) {
         borrowAmount,
         rateMode
       );
-      await this.debtWETH.approveDelegation(this.proxy.address, borrowAmount, {
-        from: user,
-      });
+      await this.debtWMATIC.approveDelegation(
+        this.proxy.address,
+        borrowAmount,
+        {
+          from: user,
+        }
+      );
       const balancerUserBefore = await balanceUser.get();
       const receipt = await this.proxy.execMock(to, data, {
         from: user,
@@ -518,7 +539,7 @@ contract('Aave V2', function([_, user, someone]) {
       });
 
       const balancerUserAfter = await balanceUser.get();
-      const debtWETHUserAfter = await this.debtWETH.balanceOf.call(user);
+      const debtWMATICUserAfter = await this.debtWMATIC.balanceOf.call(user);
       // Verify proxy balance
       expect(await balanceProxy.get()).to.be.zero;
       expect(
@@ -532,10 +553,10 @@ contract('Aave V2', function([_, user, someone]) {
 
       //  borrowAmount <= (debtTokenUserAfter-debtTokenUserBefore) < borrowAmount + interestMax
       const interestMax = borrowAmount.mul(new BN(1)).div(new BN(10000));
-      expect(debtWETHUserAfter.sub(debtWETHUserBefore)).to.be.bignumber.gte(
+      expect(debtWMATICUserAfter.sub(debtWMATICUserBefore)).to.be.bignumber.gte(
         borrowAmount
       );
-      expect(debtWETHUserAfter.sub(debtWETHUserBefore)).to.be.bignumber.lt(
+      expect(debtWMATICUserAfter.sub(debtWMATICUserBefore)).to.be.bignumber.lt(
         borrowAmount.add(interestMax)
       );
       profileGas(receipt);
@@ -550,9 +571,13 @@ contract('Aave V2', function([_, user, someone]) {
         borrowAmount,
         rateMode
       );
-      await this.debtWETH.approveDelegation(this.proxy.address, borrowAmount, {
-        from: user,
-      });
+      await this.debtWMATIC.approveDelegation(
+        this.proxy.address,
+        borrowAmount,
+        {
+          from: user,
+        }
+      );
 
       await expectRevert(
         this.proxy.execMock(to, data, { from: user, value: ether('0.1') }),
@@ -561,7 +586,7 @@ contract('Aave V2', function([_, user, someone]) {
     });
 
     it('should revert: borrow token without approveDelegation', async function() {
-      const borrowAmount = ether('2');
+      const borrowAmount = ether('0.2');
       const to = this.hAaveV2.address;
       const data = abi.simpleEncode(
         'borrow(address,uint256,uint256)',
@@ -588,7 +613,8 @@ contract('Aave V2', function([_, user, someone]) {
 
       await expectRevert(
         this.proxy.execMock(to, data, { from: user }),
-        'HAaveProtocolV2_borrow: 2' // AAVEV2 Error Code: VL_NO_ACTIVE_RESERVE
+        //'HAaveProtocolV2_borrow: 2' // AAVEV2 Error Code: VL_NO_ACTIVE_RESERVE
+        'HAaveProtocolV2_borrow: Unspecified' // Polygon version
       );
     });
 
@@ -618,7 +644,7 @@ contract('Aave V2', function([_, user, someone]) {
         rateMode
       );
 
-      await this.debtWETH.approveDelegation(user, borrowAmount, {
+      await this.debtWMATIC.approveDelegation(user, borrowAmount, {
         from: user,
       });
 
@@ -630,4 +656,3 @@ contract('Aave V2', function([_, user, someone]) {
     });
   });
 });
-*/

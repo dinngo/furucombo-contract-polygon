@@ -17,7 +17,7 @@ contract HAaveProtocolV2 is HandlerBase, IFlashLoanReceiver {
     using SafeMath for uint256;
 
     // prettier-ignore
-    address public constant PROVIDER = 0xB53C1a33016B2DC2fF3653530bfF1848a515c8c5;
+    address public constant PROVIDER = 0xd05e3E715d945B59290df0ae8eF85c1BdB684744;
     // prettier-ignore
     address payable public constant WMATIC = 0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270;
     // prettier-ignore
@@ -29,6 +29,7 @@ contract HAaveProtocolV2 is HandlerBase, IFlashLoanReceiver {
     }
 
     function deposit(address asset, uint256 amount) external payable {
+        _notMaticToken(asset);
         amount = _getBalance(asset, amount);
         _deposit(asset, amount);
     }
@@ -46,6 +47,7 @@ contract HAaveProtocolV2 is HandlerBase, IFlashLoanReceiver {
         payable
         returns (uint256 withdrawAmount)
     {
+        _notMaticToken(asset);
         withdrawAmount = _withdraw(asset, amount);
 
         _updateToken(asset);
@@ -66,6 +68,7 @@ contract HAaveProtocolV2 is HandlerBase, IFlashLoanReceiver {
         uint256 rateMode,
         address onBehalfOf
     ) external payable returns (uint256 remainDebt) {
+        _notMaticToken(asset);
         remainDebt = _repay(asset, amount, rateMode, onBehalfOf);
     }
 
@@ -85,6 +88,7 @@ contract HAaveProtocolV2 is HandlerBase, IFlashLoanReceiver {
         uint256 amount,
         uint256 rateMode
     ) external payable {
+        _notMaticToken(asset);
         address onBehalfOf = _getSender();
         _borrow(asset, amount, rateMode, onBehalfOf);
         _updateToken(asset);
@@ -102,6 +106,7 @@ contract HAaveProtocolV2 is HandlerBase, IFlashLoanReceiver {
         uint256[] calldata modes,
         bytes calldata params
     ) external payable {
+        _notMaticToken(assets);
         if (assets.length != amounts.length) {
             _revertMsg("flashLoan", "assets and amounts do not match");
         }
@@ -144,6 +149,7 @@ contract HAaveProtocolV2 is HandlerBase, IFlashLoanReceiver {
         address initiator,
         bytes memory params
     ) external override returns (bool) {
+        _notMaticToken(assets);
         if (
             msg.sender !=
             ILendingPoolAddressesProviderV2(PROVIDER).getLendingPool()

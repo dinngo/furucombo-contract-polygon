@@ -1,4 +1,3 @@
-/** To be reopened
 const {
   balance,
   BN,
@@ -18,22 +17,21 @@ const utils = web3.utils;
 const { expect } = require('chai');
 
 const {
-  ETH_PROVIDER,
-  WETH_TOKEN,
-  WETH_PROVIDER,
+  MATIC_PROVIDER,
+  WMATIC_TOKEN,
+  WMATIC_PROVIDER,
   DAI_TOKEN,
   DAI_PROVIDER,
   AAVEPROTOCOL_V2_PROVIDER,
   ADAI_V2,
-  AWETH_V2_DEBT_STABLE,
-  AWETH_V2_DEBT_VARIABLE,
+  AWMATIC_V2_DEBT_STABLE,
+  AWMATIC_V2_DEBT_VARIABLE,
   AAVE_RATEMODE,
 } = require('./utils/constants');
 const { evmRevert, evmSnapshot, profileGas } = require('./utils/utils');
 
 const Registry = artifacts.require('Registry');
 const Proxy = artifacts.require('ProxyMock');
-const HAave = artifacts.require('HAaveProtocol');
 const HAaveV2 = artifacts.require('HAaveProtocolV2');
 const HMock = artifacts.require('HMock');
 const Faucet = artifacts.require('Faucet');
@@ -41,7 +39,6 @@ const SimpleToken = artifacts.require('SimpleToken');
 const IToken = artifacts.require('IERC20');
 const ILendingPoolV2 = artifacts.require('ILendingPoolV2');
 const IProviderV2 = artifacts.require('ILendingPoolAddressesProviderV2');
-const IUniswapExchange = artifacts.require('IUniswapExchange');
 const IVariableDebtToken = artifacts.require('IVariableDebtToken');
 const IStableDebtToken = artifacts.require('IStableDebtToken');
 
@@ -53,12 +50,6 @@ contract('AaveV2 flashloan', function([_, user, someone]) {
   before(async function() {
     this.registry = await Registry.new();
     this.proxy = await Proxy.new(this.registry.address);
-    // Register aave v1 handler
-    this.hAave = await HAave.new();
-    await this.registry.register(
-      this.hAave.address,
-      utils.asciiToHex('Aave Protocol')
-    );
     // Register aave v2 handler
     this.hAaveV2 = await HAaveV2.new();
     await this.registry.register(
@@ -78,15 +69,15 @@ contract('AaveV2 flashloan', function([_, user, someone]) {
       this.hAaveV2.address
     );
 
-    this.tokenAProvider = WETH_PROVIDER;
+    this.tokenAProvider = WMATIC_PROVIDER;
     this.tokenBProvider = DAI_PROVIDER;
     this.faucet = await Faucet.new();
-    this.tokenA = await IToken.at(WETH_TOKEN);
+    this.tokenA = await IToken.at(WMATIC_TOKEN);
     this.tokenB = await IToken.at(DAI_TOKEN);
     this.aTokenB = await IToken.at(ADAI_V2);
-    this.stableDebtTokenA = await IStableDebtToken.at(AWETH_V2_DEBT_STABLE);
+    this.stableDebtTokenA = await IStableDebtToken.at(AWMATIC_V2_DEBT_STABLE);
     this.variableDebtTokenA = await IVariableDebtToken.at(
-      AWETH_V2_DEBT_VARIABLE
+      AWMATIC_V2_DEBT_VARIABLE
     );
     this.mockToken = await SimpleToken.new();
   });
@@ -198,6 +189,7 @@ contract('AaveV2 flashloan', function([_, user, someone]) {
       );
     });
 
+    /** Stable Rate borrow is not available yet
     it('single asset with stable rate by borrowing from itself', async function() {
       const value = ether('1');
       const params = _getFlashloanParams(
@@ -240,6 +232,7 @@ contract('AaveV2 flashloan', function([_, user, someone]) {
         ether('0').sub(new BN(receipt.receipt.gasUsed))
       );
     });
+    */
 
     it('single asset with variable rate by borrowing from itself', async function() {
       // Get flashloan params
@@ -397,7 +390,7 @@ contract('AaveV2 flashloan', function([_, user, someone]) {
       const data = _getFlashloanCubeData(
         [this.tokenA.address], // assets
         [value], // amounts
-        [AAVE_RATEMODE.STABLE], // modes
+        [AAVE_RATEMODE.VARIABLE], // modes
         params
       );
 
@@ -424,7 +417,7 @@ contract('AaveV2 flashloan', function([_, user, someone]) {
       const data = _getFlashloanCubeData(
         [this.tokenB.address], // assets
         [value], // amounts
-        [AAVE_RATEMODE.STABLE], // modes
+        [AAVE_RATEMODE.VARIABLE], // modes
         params
       );
       await expectRevert(
@@ -432,7 +425,8 @@ contract('AaveV2 flashloan', function([_, user, someone]) {
           from: user,
           value: ether('0.1'),
         }),
-        'AaveProtocolV2_flashLoan: 13' // aave v2 VL_COLLATERAL_SAME_AS_BORROWING_CURRENCY error code = 13
+        'AaveProtocolV2_flashLoan: 59' // AAVEV2 Error Code: BORROW_ALLOWANCE_NOT_ENOUGH
+        // Variable rate doesn't check collateral and debt
       );
     });
 
@@ -617,67 +611,6 @@ contract('AaveV2 flashloan', function([_, user, someone]) {
       });
     });
 
-    it('deposit aaveV1 after flashloan', async function() {
-      // Get flashloan params
-      const value = ether('1');
-      const depositValue = ether('0.5');
-      const testTo1 = [this.hMock.address, this.hAave.address];
-      const testConfig1 = [ZERO_BYTES32, ZERO_BYTES32];
-      const testData1 = [
-        '0x' +
-          abi
-            .simpleEncode(
-              'drainTokens(address[],address[],uint256[])',
-              [this.faucet.address, this.faucet.address],
-              [this.tokenA.address, this.tokenB.address],
-              [value, value]
-            )
-            .toString('hex'),
-        abi.simpleEncode(
-          'deposit(address,uint256)',
-          this.tokenB.address,
-          depositValue
-        ),
-      ];
-
-      const params1 = web3.eth.abi.encodeParameters(
-        ['address[]', 'bytes32[]', 'bytes[]'],
-        [testTo1, testConfig1, testData1]
-      );
-
-      // Get flashloan cube data
-      const to1 = this.hAaveV2.address;
-      const data1 = _getFlashloanCubeData(
-        [this.tokenA.address, this.tokenB.address], // assets
-        [value, value], // amounts
-        [AAVE_RATEMODE.NODEBT, AAVE_RATEMODE.NODEBT], // modes
-        params1
-      );
-
-      const to = [this.hAaveV2.address];
-      const config = [ZERO_BYTES32];
-      const data = [data1];
-      const receipt = await this.proxy.batchExec(to, config, data, {
-        from: user,
-        value: ether('0.1'),
-      });
-
-      expect(await balanceProxy.get()).to.be.zero;
-      expect(await this.tokenA.balanceOf.call(this.proxy.address)).to.be.zero;
-      expect(await this.tokenB.balanceOf.call(this.proxy.address)).to.be.zero;
-
-      const fee = _getFlashloanFee(value);
-      expect(await this.tokenA.balanceOf.call(user)).to.be.bignumber.eq(
-        tokenAUser.add(value).sub(fee)
-      );
-      expect(await this.tokenB.balanceOf.call(user)).to.be.bignumber.eq(
-        tokenBUser.add(value.sub(depositValue).sub(fee))
-      );
-      expect(await balanceUser.delta()).to.be.bignumber.eq(
-        ether('0').sub(new BN(receipt.receipt.gasUsed))
-      );
-    });
-
     it('deposit aaveV2 after flashloan', async function() {
       // Get flashloan params
       const value = ether('1');
@@ -829,4 +762,3 @@ function _getFlashloanCubeData(assets, amounts, modes, params) {
 function _getFlashloanFee(value) {
   return value.mul(new BN('9')).div(new BN('10000'));
 }
-*/

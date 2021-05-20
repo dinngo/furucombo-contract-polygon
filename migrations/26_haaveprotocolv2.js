@@ -1,7 +1,7 @@
 const Registry = artifacts.require('Registry');
 const Handler = artifacts.require('HAaveProtocolV2');
 const utils = web3.utils;
-const AAVE_LENDINGPOOL_V2 = '0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9';
+const AAVE_LENDINGPOOL_V2 = '0x8dff5e27ea6b7ac08ebfdf9eb090f32ee9a30fcf';
 
 module.exports = async function(deployer) {
   if (deployer.network === 'development') {
