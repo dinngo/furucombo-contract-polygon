@@ -21,7 +21,7 @@ const {
   WMATIC_PROVIDER,
   DAI_TOKEN,
   DAI_PROVIDER,
-  ADAI_V2,
+  ADAI_V2_TOKEN,
   AWMATIC_V2,
   AAVEPROTOCOL_V2_PROVIDER,
   AWMATIC_V2_DEBT_STABLE,
@@ -48,7 +48,7 @@ const IProvider = artifacts.require('ILendingPoolAddressesProviderV2');
 const SimpleToken = artifacts.require('SimpleToken');
 
 contract('Aave V2', function([_, user, someone]) {
-  const aTokenAddress = ADAI_V2;
+  const aTokenAddress = ADAI_V2_TOKEN;
   const tokenAddress = DAI_TOKEN;
   const providerAddress = DAI_PROVIDER;
 
