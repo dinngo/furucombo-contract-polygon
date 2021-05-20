@@ -34,7 +34,6 @@ const Registry = artifacts.require('Registry');
 const HCurve = artifacts.require('HCurve');
 const ICurveHandler = artifacts.require('ICurveHandler');
 const IToken = artifacts.require('IERC20');
-const IYToken = artifacts.require('IYToken');
 
 contract('Curve', function([_, user]) {
   const slippage = new BN('3');
@@ -48,11 +47,6 @@ contract('Curve', function([_, user]) {
     );
 
     this.proxy = await Proxy.new(this.registry.address);
-    this.ySwap = await ICurveHandler.at(CURVE_Y_SWAP);
-    this.yDeposit = await ICurveHandler.at(CURVE_Y_DEPOSIT);
-    this.sbtcSwap = await ICurveHandler.at(CURVE_SBTC_SWAP);
-    this.sethSwap = await ICurveHandler.at(CURVE_SETH_SWAP);
-    this.hbtcSwap = await ICurveHandler.at(CURVE_HBTC_SWAP);
     this.aaveSwap = await ICurveHandler.at(CURVE_AAVE_SWAP);
   });
 

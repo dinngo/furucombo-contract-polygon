@@ -47,7 +47,6 @@ contract('Curve DAO', function([_, user]) {
     );
     this.token0 = await IToken.at(token0Address);
     this.gauge0 = await ILiquidityGauge.at(gauge0Address);
-    this.gauge1 = await ILiquidityGauge.at(gauge1Address);
     this.proxy = await Proxy.new(this.registry.address);
   });
 
