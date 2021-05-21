@@ -214,7 +214,7 @@ contract('QuickSwap Swap', function([_, user, someone]) {
         );
         await expectRevert(
           this.proxy.execMock(to, data, { from: user, value: value }),
-          'Not support matic token'
+          'HQuickSwap_swapExactETHForTokens: Unspecified'
         );
       });
     });
@@ -369,7 +369,7 @@ contract('QuickSwap Swap', function([_, user, someone]) {
             from: user,
             value: value,
           }),
-          'Not support matic token'
+          'HQuickSwap_swapETHForExactTokens: Unspecified'
         );
       });
     });
@@ -856,7 +856,7 @@ contract('QuickSwap Swap', function([_, user, someone]) {
         );
         await expectRevert(
           this.proxy.execMock(to, data, { from: user }),
-          'Not support matic token'
+          'HQuickSwap_swapExactTokensForTokens: Unspecified'
         );
       });
     });
@@ -1028,7 +1028,7 @@ contract('QuickSwap Swap', function([_, user, someone]) {
           this.proxy.execMock(to, data, {
             from: user,
           }),
-          'Not support matic token'
+          'HQuickSwap_swapTokensForExactTokens: Unspecified'
         );
       });
     });

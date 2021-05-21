@@ -686,7 +686,7 @@ contract('QuickSwap Liquidity', function([_, user]) {
       );
       await expectRevert(
         this.proxy.execMock(to, data, { from: user }),
-        'Not support matic token'
+        'revert'
       );
     });
   });
@@ -902,7 +902,7 @@ contract('QuickSwap Liquidity', function([_, user]) {
       );
       await expectRevert(
         this.proxy.execMock(to, data, { from: user }),
-        'Not support matic token'
+        'revert'
       );
     });
 
@@ -919,7 +919,7 @@ contract('QuickSwap Liquidity', function([_, user]) {
       );
       await expectRevert(
         this.proxy.execMock(to, data, { from: user }),
-        'Not support matic token'
+        'revert'
       );
     });
   });
