@@ -55,6 +55,7 @@ contract HCurve is HandlerBase {
         uint256 minDy,
         bool useUnderlying
     ) internal returns (uint256) {
+        _notMaticToken(tokenI);
         ICurveHandler curveHandler = ICurveHandler(handler);
         dx = _getBalance(tokenI, dx);
         uint256 beforeDy = _getBalance(tokenJ, uint256(-1));
@@ -147,6 +148,7 @@ contract HCurve is HandlerBase {
         uint256 minMintAmount,
         bool useUnderlying
     ) internal returns (uint256) {
+        _notMaticToken(tokens);
         ICurveHandler curveHandler = ICurveHandler(handler);
         uint256 beforePoolBalance = IERC20(pool).balanceOf(address(this));
 
@@ -406,41 +408,6 @@ contract HCurve is HandlerBase {
 
         // Update post process
         if (tokenI != ETH_ADDRESS) _updateToken(tokenI);
-        return afterTokenIBalance.sub(beforeTokenIBalance);
-    }
-
-    // Curve remove liquidity one coin and donate dust
-    function removeLiquidityOneCoinDust(
-        address handler,
-        address pool,
-        address tokenI,
-        uint256 poolAmount,
-        int128 i,
-        uint256 minAmount
-    ) external payable returns (uint256) {
-        ICurveHandler curveHandler = ICurveHandler(handler);
-        uint256 beforeTokenIBalance = IERC20(tokenI).balanceOf(address(this));
-        poolAmount = _getBalance(pool, poolAmount);
-        _tokenApprove(pool, address(curveHandler), poolAmount);
-        try
-            curveHandler.remove_liquidity_one_coin(
-                poolAmount,
-                i,
-                minAmount,
-                true // donate_dust
-            )
-        {} catch Error(string memory reason) {
-            _revertMsg("removeLiquidityOneCoinDust", reason);
-        } catch {
-            _revertMsg("removeLiquidityOneCoinDust");
-        }
-        uint256 afterTokenIBalance = IERC20(tokenI).balanceOf(address(this));
-        if (afterTokenIBalance <= beforeTokenIBalance) {
-            _revertMsg("removeLiquidityOneCoinDust: after <= before");
-        }
-
-        // Update post process
-        _updateToken(tokenI);
         return afterTokenIBalance.sub(beforeTokenIBalance);
     }
 }

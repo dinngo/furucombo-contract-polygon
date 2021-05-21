@@ -23,7 +23,7 @@ const {
   DAI_TOKEN,
   DAI_PROVIDER,
   AAVEPROTOCOL_V2_PROVIDER,
-  ADAI_V2,
+  ADAI_V2_TOKEN,
   AWMATIC_V2_DEBT_STABLE,
   AWMATIC_V2_DEBT_VARIABLE,
   AAVE_RATEMODE,
@@ -74,7 +74,7 @@ contract('AaveV2 flashloan', function([_, user, someone]) {
     this.faucet = await Faucet.new();
     this.tokenA = await IToken.at(WMATIC_TOKEN);
     this.tokenB = await IToken.at(DAI_TOKEN);
-    this.aTokenB = await IToken.at(ADAI_V2);
+    this.aTokenB = await IToken.at(ADAI_V2_TOKEN);
     this.stableDebtTokenA = await IStableDebtToken.at(AWMATIC_V2_DEBT_STABLE);
     this.variableDebtTokenA = await IVariableDebtToken.at(
       AWMATIC_V2_DEBT_VARIABLE

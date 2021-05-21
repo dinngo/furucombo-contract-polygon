@@ -23,7 +23,7 @@ const {
   DAI_PROVIDER,
   WETH_TOKEN,
   COMP_TOKEN,
-  ADAI_V2,
+  ADAI_V2_TOKEN,
   AWMATIC_V2,
   AAVEPROTOCOL_V2_PROVIDER,
   AWMATIC_V2_DEBT_STABLE,
@@ -53,7 +53,7 @@ const IStableDebtToken = artifacts.require('IStableDebtToken');
 const IVariableDebtToken = artifacts.require('IVariableDebtToken');
 
 contract('Aave V2', function([_, user, someone]) {
-  const aTokenAddress = ADAI_V2;
+  const aTokenAddress = ADAI_V2_TOKEN;
   const tokenAddress = DAI_TOKEN;
   const providerAddress = DAI_PROVIDER;
 
