@@ -52,9 +52,7 @@ contract('QuickSwap Liquidity', function([_, user]) {
 
   before(async function() {
     this.registry = await Registry.new();
-    this.proxy = await Proxy.new(
-      this.registry.address
-    );
+    this.proxy = await Proxy.new(this.registry.address);
     this.hQuickSwap = await HQuickSwap.new();
     await this.registry.register(
       this.hQuickSwap.address,
@@ -274,10 +272,13 @@ contract('QuickSwap Liquidity', function([_, user]) {
         minTokenAmount,
         minMaticAmount
       );
-      await expectRevert(this.proxy.execMock(to, data, {
-        from: user,
-        value: value,
-      }), 'Not support matic token');
+      await expectRevert(
+        this.proxy.execMock(to, data, {
+          from: user,
+          value: value,
+        }),
+        'Not support matic token'
+      );
     });
   });
 
@@ -331,9 +332,7 @@ contract('QuickSwap Liquidity', function([_, user]) {
 
       const tokenAUserAmountEnd = await this.tokenA.balanceOf.call(user);
       const tokenBUserAmountEnd = await this.tokenB.balanceOf.call(user);
-      const lpTokenUserAmountEnd = await this.lpTokenToken.balanceOf.call(
-        user
-      );
+      const lpTokenUserAmountEnd = await this.lpTokenToken.balanceOf.call(user);
 
       expect(utils.toBN(handlerReturn[0])).to.be.bignumber.eq(
         tokenAUserAmount.sub(tokenAUserAmountEnd)
@@ -416,9 +415,7 @@ contract('QuickSwap Liquidity', function([_, user]) {
 
       const tokenAUserAmountEnd = await this.tokenA.balanceOf.call(user);
       const tokenBUserAmountEnd = await this.tokenB.balanceOf.call(user);
-      const lpTokenUserAmountEnd = await this.lpTokenToken.balanceOf.call(
-        user
-      );
+      const lpTokenUserAmountEnd = await this.lpTokenToken.balanceOf.call(user);
 
       expect(utils.toBN(handlerReturn[0])).to.be.bignumber.eq(
         tokenAUserAmount.sub(tokenAUserAmountEnd)
@@ -473,9 +470,12 @@ contract('QuickSwap Liquidity', function([_, user]) {
         minTokenAAmount,
         minTokenBAmount
       );
-      await expectRevert(this.proxy.execMock(to, data, {
-        from: user,
-      }), 'Not support matic token');
+      await expectRevert(
+        this.proxy.execMock(to, data, {
+          from: user,
+        }),
+        'Not support matic token'
+      );
     });
 
     it('tokenB is matic token', async function() {
@@ -494,9 +494,12 @@ contract('QuickSwap Liquidity', function([_, user]) {
         minTokenAAmount,
         minTokenBAmount
       );
-      await expectRevert(this.proxy.execMock(to, data, {
-        from: user,
-      }), 'Not support matic token');
+      await expectRevert(
+        this.proxy.execMock(to, data, {
+          from: user,
+        }),
+        'Not support matic token'
+      );
     });
   });
 
@@ -681,7 +684,10 @@ contract('QuickSwap Liquidity', function([_, user]) {
         new BN('1'),
         new BN('1')
       );
-      await expectRevert(this.proxy.execMock(to, data, { from: user }), 'Not support matic token');
+      await expectRevert(
+        this.proxy.execMock(to, data, { from: user }),
+        'Not support matic token'
+      );
     });
   });
 
@@ -725,13 +731,9 @@ contract('QuickSwap Liquidity', function([_, user]) {
 
     it('normal', async function() {
       // Get simulation result
-      await this.lpTokenToken.approve(
-        this.router.address,
-        lpTokenUserAmount,
-        {
-          from: user,
-        }
-      );
+      await this.lpTokenToken.approve(this.router.address, lpTokenUserAmount, {
+        from: user,
+      });
       const result = await this.router.removeLiquidity.call(
         this.tokenA.address,
         this.tokenB.address,
@@ -743,13 +745,9 @@ contract('QuickSwap Liquidity', function([_, user]) {
         { from: user }
       );
       // Send uniToken to proxy and prepare handler data
-      await this.lpTokenToken.transfer(
-        this.proxy.address,
-        lpTokenUserAmount,
-        {
-          from: user,
-        }
-      );
+      await this.lpTokenToken.transfer(this.proxy.address, lpTokenUserAmount, {
+        from: user,
+      });
       await this.proxy.updateTokenMock(this.lpTokenToken.address);
 
       const value = lpTokenUserAmount;
@@ -813,13 +811,9 @@ contract('QuickSwap Liquidity', function([_, user]) {
 
     it('max amount', async function() {
       // Get simulation result
-      await this.lpTokenToken.approve(
-        this.router.address,
-        lpTokenUserAmount,
-        {
-          from: user,
-        }
-      );
+      await this.lpTokenToken.approve(this.router.address, lpTokenUserAmount, {
+        from: user,
+      });
       const result = await this.router.removeLiquidity.call(
         this.tokenA.address,
         this.tokenB.address,
@@ -831,13 +825,9 @@ contract('QuickSwap Liquidity', function([_, user]) {
         { from: user }
       );
       // Send uniToken to proxy and prepare handler data
-      await this.lpTokenToken.transfer(
-        this.proxy.address,
-        lpTokenUserAmount,
-        {
-          from: user,
-        }
-      );
+      await this.lpTokenToken.transfer(this.proxy.address, lpTokenUserAmount, {
+        from: user,
+      });
       await this.proxy.updateTokenMock(this.lpTokenToken.address);
 
       const value = lpTokenUserAmount;
@@ -910,7 +900,10 @@ contract('QuickSwap Liquidity', function([_, user]) {
         new BN('1'),
         new BN('1')
       );
-      await expectRevert(this.proxy.execMock(to, data, { from: user }), 'Not support matic token');
+      await expectRevert(
+        this.proxy.execMock(to, data, { from: user }),
+        'Not support matic token'
+      );
     });
 
     it('tokenB is matic token', async function() {
@@ -924,7 +917,10 @@ contract('QuickSwap Liquidity', function([_, user]) {
         new BN('1'),
         new BN('1')
       );
-      await expectRevert(this.proxy.execMock(to, data, { from: user }), 'Not support matic token');
+      await expectRevert(
+        this.proxy.execMock(to, data, { from: user }),
+        'Not support matic token'
+      );
     });
   });
 });
