@@ -213,7 +213,7 @@ contract('SushiSwap Swap', function([_, user, someone]) {
         );
         await expectRevert(
           this.proxy.execMock(to, data, { from: user, value: value }),
-          'Not support matic token'
+          'HSushiSwap_swapExactETHForTokens: Unspecified'
         );
       });
     });
@@ -368,7 +368,7 @@ contract('SushiSwap Swap', function([_, user, someone]) {
             from: user,
             value: value,
           }),
-          'Not support matic token'
+          'HSushiSwap_swapETHForExactTokens: Unspecified'
         );
       });
     });
@@ -875,7 +875,7 @@ contract('SushiSwap Swap', function([_, user, someone]) {
         await this.proxy.updateTokenMock(this.token0.address);
         await expectRevert(
           this.proxy.execMock(to, data, { from: user }),
-          'Not support matic token'
+          'HSushiSwap_swapExactTokensForTokens: Unspecified'
         );
       });
     });
@@ -1047,7 +1047,7 @@ contract('SushiSwap Swap', function([_, user, someone]) {
         await this.proxy.updateTokenMock(this.token0.address);
         await expectRevert(
           this.proxy.execMock(to, data, { from: user }),
-          'Not support matic token'
+          'HSushiSwap_swapTokensForExactTokens: Unspecified'
         );
       });
     });

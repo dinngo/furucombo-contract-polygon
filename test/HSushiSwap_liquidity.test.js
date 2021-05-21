@@ -732,7 +732,7 @@ contract('SushiSwap Liquidity', function([_, user]) {
       // Execute handler
       await expectRevert(
         this.proxy.execMock(to, data, { from: user }),
-        'Not support matic token'
+        'revert'
       );
     });
   });
@@ -966,7 +966,7 @@ contract('SushiSwap Liquidity', function([_, user]) {
       // Execute handler
       await expectRevert(
         this.proxy.execMock(to, data, { from: user }),
-        'Not support matic token'
+        'revert'
       );
     });
 
@@ -985,7 +985,7 @@ contract('SushiSwap Liquidity', function([_, user]) {
       // Execute handler
       await expectRevert(
         this.proxy.execMock(to, data, { from: user }),
-        'Not support matic token'
+        'revert'
       );
     });
   });
