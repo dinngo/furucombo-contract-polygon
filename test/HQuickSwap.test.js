@@ -21,6 +21,7 @@ const {
     WETH_TOKEN,
     WETH_PROVIDER,
     QUICKSWAP_ROUTER,
+    MATIC_TOKEN,
   } = require('./utils/constants');
   const {
     evmRevert,
@@ -205,6 +206,22 @@ const {
             'HQuickSwap_swapExactETHForTokens: UniswapV2Router: INVALID_PATH'
           );
         });
+
+        it('matic token', async function() {
+          const value = ether('1');
+          const to = this.hQuickSwap.address;
+          const path = [WMATIC_TOKEN, MATIC_TOKEN];
+          const data = abi.simpleEncode(
+            'swapExactETHForTokens(uint256,uint256,address[]):(uint256[])',
+            value,
+            new BN('1'),
+            path
+          );
+          await expectRevert(
+            this.proxy.execMock(to, data, { from: user, value: value }),
+            'Not support matic token'
+          );
+        });
       });
   
       describe('Exact output', function() {
@@ -338,6 +355,26 @@ const {
               value: value,
             }),
             'HQuickSwap_swapETHForExactTokens: UniswapV2Router: INVALID_PATH'
+          );
+        });
+
+        it('invalid path', async function() {
+          const value = ether('1');
+          const buyAmt = ether('100');
+          const to = this.hQuickSwap.address;
+          const path = [WMATIC_TOKEN, MATIC_TOKEN];
+          const data = abi.simpleEncode(
+            'swapETHForExactTokens(uint256,uint256,address[]):(uint256[])',
+            value,
+            buyAmt,
+            path
+          );
+          await expectRevert(
+            this.proxy.execMock(to, data, {
+              from: user,
+              value: value,
+            }),
+            'Not support matic token'
           );
         });
       });
@@ -494,6 +531,22 @@ const {
             'HQuickSwap_swapExactTokensForETH: UniswapV2Router: INVALID_PATH'
           );
         });
+
+        it('matic token', async function() {
+          const value = ether('1');
+          const to = this.hQuickSwap.address;
+          const path = [MATIC_TOKEN, WMATIC_TOKEN];
+          const data = abi.simpleEncode(
+            'swapExactTokensForETH(uint256,uint256,address[]):(uint256[])',
+            value,
+            new BN('1'),
+            path
+          );
+          await expectRevert(
+            this.proxy.execMock(to, data, { from: user }),
+            'Not support matic token'
+          );
+        });
       });
   
       describe('Exact output', function() {
@@ -638,6 +691,7 @@ const {
           );
           profileGas(receipt);
         });
+
         it('insufficient input token', async function() {
           const value = ether('1');
           const buyAmt = ether('10000');
@@ -658,6 +712,7 @@ const {
             'HQuickSwap_swapTokensForExactETH: UniswapV2Router: EXCESSIVE_INPUT_AMOUNT.'
           );
         });
+
         it('invalid path', async function() {
           const value = ether('1');
           const buyAmt = ether('1');
@@ -676,6 +731,23 @@ const {
           await expectRevert(
             this.proxy.execMock(to, data, { from: user }),
             'HQuickSwap_swapTokensForExactETH: UniswapV2Router: INVALID_PATH'
+          );
+        });
+
+        it('matic token', async function() {
+          const value = ether('1');
+          const buyAmt = ether('1');
+          const to = this.hQuickSwap.address;
+          const path = [MATIC_TOKEN, WMATIC_TOKEN];
+          const data = abi.simpleEncode(
+            'swapTokensForExactETH(uint256,uint256,address[]):(uint256[])',
+            buyAmt,
+            value,
+            path
+          );
+          await expectRevert(
+            this.proxy.execMock(to, data, { from: user }),
+            'Not support matic token'
           );
         });
       });
@@ -823,6 +895,32 @@ const {
             this.proxy.execMock(to, data, { from: user }),
             'HQuickSwap_swapExactTokensForTokens: UniswapV2Library: IDENTICAL_ADDRESSES'
           );
+        });
+
+        it('from matic token', async function() {
+          const value = ether('1');
+          const to = this.hQuickSwap.address;
+          const path = [MATIC_TOKEN, WMATIC_TOKEN, token1Address];
+          const data = abi.simpleEncode(
+            'swapExactTokensForTokens(uint256,uint256,address[]):(uint256[])',
+            value,
+            new BN('1'),
+            path
+          );
+          await expectRevert(this.proxy.execMock(to, data, { from: user }), 'Not support matic token');
+        });
+
+        it('to matic token', async function() {
+          const value = ether('1');
+          const to = this.hQuickSwap.address;
+          const path = [token0Address, WMATIC_TOKEN, MATIC_TOKEN];
+          const data = abi.simpleEncode(
+            'swapExactTokensForTokens(uint256,uint256,address[]):(uint256[])',
+            value,
+            new BN('1'),
+            path
+          );
+          await expectRevert(this.proxy.execMock(to, data, { from: user }), 'Not support matic token');
         });
       });
   
@@ -1026,6 +1124,38 @@ const {
             this.proxy.execMock(to, data, { from: user }),
             'HQuickSwap_swapTokensForExactTokens: UniswapV2Library: IDENTICAL_ADDRESSES'
           );
+        });
+
+        it('from matic token', async function() {
+          const value = ether('1');
+          const buyAmt = decimal6('1');
+          const to = this.hQuickSwap.address;
+          const path = [MATIC_TOKEN, WMATIC_TOKEN, token1Address];
+          const data = abi.simpleEncode(
+            'swapTokensForExactTokens(uint256,uint256,address[]):(uint256[])',
+            buyAmt,
+            new BN('1'),
+            path
+          );
+          await expectRevert(this.proxy.execMock(to, data, {
+            from: user,
+          }), 'Not support matic token');
+        });
+
+        it('to matic token', async function() {
+          const value = ether('1');
+          const buyAmt = decimal6('1');
+          const to = this.hQuickSwap.address;
+          const path = [token0Address, WMATIC_TOKEN, MATIC_TOKEN];
+          const data = abi.simpleEncode(
+            'swapTokensForExactTokens(uint256,uint256,address[]):(uint256[])',
+            buyAmt,
+            new BN('1'),
+            path
+          );
+          await expectRevert(this.proxy.execMock(to, data, {
+            from: user,
+          }), 'Not support matic token');
         });
       });
     });

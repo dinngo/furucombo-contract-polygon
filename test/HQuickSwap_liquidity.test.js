@@ -21,6 +21,7 @@ const {
   QUICKSWAP_WMATIC_WETH,
   QUICKSWAP_DAI_WETH,
   QUICKSWAP_ROUTER,
+  MATIC_TOKEN,
 } = require('./utils/constants');
 const {
   evmRevert,
@@ -257,6 +258,27 @@ contract('QuickSwap Liquidity', function([_, user]) {
       // Gas profile
       profileGas(receipt);
     });
+
+    it('matic token', async function() {
+      // Prepare handler data
+      const tokenAmount = ether('0.1');
+      const minTokenAmount = ether('0.0001');
+      const minMaticAmount = ether('0.0001');
+      const value = ether('10');
+      const to = this.hQuickSwap.address;
+      const data = abi.simpleEncode(
+        'addLiquidityETH(uint256,address,uint256,uint256,uint256):(uint256,uint256,uint256)',
+        value,
+        MATIC_TOKEN,
+        tokenAmount,
+        minTokenAmount,
+        minMaticAmount
+      );
+      await expectRevert(this.proxy.execMock(to, data, {
+        from: user,
+        value: value,
+      }), 'Not support matic token');
+    });
   });
 
   describe('Add Token', function() {
@@ -434,6 +456,48 @@ contract('QuickSwap Liquidity', function([_, user]) {
       // Gas profile
       profileGas(receipt);
     });
+
+    it('tokenA is matic token', async function() {
+      // Prepare handler data
+      const tokenAAmount = ether('0.01');
+      const tokenBAmount = ether('1000');
+      const minTokenAAmount = ether('0.000001');
+      const minTokenBAmount = ether('0.000001');
+      const to = this.hQuickSwap.address;
+      const data = abi.simpleEncode(
+        'addLiquidity(address,address,uint256,uint256,uint256,uint256):(uint256,uint256,uint256)',
+        MATIC_TOKEN,
+        tokenBAddress,
+        tokenAAmount,
+        tokenBAmount,
+        minTokenAAmount,
+        minTokenBAmount
+      );
+      await expectRevert(this.proxy.execMock(to, data, {
+        from: user,
+      }), 'Not support matic token');
+    });
+
+    it('tokenB is matic token', async function() {
+      // Prepare handler data
+      const tokenAAmount = ether('0.01');
+      const tokenBAmount = ether('1000');
+      const minTokenAAmount = ether('0.000001');
+      const minTokenBAmount = ether('0.000001');
+      const to = this.hQuickSwap.address;
+      const data = abi.simpleEncode(
+        'addLiquidity(address,address,uint256,uint256,uint256,uint256):(uint256,uint256,uint256)',
+        tokenAAddress,
+        MATIC_TOKEN,
+        tokenAAmount,
+        tokenBAmount,
+        minTokenAAmount,
+        minTokenBAmount
+      );
+      await expectRevert(this.proxy.execMock(to, data, {
+        from: user,
+      }), 'Not support matic token');
+    });
   });
 
   describe('Remove MATIC', function() {
@@ -605,6 +669,19 @@ contract('QuickSwap Liquidity', function([_, user]) {
 
       // Gas profile
       profileGas(receipt);
+    });
+
+    it('matic token', async function() {
+      const value = MAX_UINT256;
+      const to = this.hQuickSwap.address;
+      const data = abi.simpleEncode(
+        'removeLiquidityETH(address,uint256,uint256,uint256):(uint256,uint256)',
+        MATIC_TOKEN,
+        value,
+        new BN('1'),
+        new BN('1')
+      );
+      await expectRevert(this.proxy.execMock(to, data, { from: user }), 'Not support matic token');
     });
   });
 
@@ -820,6 +897,34 @@ contract('QuickSwap Liquidity', function([_, user]) {
 
       // Gas profile
       profileGas(receipt);
+    });
+
+    it('tokenA is matic token', async function() {
+      const value = MAX_UINT256;
+      const to = this.hQuickSwap.address;
+      const data = abi.simpleEncode(
+        'removeLiquidity(address,address,uint256,uint256,uint256):(uint256,uint256)',
+        MATIC_TOKEN,
+        tokenBAddress,
+        value,
+        new BN('1'),
+        new BN('1')
+      );
+      await expectRevert(this.proxy.execMock(to, data, { from: user }), 'Not support matic token');
+    });
+
+    it('tokenB is matic token', async function() {
+      const value = MAX_UINT256;
+      const to = this.hQuickSwap.address;
+      const data = abi.simpleEncode(
+        'removeLiquidity(address,address,uint256,uint256,uint256):(uint256,uint256)',
+        tokenAAddress,
+        MATIC_TOKEN,
+        value,
+        new BN('1'),
+        new BN('1')
+      );
+      await expectRevert(this.proxy.execMock(to, data, { from: user }), 'Not support matic token');
     });
   });
 });
