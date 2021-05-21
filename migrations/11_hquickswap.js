@@ -2,17 +2,11 @@ const Registry = artifacts.require('Registry');
 const Handler = artifacts.require('HQuickSwap');
 const utils = web3.utils;
 
-module.exports = function(deployer) {
+module.exports = async function(deployer) {
   if (deployer.network === 'development') {
     return;
   }
-  deployer
-    .deploy(Handler)
-    .then(function() {
-      return Registry.deployed();
-    })
-    .then(function(instance) {
-      registry = instance;
-      return registry.register(Handler.address, utils.asciiToHex('HQuickSwap'));
-    });
+  await deployer.deploy(Handler);
+  const registry = await Registry.deployed();
+  await registry.register(Handler.address, utils.asciiToHex('HQuickSwap'));
 };
