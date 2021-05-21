@@ -353,7 +353,7 @@ contract('QuickSwap Swap', function([_, user, someone]) {
         );
       });
 
-      it('invalid path', async function() {
+      it('matic token', async function() {
         const value = ether('1');
         const buyAmt = ether('100');
         const to = this.hQuickSwap.address;
