@@ -59,7 +59,7 @@ contract('QuickSwap Swap', function([_, user, someone]) {
     await evmRevert(id);
   });
 
-  describe('Ether to Token', function() {
+  describe('Matic to Token', function() {
     const tokenAddress = WETH_TOKEN;
 
     let balanceUser;
@@ -310,7 +310,7 @@ contract('QuickSwap Swap', function([_, user, someone]) {
         profileGas(receipt);
       });
 
-      it('insufficient ether', async function() {
+      it('insufficient matic', async function() {
         const buyAmt = ether('100');
         const to = this.hQuickSwap.address;
         const path = [WMATIC_TOKEN, tokenAddress];
@@ -375,7 +375,7 @@ contract('QuickSwap Swap', function([_, user, someone]) {
     });
   });
 
-  describe('Token to Ether', function() {
+  describe('Token to Matic', function() {
     const tokenAddress = WETH_TOKEN;
     const providerAddress = WETH_PROVIDER;
 
