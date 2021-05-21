@@ -14,8 +14,6 @@ const abi = require('ethereumjs-abi');
 const utils = web3.utils;
 const { expect } = require('chai');
 const {
-  // DAI_TOKEN,
-  // DAI_PROVIDER,
   USDC_TOKEN,
   WMATIC_TOKEN,
   WETH_TOKEN,
@@ -37,7 +35,6 @@ const Registry = artifacts.require('Registry');
 const Proxy = artifacts.require('ProxyMock');
 const IToken = artifacts.require('IERC20');
 const IUniswapV2Router = artifacts.require('IUniswapV2Router02');
-// const IUsdt = artifacts.require('IERC20Usdt');
 
 contract('QuickSwap Swap', function([_, user, someone]) {
   let id;
@@ -587,70 +584,6 @@ contract('QuickSwap Swap', function([_, user, someone]) {
         profileGas(receipt);
       });
 
-      // it('allowance is not zero', async function() {
-      //   const value = ether('1000');
-      //   const buyAmt = ether('0.1');
-      //   const to = this.hQuickSwap.address;
-      //   const path = [OMG_TOKEN, WMATIC_TOKEN];
-      //   const data1 = abi.simpleEncode(
-      //     'swapTokensForExactETH(uint256,uint256,address[]):(uint256[])',
-      //     buyAmt,
-      //     value,
-      //     path
-      //   );
-
-      //   // First swap to make allowance > 0
-      //   await this.omg.transfer(this.proxy.address, value, {
-      //     from: OMG_PROVIDER,
-      //   });
-      //   await this.proxy.updateTokenMock(this.omg.address);
-      //   await this.omg.transfer(someone, value, { from: OMG_PROVIDER });
-      //   await this.proxy.execMock(to, data1, {
-      //     from: user,
-      //   });
-      //   expect(
-      //     await this.omg.allowance.call(this.proxy.address, QUICKSWAP_ROUTER)
-      //   ).to.be.bignumber.gt(ether('0'));
-
-      //   // Second swap in allowance > 0
-      //   const result = await this.router.getAmountsIn.call(buyAmt, path, {
-      //     from: someone,
-      //   });
-      //   const data2 = abi.simpleEncode(
-      //     'swapTokensForExactETH(uint256,uint256,address[]):(uint256[])',
-      //     buyAmt,
-      //     mulPercent(result[0], new BN('100').add(slippage)),
-      //     path
-      //   );
-      //   await this.omg.transfer(this.proxy.address, value, {
-      //     from: OMG_PROVIDER,
-      //   });
-      //   await this.proxy.updateTokenMock(this.omg.address);
-      //   await this.omg.transfer(someone, value, { from: OMG_PROVIDER });
-      //   balanceUser.get();
-      //   tokenUser = await this.omg.balanceOf.call(user);
-      //   const receipt = await this.proxy.execMock(to, data2, {
-      //     from: user,
-      //   });
-
-      //   const handlerReturn = utils.toBN(
-      //     getHandlerReturn(receipt, ['uint256'])[0]
-      //   );
-      //   const userBalanceDelta = await balanceUser.delta();
-      //   expect(handlerReturn).to.be.bignumber.eq(result[0]);
-      //   expect(await this.omg.balanceOf.call(user)).to.be.bignumber.eq(
-      //     tokenUser.add(value).sub(result[0])
-      //   );
-      //   expect(
-      //     await this.omg.balanceOf.call(this.proxy.address)
-      //   ).to.be.bignumber.eq(ether('0'));
-      //   expect(await balanceProxy.delta()).to.be.bignumber.eq(ether('0'));
-      //   expect(userBalanceDelta).to.be.bignumber.eq(
-      //     buyAmt.sub(new BN(receipt.receipt.gasUsed))
-      //   );
-      //   profileGas(receipt);
-      // });
-
       it('max amount', async function() {
         const value = ether('1');
         const buyAmt = ether('1');
@@ -973,75 +906,6 @@ contract('QuickSwap Swap', function([_, user, someone]) {
         );
         profileGas(receipt);
       });
-
-      // it('allowance is not zero', async function() {
-      //   const value = ether('100');
-      //   const buyAmt = ether('1');
-      //   const to = this.hQuickSwap.address;
-      //   const path = [OMG_TOKEN, WMATIC_TOKEN, token1Address];
-
-      //   // First Swap to make allowance > 0
-      //   const data1 = abi.simpleEncode(
-      //     'swapTokensForExactTokens(uint256,uint256,address[]):(uint256[])',
-      //     buyAmt,
-      //     value,
-      //     path
-      //   );
-      //   await this.omg.transfer(this.proxy.address, value, {
-      //     from: OMG_PROVIDER,
-      //   });
-      //   await this.proxy.updateTokenMock(this.omg.address);
-      //   await this.omg.transfer(someone, value, {
-      //     from: OMG_PROVIDER,
-      //   });
-      //   await this.proxy.execMock(to, data1, {
-      //     from: user,
-      //   });
-      //   expect(
-      //     await this.omg.allowance.call(this.proxy.address, QUICKSWAP_ROUTER)
-      //   ).to.be.bignumber.gt(new BN(0));
-
-      //   // Second Swap
-      //   const result = await this.router.getAmountsIn.call(buyAmt, path, {
-      //     from: someone,
-      //   });
-      //   const data2 = abi.simpleEncode(
-      //     'swapTokensForExactTokens(uint256,uint256,address[]):(uint256[])',
-      //     buyAmt,
-      //     mulPercent(result[0], new BN('100').add(slippage)),
-      //     path
-      //   );
-      //   await this.omg.transfer(this.proxy.address, value, {
-      //     from: OMG_PROVIDER,
-      //   });
-      //   await this.proxy.updateTokenMock(this.omg.address);
-      //   await this.omg.transfer(someone, value, {
-      //     from: OMG_PROVIDER,
-      //   });
-      //   token0User = await this.omg.balanceOf.call(user);
-      //   const receipt = await this.proxy.execMock(to, data2, {
-      //     from: user,
-      //   });
-
-      //   const handlerReturn = utils.toBN(
-      //     getHandlerReturn(receipt, ['uint256'])[0]
-      //   );
-      //   expect(handlerReturn).to.be.bignumber.eq(result[0]);
-
-      //   expect(await this.omg.balanceOf.call(user)).to.be.bignumber.eq(
-      //     token0User.add(value).sub(result[0])
-      //   );
-      //   expect(
-      //     await this.omg.balanceOf.call(this.proxy.address)
-      //   ).to.be.bignumber.eq(ether('0'));
-      //   expect(
-      //     await this.token1.balanceOf.call(this.proxy.address)
-      //   ).to.be.bignumber.eq(ether('0'));
-      //   expect(await this.token1.balanceOf.call(user)).to.be.bignumber.eq(
-      //     token1User.add(buyAmt).add(buyAmt)
-      //   );
-      //   profileGas(receipt);
-      // });
 
       it('max amount', async function() {
         const value = ether('1');
