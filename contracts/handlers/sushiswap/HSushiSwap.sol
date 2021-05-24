@@ -12,7 +12,7 @@ contract HSushiSwap is HandlerBase {
     using SafeMath for uint256;
 
     // prettier-ignore
-    address public constant SUSHISWAP_ROUTER = 0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F;
+    address public constant SUSHISWAP_ROUTER = 0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506;
 
     function getContractName() public pure override returns (string memory) {
         return "HSushiSwap";
@@ -33,6 +33,8 @@ contract HSushiSwap is HandlerBase {
             uint256 liquidity
         )
     {
+        _notMaticToken(token);
+
         // Get uniswapV2 router
         IUniswapV2Router02 router = IUniswapV2Router02(SUSHISWAP_ROUTER);
 
@@ -83,6 +85,9 @@ contract HSushiSwap is HandlerBase {
             uint256 liquidity
         )
     {
+        _notMaticToken(tokenA);
+        _notMaticToken(tokenB);
+
         // Get uniswapV2 router
         IUniswapV2Router02 router = IUniswapV2Router02(SUSHISWAP_ROUTER);
 
@@ -270,6 +275,7 @@ contract HSushiSwap is HandlerBase {
         if (path.length < 2)
             _revertMsg("swapExactTokensForETH", "invalid path");
         address tokenIn = path[0];
+        _notMaticToken(tokenIn);
 
         // Get uniswapV2 router
         IUniswapV2Router02 router = IUniswapV2Router02(SUSHISWAP_ROUTER);
@@ -303,6 +309,7 @@ contract HSushiSwap is HandlerBase {
         if (path.length < 2)
             _revertMsg("swapTokensForExactETH", "invalid path");
         address tokenIn = path[0];
+        _notMaticToken(tokenIn);
 
         // Get uniswapV2 router
         IUniswapV2Router02 router = IUniswapV2Router02(SUSHISWAP_ROUTER);
@@ -339,6 +346,7 @@ contract HSushiSwap is HandlerBase {
             _revertMsg("swapExactTokensForTokens", "invalid path");
         address tokenIn = path[0];
         address tokenOut = path[path.length - 1];
+        _notMaticToken(tokenIn);
 
         // Get uniswapV2 router
         IUniswapV2Router02 router = IUniswapV2Router02(SUSHISWAP_ROUTER);
@@ -375,6 +383,7 @@ contract HSushiSwap is HandlerBase {
             _revertMsg("swapTokensForExactTokens", "invalid path");
         address tokenIn = path[0];
         address tokenOut = path[path.length - 1];
+        _notMaticToken(tokenIn);
 
         // Get uniswapV2 router
         IUniswapV2Router02 router = IUniswapV2Router02(SUSHISWAP_ROUTER);

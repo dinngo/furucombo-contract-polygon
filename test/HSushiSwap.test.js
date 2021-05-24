@@ -17,7 +17,8 @@ const {
   DAI_TOKEN,
   DAI_PROVIDER,
   SUSHI_TOKEN,
-  WETH_TOKEN,
+  MATIC_TOKEN,
+  WMATIC_TOKEN,
   SUSHISWAP_ROUTER,
 } = require('./utils/constants');
 const {
@@ -35,7 +36,6 @@ const IToken = artifacts.require('IERC20');
 const IUniswapV2Router = artifacts.require('IUniswapV2Router02');
 
 contract('SushiSwap Swap', function([_, user, someone]) {
-  /** To be reopened
   let id;
   const slippage = new BN('3');
 
@@ -58,7 +58,7 @@ contract('SushiSwap Swap', function([_, user, someone]) {
     await evmRevert(id);
   });
 
-  describe('Ether to Token', function() {
+  describe('Matic to Token', function() {
     const tokenAddress = DAI_TOKEN;
 
     let balanceUser;
@@ -79,7 +79,7 @@ contract('SushiSwap Swap', function([_, user, someone]) {
       it('normal', async function() {
         const value = ether('1');
         const to = this.hSushiSwap.address;
-        const path = [WETH_TOKEN, tokenAddress];
+        const path = [WMATIC_TOKEN, tokenAddress];
 
         const result = await this.router.getAmountsOut.call(value, path, {
           from: user,
@@ -120,7 +120,7 @@ contract('SushiSwap Swap', function([_, user, someone]) {
       it('max amount', async function() {
         const value = ether('1');
         const to = this.hSushiSwap.address;
-        const path = [WETH_TOKEN, tokenAddress];
+        const path = [WMATIC_TOKEN, tokenAddress];
 
         const result = await this.router.getAmountsOut.call(value, path, {
           from: user,
@@ -161,7 +161,7 @@ contract('SushiSwap Swap', function([_, user, someone]) {
       it('min amount too high', async function() {
         const value = ether('1');
         const to = this.hSushiSwap.address;
-        const path = [WETH_TOKEN, tokenAddress];
+        const path = [WMATIC_TOKEN, tokenAddress];
         const result = await this.router.getAmountsOut.call(value, path, {
           from: user,
         });
@@ -188,7 +188,7 @@ contract('SushiSwap Swap', function([_, user, someone]) {
       it('invalid path', async function() {
         const value = ether('1');
         const to = this.hSushiSwap.address;
-        const path = [tokenAddress, WETH_TOKEN];
+        const path = [tokenAddress, WMATIC_TOKEN];
         const data = abi.simpleEncode(
           'swapExactETHForTokens(uint256,uint256,address[]):(uint256[])',
           value,
@@ -200,14 +200,30 @@ contract('SushiSwap Swap', function([_, user, someone]) {
           'HSushiSwap_swapExactETHForTokens: UniswapV2Router: INVALID_PATH'
         );
       });
+
+      it('matic token', async function() {
+        const value = ether('1');
+        const to = this.hSushiSwap.address;
+        const path = [WMATIC_TOKEN, MATIC_TOKEN];
+        const data = abi.simpleEncode(
+          'swapExactETHForTokens(uint256,uint256,address[]):(uint256[])',
+          value,
+          new BN('1'),
+          path
+        );
+        await expectRevert(
+          this.proxy.execMock(to, data, { from: user, value: value }),
+          'HSushiSwap_swapExactETHForTokens: Unspecified'
+        );
+      });
     });
 
     describe('Exact output', function() {
       it('normal', async function() {
         const value = ether('1');
-        const buyAmt = ether('100');
+        const buyAmt = ether('0.1');
         const to = this.hSushiSwap.address;
-        const path = [WETH_TOKEN, tokenAddress];
+        const path = [WMATIC_TOKEN, tokenAddress];
         const result = await this.router.getAmountsIn.call(buyAmt, path, {
           from: user,
         });
@@ -250,9 +266,9 @@ contract('SushiSwap Swap', function([_, user, someone]) {
 
       it('max amount', async function() {
         const value = ether('1');
-        const buyAmt = ether('100');
+        const buyAmt = ether('0.1');
         const to = this.hSushiSwap.address;
-        const path = [WETH_TOKEN, tokenAddress];
+        const path = [WMATIC_TOKEN, tokenAddress];
         const result = await this.router.getAmountsIn.call(buyAmt, path, {
           from: user,
         });
@@ -293,10 +309,10 @@ contract('SushiSwap Swap', function([_, user, someone]) {
         profileGas(receipt);
       });
 
-      it('insufficient ether', async function() {
+      it('insufficient matic', async function() {
         const buyAmt = ether('100');
         const to = this.hSushiSwap.address;
-        const path = [WETH_TOKEN, tokenAddress];
+        const path = [WMATIC_TOKEN, tokenAddress];
         const result = await this.router.getAmountsIn.call(buyAmt, path, {
           from: user,
         });
@@ -320,7 +336,7 @@ contract('SushiSwap Swap', function([_, user, someone]) {
         const value = ether('1');
         const buyAmt = ether('100');
         const to = this.hSushiSwap.address;
-        const path = [tokenAddress, WETH_TOKEN];
+        const path = [tokenAddress, WMATIC_TOKEN];
         const data = abi.simpleEncode(
           'swapETHForExactTokens(uint256,uint256,address[]):(uint256[])',
           value,
@@ -335,10 +351,30 @@ contract('SushiSwap Swap', function([_, user, someone]) {
           'HSushiSwap_swapETHForExactTokens: UniswapV2Router: INVALID_PATH'
         );
       });
+
+      it('matic token', async function() {
+        const value = ether('1');
+        const buyAmt = ether('100');
+        const to = this.hSushiSwap.address;
+        const path = [WMATIC_TOKEN, MATIC_TOKEN];
+        const data = abi.simpleEncode(
+          'swapETHForExactTokens(uint256,uint256,address[]):(uint256[])',
+          value,
+          buyAmt,
+          path
+        );
+        await expectRevert(
+          this.proxy.execMock(to, data, {
+            from: user,
+            value: value,
+          }),
+          'HSushiSwap_swapETHForExactTokens: Unspecified'
+        );
+      });
     });
   });
 
-  describe('Token to Ether', function() {
+  describe('Token to Matic', function() {
     const tokenAddress = DAI_TOKEN;
     const providerAddress = DAI_PROVIDER;
 
@@ -360,7 +396,7 @@ contract('SushiSwap Swap', function([_, user, someone]) {
       it('normal', async function() {
         const value = ether('100');
         const to = this.hSushiSwap.address;
-        const path = [tokenAddress, WETH_TOKEN];
+        const path = [tokenAddress, WMATIC_TOKEN];
         const result = await this.router.getAmountsOut.call(value, path, {
           from: someone,
         });
@@ -405,7 +441,7 @@ contract('SushiSwap Swap', function([_, user, someone]) {
       it('max amount', async function() {
         const value = ether('100');
         const to = this.hSushiSwap.address;
-        const path = [tokenAddress, WETH_TOKEN];
+        const path = [tokenAddress, WMATIC_TOKEN];
         const result = await this.router.getAmountsOut.call(value, path, {
           from: someone,
         });
@@ -450,7 +486,7 @@ contract('SushiSwap Swap', function([_, user, someone]) {
       it('min output too high', async function() {
         const value = ether('100');
         const to = this.hSushiSwap.address;
-        const path = [tokenAddress, WETH_TOKEN];
+        const path = [tokenAddress, WMATIC_TOKEN];
         await this.token.transfer(this.proxy.address, value, {
           from: providerAddress,
         });
@@ -473,7 +509,7 @@ contract('SushiSwap Swap', function([_, user, someone]) {
       it('invalid path', async function() {
         const value = ether('100');
         const to = this.hSushiSwap.address;
-        const path = [tokenAddress, WETH_TOKEN, tokenAddress];
+        const path = [tokenAddress, WMATIC_TOKEN, tokenAddress];
         const data = abi.simpleEncode(
           'swapExactTokensForETH(uint256,uint256,address[]):(uint256[])',
           value,
@@ -489,6 +525,22 @@ contract('SushiSwap Swap', function([_, user, someone]) {
           'HSushiSwap_swapExactTokensForETH: UniswapV2Router: INVALID_PATH'
         );
       });
+
+      it('matic token', async function() {
+        const value = ether('100');
+        const to = this.hSushiSwap.address;
+        const path = [MATIC_TOKEN, WMATIC_TOKEN];
+        const data = abi.simpleEncode(
+          'swapExactTokensForETH(uint256,uint256,address[]):(uint256[])',
+          value,
+          new BN('1'),
+          path
+        );
+        await expectRevert(
+          this.proxy.execMock(to, data, { from: user }),
+          'Not support matic token'
+        );
+      });
     });
 
     describe('Exact output', function() {
@@ -496,7 +548,7 @@ contract('SushiSwap Swap', function([_, user, someone]) {
         const value = ether('1000');
         const buyAmt = ether('0.1');
         const to = this.hSushiSwap.address;
-        const path = [tokenAddress, WETH_TOKEN];
+        const path = [tokenAddress, WMATIC_TOKEN];
         const result = await this.router.getAmountsIn.call(buyAmt, path, {
           from: someone,
         });
@@ -537,7 +589,7 @@ contract('SushiSwap Swap', function([_, user, someone]) {
         const value = ether('1000');
         const buyAmt = ether('0.1');
         const to = this.hSushiSwap.address;
-        const path = [tokenAddress, WETH_TOKEN];
+        const path = [tokenAddress, WMATIC_TOKEN];
         const result = await this.router.getAmountsIn.call(buyAmt, path, {
           from: someone,
         });
@@ -575,10 +627,10 @@ contract('SushiSwap Swap', function([_, user, someone]) {
       });
 
       it('insufficient input token', async function() {
-        const value = ether('1');
-        const buyAmt = ether('100');
+        const value = ether('0.01');
+        const buyAmt = ether('1');
         const to = this.hSushiSwap.address;
-        const path = [tokenAddress, WETH_TOKEN];
+        const path = [tokenAddress, WMATIC_TOKEN];
         const data = abi.simpleEncode(
           'swapTokensForExactETH(uint256,uint256,address[]):(uint256[])',
           buyAmt,
@@ -600,7 +652,7 @@ contract('SushiSwap Swap', function([_, user, someone]) {
         const value = ether('1000');
         const buyAmt = ether('0.1');
         const to = this.hSushiSwap.address;
-        const path = [tokenAddress, WETH_TOKEN, tokenAddress];
+        const path = [tokenAddress, WMATIC_TOKEN, tokenAddress];
         const data = abi.simpleEncode(
           'swapTokensForExactETH(uint256,uint256,address[]):(uint256[])',
           buyAmt,
@@ -615,6 +667,23 @@ contract('SushiSwap Swap', function([_, user, someone]) {
         await expectRevert(
           this.proxy.execMock(to, data, { from: user }),
           'HSushiSwap_swapTokensForExactETH: UniswapV2Router: INVALID_PATH'
+        );
+      });
+
+      it('matic token', async function() {
+        const value = ether('1000');
+        const buyAmt = ether('0.1');
+        const to = this.hSushiSwap.address;
+        const path = [MATIC_TOKEN, WMATIC_TOKEN];
+        const data = abi.simpleEncode(
+          'swapTokensForExactETH(uint256,uint256,address[]):(uint256[])',
+          buyAmt,
+          value,
+          path
+        );
+        await expectRevert(
+          this.proxy.execMock(to, data, { from: user }),
+          'Not support matic token'
         );
       });
     });
@@ -642,7 +711,7 @@ contract('SushiSwap Swap', function([_, user, someone]) {
       it('normal', async function() {
         const value = ether('100');
         const to = this.hSushiSwap.address;
-        const path = [token0Address, WETH_TOKEN, token1Address];
+        const path = [token0Address, WMATIC_TOKEN, token1Address];
         const result = await this.router.getAmountsOut.call(value, path, {
           from: someone,
         });
@@ -686,7 +755,7 @@ contract('SushiSwap Swap', function([_, user, someone]) {
       it('max amount', async function() {
         const value = ether('100');
         const to = this.hSushiSwap.address;
-        const path = [token0Address, WETH_TOKEN, token1Address];
+        const path = [token0Address, WMATIC_TOKEN, token1Address];
         const result = await this.router.getAmountsOut.call(value, path, {
           from: someone,
         });
@@ -730,7 +799,7 @@ contract('SushiSwap Swap', function([_, user, someone]) {
       it('min output too high', async function() {
         const value = ether('100');
         const to = this.hSushiSwap.address;
-        const path = [token0Address, WETH_TOKEN, token1Address];
+        const path = [token0Address, WMATIC_TOKEN, token1Address];
         await this.token0.transfer(this.proxy.address, value, {
           from: providerAddress,
         });
@@ -773,6 +842,42 @@ contract('SushiSwap Swap', function([_, user, someone]) {
           'HSushiSwap_swapExactTokensForTokens: UniswapV2Library: IDENTICAL_ADDRESSES'
         );
       });
+
+      it('from matic token', async function() {
+        const value = ether('100');
+        const to = this.hSushiSwap.address;
+        const path = [MATIC_TOKEN, WMATIC_TOKEN, token1Address];
+        const data = abi.simpleEncode(
+          'swapExactTokensForTokens(uint256,uint256,address[]):(uint256[])',
+          value,
+          new BN('1'),
+          path
+        );
+        await expectRevert(
+          this.proxy.execMock(to, data, { from: user }),
+          'Not support matic token'
+        );
+      });
+
+      it('to matic token', async function() {
+        const value = ether('100');
+        const to = this.hSushiSwap.address;
+        const path = [token0Address, WMATIC_TOKEN, MATIC_TOKEN];
+        const data = abi.simpleEncode(
+          'swapExactTokensForTokens(uint256,uint256,address[]):(uint256[])',
+          value,
+          new BN('1'),
+          path
+        );
+        await this.token0.transfer(this.proxy.address, value, {
+          from: providerAddress,
+        });
+        await this.proxy.updateTokenMock(this.token0.address);
+        await expectRevert(
+          this.proxy.execMock(to, data, { from: user }),
+          'HSushiSwap_swapExactTokensForTokens: Unspecified'
+        );
+      });
     });
 
     describe('Exact output', function() {
@@ -780,7 +885,7 @@ contract('SushiSwap Swap', function([_, user, someone]) {
         const value = ether('100');
         const buyAmt = ether('1');
         const to = this.hSushiSwap.address;
-        const path = [token0Address, WETH_TOKEN, token1Address];
+        const path = [token0Address, WMATIC_TOKEN, token1Address];
         const result = await this.router.getAmountsIn.call(buyAmt, path, {
           from: someone,
         });
@@ -825,7 +930,7 @@ contract('SushiSwap Swap', function([_, user, someone]) {
         const value = ether('100');
         const buyAmt = ether('1');
         const to = this.hSushiSwap.address;
-        const path = [token0Address, WETH_TOKEN, token1Address];
+        const path = [token0Address, WMATIC_TOKEN, token1Address];
         const result = await this.router.getAmountsIn.call(buyAmt, path, {
           from: someone,
         });
@@ -867,10 +972,10 @@ contract('SushiSwap Swap', function([_, user, someone]) {
       });
 
       it('excessive input amount', async function() {
-        const value = ether('1');
-        const buyAmt = ether('1000');
+        const value = ether('0.001');
+        const buyAmt = ether('1');
         const to = this.hSushiSwap.address;
-        const path = [token0Address, WETH_TOKEN, token1Address];
+        const path = [token0Address, WMATIC_TOKEN, token1Address];
         const data = abi.simpleEncode(
           'swapTokensForExactTokens(uint256,uint256,address[]):(uint256[])',
           buyAmt,
@@ -891,7 +996,7 @@ contract('SushiSwap Swap', function([_, user, someone]) {
         const value = ether('100');
         const buyAmt = ether('1');
         const to = this.hSushiSwap.address;
-        const path = [token0Address, WETH_TOKEN, WETH_TOKEN, token1Address];
+        const path = [token0Address, WMATIC_TOKEN, WMATIC_TOKEN, token1Address];
         const data = abi.simpleEncode(
           'swapTokensForExactTokens(uint256,uint256,address[]):(uint256[])',
           buyAmt,
@@ -907,7 +1012,44 @@ contract('SushiSwap Swap', function([_, user, someone]) {
           'HSushiSwap_swapTokensForExactTokens: UniswapV2Library: IDENTICAL_ADDRESSES'
         );
       });
+
+      it('from matic token', async function() {
+        const value = ether('100');
+        const buyAmt = ether('1');
+        const to = this.hSushiSwap.address;
+        const path = [MATIC_TOKEN, WMATIC_TOKEN, token1Address];
+        const data = abi.simpleEncode(
+          'swapTokensForExactTokens(uint256,uint256,address[]):(uint256[])',
+          buyAmt,
+          value,
+          path
+        );
+        await expectRevert(
+          this.proxy.execMock(to, data, { from: user }),
+          'Not support matic token'
+        );
+      });
+
+      it('to matic token', async function() {
+        const value = ether('100');
+        const buyAmt = ether('1');
+        const to = this.hSushiSwap.address;
+        const path = [token0Address, WMATIC_TOKEN, MATIC_TOKEN];
+        const data = abi.simpleEncode(
+          'swapTokensForExactTokens(uint256,uint256,address[]):(uint256[])',
+          buyAmt,
+          value,
+          path
+        );
+        await this.token0.transfer(this.proxy.address, value, {
+          from: providerAddress,
+        });
+        await this.proxy.updateTokenMock(this.token0.address);
+        await expectRevert(
+          this.proxy.execMock(to, data, { from: user }),
+          'HSushiSwap_swapTokensForExactTokens: Unspecified'
+        );
+      });
     });
   });
-  */
 });
