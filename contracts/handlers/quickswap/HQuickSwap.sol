@@ -7,15 +7,15 @@ import "../HandlerBase.sol";
 import "./libraries/UniswapV2Library.sol";
 import "./IUniswapV2Router02.sol";
 
-contract HUniswapV2 is HandlerBase {
+contract HQuickSwap is HandlerBase {
     using SafeERC20 for IERC20;
     using SafeMath for uint256;
 
     // prettier-ignore
-    address public constant UNISWAPV2_ROUTER = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
+    address public constant UNISWAPV2_ROUTER = 0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff;
 
     function getContractName() public pure override returns (string memory) {
-        return "HUniswapV2";
+        return "HQuickSwap";
     }
 
     function addLiquidityETH(
@@ -33,6 +33,8 @@ contract HUniswapV2 is HandlerBase {
             uint256 liquidity
         )
     {
+        _notMaticToken(token);
+
         // Get uniswapV2 router
         IUniswapV2Router02 router = IUniswapV2Router02(UNISWAPV2_ROUTER);
 
@@ -83,6 +85,9 @@ contract HUniswapV2 is HandlerBase {
             uint256 liquidity
         )
     {
+        _notMaticToken(tokenA);
+        _notMaticToken(tokenB);
+
         // Get uniswapV2 router
         IUniswapV2Router02 router = IUniswapV2Router02(UNISWAPV2_ROUTER);
 
@@ -270,6 +275,7 @@ contract HUniswapV2 is HandlerBase {
         if (path.length < 2)
             _revertMsg("swapExactTokensForETH", "invalid path");
         address tokenIn = path[0];
+        _notMaticToken(tokenIn);
 
         // Get uniswapV2 router
         IUniswapV2Router02 router = IUniswapV2Router02(UNISWAPV2_ROUTER);
@@ -303,6 +309,7 @@ contract HUniswapV2 is HandlerBase {
         if (path.length < 2)
             _revertMsg("swapTokensForExactETH", "invalid path");
         address tokenIn = path[0];
+        _notMaticToken(tokenIn);
 
         // Get uniswapV2 router
         IUniswapV2Router02 router = IUniswapV2Router02(UNISWAPV2_ROUTER);
@@ -339,6 +346,7 @@ contract HUniswapV2 is HandlerBase {
             _revertMsg("swapExactTokensForTokens", "invalid path");
         address tokenIn = path[0];
         address tokenOut = path[path.length - 1];
+        _notMaticToken(tokenIn);
 
         // Get uniswapV2 router
         IUniswapV2Router02 router = IUniswapV2Router02(UNISWAPV2_ROUTER);
@@ -375,6 +383,7 @@ contract HUniswapV2 is HandlerBase {
             _revertMsg("swapTokensForExactTokens", "invalid path");
         address tokenIn = path[0];
         address tokenOut = path[path.length - 1];
+        _notMaticToken(tokenIn);
 
         // Get uniswapV2 router
         IUniswapV2Router02 router = IUniswapV2Router02(UNISWAPV2_ROUTER);

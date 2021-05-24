@@ -2,7 +2,7 @@ pragma solidity >=0.6.0;
 
 import "@openzeppelin/contracts/math/SafeMath.sol";
 
-import "../../uniswapv2/IUniswapV2Pair.sol";
+import "../../quickswap/IUniswapV2Pair.sol";
 
 library SushiSwapLibrary {
     using SafeMath for uint256;
