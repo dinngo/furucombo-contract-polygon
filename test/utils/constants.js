@@ -138,4 +138,17 @@ module.exports = {
     '0xb2f2618cecbbb6e7468cc0f2aa43858ad8d153e0280b22285e28e853bb9d453a',
   STORAGE_KEY_CUBE_COUNTER:
     '0xf9543f11459ccccd21306c8881aaab675ff49d988c1162fd1dd9bbcdbe4446be',
+
+  // MerkleRedeem Claim Merkle Proof
+  MR_TOTAL_SUPPLY: '20', // ehter
+  MR_CLAIM_USER: '0x1b57b3A1d5b4aa8E218F54FafB00975699463e6e',
+  MR_CLAIM_AMOUNT: '7', // ether
+  MR_CLAIM_MERKLE_ROOT:
+    '0xf73d36bda3f003637275d2b2e15ed6b9aa58fc8653dbc4dfbb0eca57a4ba8e6e',
+  MR_CLAIM_MERKLE_PROOFS: [
+    '0xee8b047fd520c8befc41c7c69ee860a9e8463d7770201126b27b1d76f4159a21',
+    '0x94ed398e27e849376accc051f67010c2f0bf9df5ed2dc86c179fc7132c780180',
+    '0xc1426e8cdac7d0d5c911219007db6366856d7c6e82baade601db7aa3c3343dd8',
+    '0xed112d2d07db65f0ff74ad495d1ca35e89d51ea233be7ab2cc275d69559c97fa',
+  ],
 };
