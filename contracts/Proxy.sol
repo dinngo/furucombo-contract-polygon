@@ -80,7 +80,7 @@ contract Proxy is IProxy, Storage, Config {
         address[] calldata tos,
         bytes32[] calldata configs,
         bytes[] memory datas
-    ) external payable override isNotHalted isNotBanned(msg.sender) {
+    ) external override payable isNotHalted isNotBanned(msg.sender) {
         _preProcess();
         _execs(tos, configs, datas);
         _postProcess();
@@ -97,8 +97,8 @@ contract Proxy is IProxy, Storage, Config {
         bytes[] memory datas
     )
         external
-        payable
         override
+        payable
         isNotHalted
         isNotBanned(msg.sender)
         isInitialized
@@ -295,13 +295,19 @@ contract Proxy is IProxy, Storage, Config {
         // the handler with it and the post-process function selector.
         // If not, use it as token address and send the token back to user.
         while (stack.length > 0) {
-            address addr = stack.getAddress();
-            if (addr == address(0)) {
-                addr = stack.getAddress();
-                _exec(addr, abi.encodeWithSelector(POSTPROCESS_SIG));
-            } else {
+            bytes32 top = stack.get();
+            // Get handler type
+            Config.HandlerType handlerType =
+                Config.HandlerType(uint96(bytes12(top)));
+            if (handlerType == Config.HandlerType.Token) {
+                address addr = address(bytes20(uint160(uint256(top))));
                 uint256 amount = IERC20(addr).balanceOf(address(this));
                 if (amount > 0) IERC20(addr).safeTransfer(msg.sender, amount);
+            } else if (handlerType == Config.HandlerType.Custom) {
+                address addr = stack.getAddress();
+                _exec(addr, abi.encodeWithSelector(POSTPROCESS_SIG));
+            } else {
+                revert("Invalid handler type");
             }
         }
 

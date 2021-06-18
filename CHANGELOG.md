@@ -8,6 +8,12 @@ All notable changes to this project will be documented in this file.
 - Support Curve crypto swap.
 - Support Curve factory metapool.
 
+## [1.6.0] - 2021-06-15
+
+### Changed
+
+- Change post process handler checking flow.
+
 ## [1.5.1] - 2021-05-05
 
 ### Added
