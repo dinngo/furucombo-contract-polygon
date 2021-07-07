@@ -29,7 +29,7 @@ const HCurve = artifacts.require('HCurve');
 const ICurveHandler = artifacts.require('ICurveHandler');
 const IToken = artifacts.require('IERC20');
 
-contract('Curve', function([_, user]) {
+contract('Curve Crypto', function([_, user]) {
   const slippage = new BN('3');
   let id;
   before(async function() {
@@ -58,11 +58,6 @@ contract('Curve', function([_, user]) {
       const token2Address = WETH_TOKEN;
       const provider0Address = USDT_PROVIDER;
       const provider1Address = WBTC_PROVIDER;
-
-      let token0, token1, token2;
-      let balanceUser, balanceProxy;
-      let token0User, token1User, token2User;
-      let answer, handlerReturn;
 
       before(async function() {
         token0 = await IToken.at(token0Address);
@@ -179,11 +174,6 @@ contract('Curve', function([_, user]) {
       const poolTokenAddress = CURVE_ATRICRYPTOCRV;
       const poolTokenProvider = CURVE_ATRICRYPTOCRV_PROVIDER;
 
-      let token0, token1, token2, poolToken;
-      let balanceUser, balanceProxy;
-      let token0User, token1User, token2User, poolTokenUser;
-      let answer, handlerReturn;
-
       before(async function() {
         token0 = await IToken.at(token0Address);
         token1 = await IToken.at(token1Address);
@@ -211,6 +201,8 @@ contract('Curve', function([_, user]) {
         expect(await token1.balanceOf.call(this.proxy.address)).to.be.zero;
         expect(await token2.balanceOf.call(this.proxy.address)).to.be.zero;
         expect(await poolToken.balanceOf.call(this.proxy.address)).to.be.zero;
+
+        profileGas(receipt);
       });
 
       it('add USDT, WBTC and WETH to pool by addLiquidity', async function() {
@@ -259,7 +251,7 @@ contract('Curve', function([_, user]) {
           amounts,
           minMintAmount
         );
-        const receipt = await this.proxy.execMock(this.hCurve.address, data, {
+        receipt = await this.proxy.execMock(this.hCurve.address, data, {
           from: user,
           value: ether('1'), // Ensure handler can correctly deal with matic
         });
@@ -276,10 +268,8 @@ contract('Curve', function([_, user]) {
           token2User
         );
         expect(await poolToken.balanceOf.call(user)).to.be.bignumber.eq(
-          handlerReturn
+          handlerReturn.sub(poolTokenUser)
         );
-
-        profileGas(receipt);
       });
 
       it('remove from pool to USDT by removeLiquidityOneCoin', async function() {
@@ -302,7 +292,7 @@ contract('Curve', function([_, user]) {
           minAmount,
           true // isUint256
         );
-        const receipt = await this.proxy.execMock(this.hCurve.address, data, {
+        receipt = await this.proxy.execMock(this.hCurve.address, data, {
           from: user,
           value: ether('1'), // Ensure handler can correctly deal with matic
         });
@@ -310,10 +300,8 @@ contract('Curve', function([_, user]) {
 
         // Check user
         expect(await token0.balanceOf.call(user)).to.be.bignumber.eq(
-          token0User.add(handlerReturn)
+          handlerReturn.add(token0User)
         );
-
-        profileGas(receipt);
       });
 
       it('remove from pool to WETH by removeLiquidityOneCoin', async function() {
@@ -336,7 +324,7 @@ contract('Curve', function([_, user]) {
           minAmount,
           true // isUint256
         );
-        const receipt = await this.proxy.execMock(this.hCurve.address, data, {
+        receipt = await this.proxy.execMock(this.hCurve.address, data, {
           from: user,
           value: ether('1'), // Ensure handler can correctly deal with matic
         });
@@ -344,10 +332,8 @@ contract('Curve', function([_, user]) {
 
         // Check user
         expect(await token2.balanceOf.call(user)).to.be.bignumber.eq(
-          token2User.add(handlerReturn)
+          handlerReturn.add(token2User)
         );
-
-        profileGas(receipt);
       });
     });
   });
