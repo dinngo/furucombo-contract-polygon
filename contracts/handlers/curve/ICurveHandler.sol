@@ -7,11 +7,32 @@ interface ICurveHandler {
         uint256 dx
     ) external view returns (uint256);
 
+    function get_dy(
+        uint256 i,
+        uint256 j,
+        uint256 dx
+    ) external view returns (uint256);
+
     function exchange(
         int128 i,
         int128 j,
         uint256 dx,
         uint256 min_dy
+    ) external payable;
+
+    function exchange(
+        uint256 i,
+        uint256 j,
+        uint256 dx,
+        uint256 min_dy
+    ) external payable;
+
+    function exchange(
+        uint256 i,
+        uint256 j,
+        uint256 dx,
+        uint256 min_dy,
+        bool boolean // use_eth
     ) external payable;
 
     function get_dy_underlying(
@@ -20,11 +41,32 @@ interface ICurveHandler {
         uint256 dx
     ) external view returns (uint256);
 
+    function get_dy_underlying(
+        uint256 i,
+        uint256 j,
+        uint256 dx
+    ) external view returns (uint256);
+
     function exchange_underlying(
         int128 i,
         int128 j,
         uint256 dx,
         uint256 min_dy
+    ) external payable;
+
+    function exchange_underlying(
+        uint256 i,
+        uint256 j,
+        uint256 dx,
+        uint256 min_dy
+    ) external payable;
+
+    function exchange_underlying(
+        uint256 i,
+        uint256 j,
+        uint256 dx,
+        uint256 min_dy,
+        bool boolean // use_eth
     ) external payable;
 
     // Curve contract only support static array
@@ -112,12 +154,30 @@ interface ICurveHandler {
 
     function remove_liquidity_one_coin(
         uint256 _token_amount,
+        uint256 i,
+        uint256 min_amount
+    ) external;
+
+    function remove_liquidity_one_coin(
+        uint256 _token_amount,
         int128 i,
         uint256 min_uamount,
         bool boolean // donate_dust or use_underlying
     ) external;
 
+    function remove_liquidity_one_coin(
+        uint256 _token_amount,
+        uint256 i,
+        uint256 min_uamount,
+        bool boolean
+    ) external;
+
     function calc_withdraw_one_coin(uint256 _token_amount, int128 i)
+        external
+        view
+        returns (uint256);
+
+    function calc_withdraw_one_coin(uint256 _token_amount, uint256 i)
         external
         view
         returns (uint256);
