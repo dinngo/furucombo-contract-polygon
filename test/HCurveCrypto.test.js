@@ -87,23 +87,21 @@ contract('Curve Crypto', function([_, user]) {
         profileGas(receipt);
       });
 
-      it('Exact input swap USDT to WBTC by exchangeUnderlying', async function() {
+      it('Exact input swap USDT to WBTC by exchangeUnderlyingUint256', async function() {
         const value = new BN('100000000'); // 1e8
         answer = await this.atricryptoDeposit.methods[
           'get_dy_underlying(uint256,uint256,uint256)'
         ](2, 3, value);
 
         const data = abi.simpleEncode(
-          'exchangeUnderlying(address,address,address,int128,int128,uint256,uint256,bool,bool)',
+          'exchangeUnderlyingUint256(address,address,address,uint256,uint256,uint256,uint256)',
           this.atricryptoDeposit.address,
           token0.address,
           token1.address,
           2,
           3,
           value,
-          mulPercent(answer, new BN('100').sub(slippage)),
-          true, // isUint256
-          false // useEth
+          mulPercent(answer, new BN('100').sub(slippage))
         );
         await token0.transfer(this.proxy.address, value, {
           from: provider0Address,
@@ -124,23 +122,21 @@ contract('Curve Crypto', function([_, user]) {
         );
       });
 
-      it('Exact input swap WBTC to WETH by exchangeUnderlying', async function() {
+      it('Exact input swap WBTC to WETH by exchangeUnderlyingUint256', async function() {
         const value = new BN('1000000'); // 1e6
         answer = await this.atricryptoDeposit.methods[
           'get_dy_underlying(uint256,uint256,uint256)'
         ](3, 4, value);
 
         const data = abi.simpleEncode(
-          'exchangeUnderlying(address,address,address,int128,int128,uint256,uint256,bool,bool)',
+          'exchangeUnderlyingUint256(address,address,address,uint256,uint256,uint256,uint256)',
           this.atricryptoDeposit.address,
           token1.address,
           token2.address,
           3,
           4,
           value,
-          mulPercent(answer, new BN('100').sub(slippage)),
-          true, // isUint256
-          false // useEth
+          mulPercent(answer, new BN('100').sub(slippage))
         );
         await token1.transfer(this.proxy.address, value, {
           from: provider1Address,
@@ -272,7 +268,7 @@ contract('Curve Crypto', function([_, user]) {
         );
       });
 
-      it('remove from pool to USDT by removeLiquidityOneCoin', async function() {
+      it('remove from pool to USDT by removeLiquidityOneCoinUint256', async function() {
         const amount = ether('0.1');
         answer = await this.atricryptoDeposit.methods[
           'calc_withdraw_one_coin(uint256,uint256)'
@@ -283,14 +279,13 @@ contract('Curve Crypto', function([_, user]) {
         await this.proxy.updateTokenMock(poolToken.address);
         const minAmount = mulPercent(answer, new BN('100').sub(slippage));
         const data = abi.simpleEncode(
-          'removeLiquidityOneCoin(address,address,address,uint256,int128,uint256,bool)',
+          'removeLiquidityOneCoinUint256(address,address,address,uint256,uint256,uint256)',
           this.atricryptoDeposit.address,
           poolToken.address,
           token0.address,
           amount,
           2,
-          minAmount,
-          true // isUint256
+          minAmount
         );
         receipt = await this.proxy.execMock(this.hCurve.address, data, {
           from: user,
@@ -304,7 +299,7 @@ contract('Curve Crypto', function([_, user]) {
         );
       });
 
-      it('remove from pool to WETH by removeLiquidityOneCoin', async function() {
+      it('remove from pool to WETH by removeLiquidityOneCoinUint256', async function() {
         const amount = ether('0.1');
         answer = await this.atricryptoDeposit.methods[
           'calc_withdraw_one_coin(uint256,uint256)'
@@ -315,14 +310,13 @@ contract('Curve Crypto', function([_, user]) {
         await this.proxy.updateTokenMock(poolToken.address);
         const minAmount = mulPercent(answer, new BN('100').sub(slippage));
         const data = abi.simpleEncode(
-          'removeLiquidityOneCoin(address,address,address,uint256,int128,uint256,bool)',
+          'removeLiquidityOneCoinUint256(address,address,address,uint256,uint256,uint256)',
           this.atricryptoDeposit.address,
           poolToken.address,
           token2.address,
           amount,
           4,
-          minAmount,
-          true // isUint256
+          minAmount
         );
         receipt = await this.proxy.execMock(this.hCurve.address, data, {
           from: user,

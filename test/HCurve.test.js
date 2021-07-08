@@ -83,16 +83,14 @@ contract('Curve', function([_, user]) {
           'get_dy_underlying(int128,int128,uint256)'
         ](2, 0, value);
         const data = abi.simpleEncode(
-          'exchangeUnderlying(address,address,address,int128,int128,uint256,uint256,bool,bool)',
+          'exchangeUnderlying(address,address,address,int128,int128,uint256,uint256)',
           this.aaveSwap.address,
           this.token0.address,
           this.token1.address,
           2,
           0,
           value,
-          mulPercent(answer, new BN('100').sub(slippage)),
-          false, // isUint256
-          false // useEth
+          mulPercent(answer, new BN('100').sub(slippage))
         );
         await this.token0.transfer(this.proxy.address, value, {
           from: providerAddress,
@@ -131,16 +129,14 @@ contract('Curve', function([_, user]) {
           'get_dy_underlying(int128,int128,uint256)'
         ](2, 0, value);
         const data = abi.simpleEncode(
-          'exchangeUnderlying(address,address,address,int128,int128,uint256,uint256,bool,bool)',
+          'exchangeUnderlying(address,address,address,int128,int128,uint256,uint256)',
           this.aaveSwap.address,
           this.token0.address,
           this.token1.address,
           2,
           0,
           MAX_UINT256,
-          mulPercent(answer, new BN('100').sub(slippage)),
-          false, // isUint256
-          false // useEth
+          mulPercent(answer, new BN('100').sub(slippage))
         );
         await this.token0.transfer(this.proxy.address, value, {
           from: providerAddress,
@@ -176,16 +172,14 @@ contract('Curve', function([_, user]) {
       it('should revert: not support MRC20', async function() {
         const value = new BN('1000000');
         const data = abi.simpleEncode(
-          'exchangeUnderlying(address,address,address,int128,int128,uint256,uint256,bool,bool)',
+          'exchangeUnderlying(address,address,address,int128,int128,uint256,uint256)',
           this.aaveSwap.address,
           MATIC_TOKEN,
           this.token1.address,
           2,
           0,
           value,
-          ether('0'),
-          false, // isUint256
-          false // useEth
+          ether('0')
         );
 
         await expectRevert(
@@ -332,25 +326,22 @@ contract('Curve', function([_, user]) {
       it('remove from pool to USDT by removeLiquidityOneCoinUnderlying', async function() {
         const poolTokenUser = ether('0.1');
         const token1UserBefore = await this.token1.balanceOf.call(user);
-        const answer = await this.aaveSwap.calc_withdraw_one_coin.call(
-          poolTokenUser,
-          2
-        );
-
+        const answer = await this.aaveSwap.methods[
+          'calc_withdraw_one_coin(uint256,int128)'
+        ](poolTokenUser, 2);
         await this.poolToken.transfer(this.proxy.address, poolTokenUser, {
           from: poolTokenProvider,
         });
         await this.proxy.updateTokenMock(this.poolToken.address);
         const minAmount = mulPercent(answer, new BN('100').sub(slippage));
         const data = abi.simpleEncode(
-          'removeLiquidityOneCoinUnderlying(address,address,address,uint256,int128,uint256,bool)',
+          'removeLiquidityOneCoinUnderlying(address,address,address,uint256,int128,uint256)',
           this.aaveSwap.address,
           this.poolToken.address,
           this.token1.address,
           poolTokenUser,
           2,
-          minAmount,
-          false // isUint256
+          minAmount
         );
         const receipt = await this.proxy.execMock(this.hCurve.address, data, {
           from: user,
