@@ -118,7 +118,7 @@ contract('Curve Crypto', function([_, user]) {
           ether('0').sub(new BN(receipt.receipt.gasUsed))
         );
         expect(await token1.balanceOf.call(user)).to.be.bignumber.eq(
-          handlerReturn
+          handlerReturn.add(token1User)
         );
       });
 
@@ -153,7 +153,7 @@ contract('Curve Crypto', function([_, user]) {
           ether('0').sub(new BN(receipt.receipt.gasUsed))
         );
         expect(await token2.balanceOf.call(user)).to.be.bignumber.eq(
-          handlerReturn
+          handlerReturn.add(token2User)
         );
       });
     });
@@ -264,7 +264,7 @@ contract('Curve Crypto', function([_, user]) {
           token2User
         );
         expect(await poolToken.balanceOf.call(user)).to.be.bignumber.eq(
-          handlerReturn.sub(poolTokenUser)
+          handlerReturn.add(poolTokenUser)
         );
       });
 
