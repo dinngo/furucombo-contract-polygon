@@ -1,6 +1,7 @@
 const { balance, BN, ether, constants } = require('@openzeppelin/test-helpers');
 const { web3 } = require('@openzeppelin/test-helpers/src/setup');
 const { tracker } = balance;
+const { MAX_UINT256 } = constants;
 const { expect } = require('chai');
 const abi = require('ethereumjs-abi');
 const utils = web3.utils;
@@ -206,101 +207,129 @@ contract('Curve Crypto', function([_, user]) {
         profileGas(receipt);
       });
 
-      it('add USDT, WBTC and WETH to pool by addLiquidity', async function() {
-        const token0Amount = new BN('100000000'); // 1e8
-        const token1Amount = new BN('1000000'); // 1e6
-        const token2Amount = ether('0.1');
-        const tokens = [
-          constants.ZERO_ADDRESS,
-          constants.ZERO_ADDRESS,
-          token0.address,
-          token1.address,
-          token2.address,
-        ];
-        const amounts = [
-          new BN('0'),
-          new BN('0'),
-          token0Amount,
-          token1Amount,
-          token2Amount,
-        ];
+      var cases = [
+        [[], ''], // will skip normal case
+        [[0, 0, MAX_UINT256, MAX_UINT256, MAX_UINT256], ' max'],
+      ];
+      cases.forEach(function(params) {
+        it(
+          'add USDT, WBTC and WETH to pool by addLiquidity' + params[1],
+          async function() {
+            const token0Amount = new BN('100000000'); // 1e8
+            const token1Amount = new BN('1000000'); // 1e6
+            const token2Amount = ether('0.1');
+            const tokens = [
+              constants.ZERO_ADDRESS,
+              constants.ZERO_ADDRESS,
+              token0.address,
+              token1.address,
+              token2.address,
+            ];
+            const amounts = [
+              new BN('0'),
+              new BN('0'),
+              token0Amount,
+              token1Amount,
+              token2Amount,
+            ];
 
-        // Get expected answer
-        answer = await this.atricryptoDeposit.methods[
-          'calc_token_amount(uint256[5],bool)'
-        ](amounts, true);
+            // Get expected answer
+            answer = await this.atricryptoDeposit.methods[
+              'calc_token_amount(uint256[5],bool)'
+            ](amounts, true);
 
-        // Execute handler
-        await token0.transfer(this.proxy.address, token0Amount, {
-          from: provider0Address,
-        });
-        await token1.transfer(this.proxy.address, token1Amount, {
-          from: provider1Address,
-        });
-        await token2.transfer(this.proxy.address, token2Amount, {
-          from: provider2Address,
-        });
-        await this.proxy.updateTokenMock(token0.address);
-        await this.proxy.updateTokenMock(token1.address);
-        await this.proxy.updateTokenMock(token2.address);
-        const minMintAmount = mulPercent(answer, new BN('100').sub(slippage));
-        const data = abi.simpleEncode(
-          'addLiquidity(address,address,address[],uint256[],uint256)',
-          this.atricryptoDeposit.address,
-          poolToken.address,
-          tokens,
-          amounts,
-          minMintAmount
-        );
-        receipt = await this.proxy.execMock(this.hCurve.address, data, {
-          from: user,
-          value: ether('1'), // Ensure handler can correctly deal with matic
-        });
-        handlerReturn = utils.toBN(getHandlerReturn(receipt, ['uint256'])[0]);
+            // Execute handler
+            await token0.transfer(this.proxy.address, token0Amount, {
+              from: provider0Address,
+            });
+            await token1.transfer(this.proxy.address, token1Amount, {
+              from: provider1Address,
+            });
+            await token2.transfer(this.proxy.address, token2Amount, {
+              from: provider2Address,
+            });
+            await this.proxy.updateTokenMock(token0.address);
+            await this.proxy.updateTokenMock(token1.address);
+            await this.proxy.updateTokenMock(token2.address);
+            const param = params[0].length == 0 ? amounts : params[0];
+            const minMintAmount = mulPercent(
+              answer,
+              new BN('100').sub(slippage)
+            );
+            const data = abi.simpleEncode(
+              'addLiquidity(address,address,address[],uint256[],uint256)',
+              this.atricryptoDeposit.address,
+              poolToken.address,
+              tokens,
+              param,
+              minMintAmount
+            );
+            receipt = await this.proxy.execMock(this.hCurve.address, data, {
+              from: user,
+              value: ether('1'), // Ensure handler can correctly deal with matic
+            });
+            handlerReturn = utils.toBN(
+              getHandlerReturn(receipt, ['uint256'])[0]
+            );
 
-        // Check user
-        expect(await token0.balanceOf.call(user)).to.be.bignumber.eq(
-          token0User
-        );
-        expect(await token1.balanceOf.call(user)).to.be.bignumber.eq(
-          token1User
-        );
-        expect(await token2.balanceOf.call(user)).to.be.bignumber.eq(
-          token2User
-        );
-        expect(await poolToken.balanceOf.call(user)).to.be.bignumber.eq(
-          handlerReturn.add(poolTokenUser)
+            // Check user
+            expect(await token0.balanceOf.call(user)).to.be.bignumber.eq(
+              token0User
+            );
+            expect(await token1.balanceOf.call(user)).to.be.bignumber.eq(
+              token1User
+            );
+            expect(await token2.balanceOf.call(user)).to.be.bignumber.eq(
+              token2User
+            );
+            expect(await poolToken.balanceOf.call(user)).to.be.bignumber.eq(
+              handlerReturn.add(poolTokenUser)
+            );
+          }
         );
       });
 
-      it('remove from pool to USDT by removeLiquidityOneCoinUint256', async function() {
-        const amount = ether('0.1');
-        answer = await this.atricryptoDeposit.methods[
-          'calc_withdraw_one_coin(uint256,uint256)'
-        ](amount, 2);
-        await poolToken.transfer(this.proxy.address, amount, {
-          from: poolTokenProvider,
-        });
-        await this.proxy.updateTokenMock(poolToken.address);
-        const minAmount = mulPercent(answer, new BN('100').sub(slippage));
-        const data = abi.simpleEncode(
-          'removeLiquidityOneCoinUint256(address,address,address,uint256,uint256,uint256)',
-          this.atricryptoDeposit.address,
-          poolToken.address,
-          token0.address,
-          amount,
-          2,
-          minAmount
-        );
-        receipt = await this.proxy.execMock(this.hCurve.address, data, {
-          from: user,
-          value: ether('1'), // Ensure handler can correctly deal with matic
-        });
-        handlerReturn = utils.toBN(getHandlerReturn(receipt, ['uint256'])[0]);
+      var cases = [
+        [0, ''], // will skip normal case
+        [MAX_UINT256, ' max'],
+      ];
+      cases.forEach(function(params) {
+        it(
+          'remove from pool to USDT by removeLiquidityOneCoinUint256' +
+            params[1],
+          async function() {
+            const amount = ether('0.1');
+            answer = await this.atricryptoDeposit.methods[
+              'calc_withdraw_one_coin(uint256,uint256)'
+            ](amount, 2);
+            await poolToken.transfer(this.proxy.address, amount, {
+              from: poolTokenProvider,
+            });
+            await this.proxy.updateTokenMock(poolToken.address);
+            const param = params[0] == 0 ? amount : params[0];
+            const minAmount = mulPercent(answer, new BN('100').sub(slippage));
+            const data = abi.simpleEncode(
+              'removeLiquidityOneCoinUint256(address,address,address,uint256,uint256,uint256)',
+              this.atricryptoDeposit.address,
+              poolToken.address,
+              token0.address,
+              param,
+              2,
+              minAmount
+            );
+            receipt = await this.proxy.execMock(this.hCurve.address, data, {
+              from: user,
+              value: ether('1'), // Ensure handler can correctly deal with matic
+            });
+            handlerReturn = utils.toBN(
+              getHandlerReturn(receipt, ['uint256'])[0]
+            );
 
-        // Check user
-        expect(await token0.balanceOf.call(user)).to.be.bignumber.eq(
-          handlerReturn.add(token0User)
+            // Check user
+            expect(await token0.balanceOf.call(user)).to.be.bignumber.eq(
+              handlerReturn.add(token0User)
+            );
+          }
         );
       });
 
