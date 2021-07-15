@@ -59,6 +59,9 @@ contract('Curve Crypto', function([_, user]) {
       const provider0Address = USDT_PROVIDER;
       const provider1Address = WBTC_PROVIDER;
 
+      let token0, token1, token2;
+      let balanceUser, balanceProxy, token0User, token1User, token2User;
+
       before(async function() {
         token0 = await IToken.at(token0Address);
         token1 = await IToken.at(token1Address);
@@ -170,6 +173,9 @@ contract('Curve Crypto', function([_, user]) {
       const poolTokenAddress = CURVE_ATRICRYPTOCRV;
       const poolTokenProvider = CURVE_ATRICRYPTOCRV_PROVIDER;
 
+      let token0, token1, token2, poolToken;
+      let balanceProxy, token0User, token1User, token2User, poolTokenUser;
+
       before(async function() {
         token0 = await IToken.at(token0Address);
         token1 = await IToken.at(token1Address);
@@ -178,7 +184,6 @@ contract('Curve Crypto', function([_, user]) {
       });
 
       beforeEach(async function() {
-        balanceUser = await tracker(user);
         balanceProxy = await tracker(this.proxy.address);
         token0User = await token0.balanceOf.call(user);
         token1User = await token1.balanceOf.call(user);
