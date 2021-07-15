@@ -79,9 +79,9 @@ contract('Curve', function([_, user]) {
     describe('aave pool', function() {
       it('Exact input swap USDT to DAI by exchangeUnderlying', async function() {
         const value = new BN('1000000');
-        const answer = await this.aaveSwap.get_dy_underlying.call(2, 0, value, {
-          from: user,
-        });
+        const answer = await this.aaveSwap.methods[
+          'get_dy_underlying(int128,int128,uint256)'
+        ](2, 0, value);
         const data = abi.simpleEncode(
           'exchangeUnderlying(address,address,address,int128,int128,uint256,uint256)',
           this.aaveSwap.address,
@@ -125,9 +125,9 @@ contract('Curve', function([_, user]) {
 
       it('Exact input swap USDT to DAI by exchangeUnderlying with max amount', async function() {
         const value = new BN('1000000');
-        const answer = await this.aaveSwap.get_dy_underlying.call(2, 0, value, {
-          from: user,
-        });
+        const answer = await this.aaveSwap.methods[
+          'get_dy_underlying(int128,int128,uint256)'
+        ](2, 0, value);
         const data = abi.simpleEncode(
           'exchangeUnderlying(address,address,address,int128,int128,uint256,uint256)',
           this.aaveSwap.address,
@@ -326,11 +326,9 @@ contract('Curve', function([_, user]) {
       it('remove from pool to USDT by removeLiquidityOneCoinUnderlying', async function() {
         const poolTokenUser = ether('0.1');
         const token1UserBefore = await this.token1.balanceOf.call(user);
-        const answer = await this.aaveSwap.calc_withdraw_one_coin.call(
-          poolTokenUser,
-          2
-        );
-
+        const answer = await this.aaveSwap.methods[
+          'calc_withdraw_one_coin(uint256,int128)'
+        ](poolTokenUser, 2);
         await this.poolToken.transfer(this.proxy.address, poolTokenUser, {
           from: poolTokenProvider,
         });
