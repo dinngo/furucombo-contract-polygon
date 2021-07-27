@@ -3,6 +3,9 @@
 All notable changes to this project will be documented in this file.
 
 ## [unreleased]
+
+## [1.7.0] - 2021-07-20
+
 ### Added
 
 - Support Curve crypto swap.
@@ -15,11 +18,25 @@ All notable changes to this project will be documented in this file.
 - Change post process handler checking flow.
 - Check proxy instead of sender for ban.
 
-## [1.5.1] - 2021-05-05
+## [1.5.1] - 2021-06-07 - Migrate Furucombo to Polygon
 
 ### Added
 
 - Update audit reports.
+
+### Changed
+
+- Migrate Furucombo System to Polygon.
+- Add `function _notMaticToken` in `HandlerBase` and used to prevent using matic token in handlers.
+- Inital handlers
+    - `HFunds`
+    - `HWMatic`
+    - `HAaveProtocolV2`
+    - `HCurve`
+    - `HCurveDao`
+    - `HFurucomboStaking`
+    - `HQuickSwap`
+    - `HSushiSwap`
 
 ## [1.5.0] - 2021-04-15
 
