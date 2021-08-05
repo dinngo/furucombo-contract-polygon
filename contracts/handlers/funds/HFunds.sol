@@ -14,6 +14,7 @@ contract HFunds is HandlerBase {
     function inject(address[] calldata tokens, uint256[] calldata amounts)
         external
         payable
+        returns (uint256[] memory)
     {
         if (tokens.length != amounts.length)
             _revertMsg("inject", "token and amount does not match");
@@ -29,6 +30,7 @@ contract HFunds is HandlerBase {
             // Update involved token
             _updateToken(tokens[i]);
         }
+        return amounts;
     }
 
     function sendTokens(
