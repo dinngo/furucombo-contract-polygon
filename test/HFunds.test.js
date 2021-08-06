@@ -60,6 +60,62 @@ contract('Funds', function([_, user, someone]) {
     await evmRevert(id);
   });
 
+  describe('update tokens', function() {
+    before(async function() {
+      this.token0 = await IToken.at(tokenAddresses[0]);
+      this.token1 = await IToken.at(tokenAddresses[1]);
+    });
+
+    it('normal', async function() {
+      const token = [this.token0.address, this.token1.address];
+      const value = [ether('100'), ether('200')];
+      const to = this.hFunds.address;
+      const data = abi.simpleEncode('updateTokens(address[])', token);
+      await this.token0.transfer(this.proxy.address, value[0], {
+        from: providerAddresses[0],
+      });
+      await this.token1.transfer(this.proxy.address, value[1], {
+        from: providerAddresses[1],
+      });
+
+      const receipt = await this.proxy.execMock(to, data, {
+        from: user,
+        value: ether('1'),
+      });
+
+      const handlerReturn = getHandlerReturn(receipt, ['uint256[]'])[0];
+      // Verify token0
+      expect(handlerReturn[0]).to.be.bignumber.eq(value[0]);
+      expect(await this.token0.balanceOf.call(this.proxy.address)).to.be.zero;
+      expect(await this.token0.balanceOf.call(user)).to.be.bignumber.eq(
+        value[0]
+      );
+
+      // Verify token1
+      expect(handlerReturn[1]).to.be.bignumber.eq(value[1]);
+      expect(await this.token1.balanceOf.call(this.proxy.address)).to.be.zero;
+      expect(await this.token1.balanceOf.call(user)).to.be.bignumber.eq(
+        value[1]
+      );
+
+      profileGas(receipt);
+    });
+
+    it('should revert: updateToken not support MRC20', async function() {
+      const token = [this.token0.address, MATIC_TOKEN];
+      const value = [ether('100'), ether('1')];
+      const to = this.hFunds.address;
+      const data = abi.simpleEncode('updateTokens(address[])', token);
+      await expectRevert(
+        this.proxy.execMock(to, data, {
+          from: user,
+          value: ether('0.01'),
+        }),
+        'Not support matic token'
+      );
+    });
+  });
+
   describe('inject', function() {
     describe('single token', function() {
       before(async function() {

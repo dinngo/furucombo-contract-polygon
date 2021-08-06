@@ -11,6 +11,22 @@ contract HFunds is HandlerBase {
         return "HFunds";
     }
 
+    function updateTokens(address[] calldata tokens)
+        external
+        payable
+        returns (uint256[] memory)
+    {
+        uint256[] memory balances = new uint256[](tokens.length);
+        for (uint256 i = 0; i < tokens.length; i++) {
+            _notMaticToken(tokens[i]);
+            // Update involved token
+            _updateToken(tokens[i]);
+
+            balances[i] = _getBalance(tokens[i], uint256(-1));
+        }
+        return balances;
+    }
+
     function inject(address[] calldata tokens, uint256[] calldata amounts)
         external
         payable
