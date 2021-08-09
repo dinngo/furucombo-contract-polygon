@@ -6,6 +6,7 @@ const {
   expectEvent,
   expectRevert,
   time,
+  send,
 } = require('@openzeppelin/test-helpers');
 const { ZERO_ADDRESS, MAX_UINT256 } = constants;
 const { tracker } = balance;
@@ -23,6 +24,7 @@ const {
   BAT_PROVIDER,
   USDT_TOKEN,
   USDT_PROVIDER,
+  MATIC_PROVIDER_CONTRACT,
 } = require('./utils/constants');
 const {
   evmRevert,
@@ -37,8 +39,12 @@ const Proxy = artifacts.require('ProxyMock');
 const IToken = artifacts.require('IERC20');
 const IUsdt = artifacts.require('IERC20Usdt');
 
+const NATIVE_TOKEN = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
+
 contract('Funds', function([_, user, someone]) {
   let id;
+  let balanceUser;
+  let balanceProxy;
   const tokenAddresses = [DAI_TOKEN, BAT_TOKEN];
   const providerAddresses = [DAI_PROVIDER, BAT_PROVIDER];
 
@@ -64,6 +70,8 @@ contract('Funds', function([_, user, someone]) {
     before(async function() {
       this.token0 = await IToken.at(tokenAddresses[0]);
       this.token1 = await IToken.at(tokenAddresses[1]);
+      balanceUser = await tracker(user);
+      balanceProxy = await tracker(this.proxy.address);
     });
 
     it('normal', async function() {
@@ -96,6 +104,82 @@ contract('Funds', function([_, user, someone]) {
       expect(await this.token1.balanceOf.call(this.proxy.address)).to.be.zero;
       expect(await this.token1.balanceOf.call(user)).to.be.bignumber.eq(
         value[1]
+      );
+
+      profileGas(receipt);
+    });
+
+    it('native token - zero address', async function() {
+      const token = [this.token0.address, ZERO_ADDRESS];
+      const msgValue = ether('0.1');
+      const value = [ether('200'), ether('1')];
+      const to = this.hFunds.address;
+      const data = abi.simpleEncode('updateTokens(address[])', token);
+      // Transfer tokens to proxy first
+      await this.token0.transfer(this.proxy.address, value[0], {
+        from: providerAddresses[0],
+      });
+      // Proxy does not allow transfer ether from EOA so we use provider contract
+      await send.ether(MATIC_PROVIDER_CONTRACT, this.proxy.address, value[1]);
+      await balanceUser.get();
+
+      const receipt = await this.proxy.execMock(to, data, {
+        from: user,
+        value: msgValue,
+      });
+
+      const handlerReturn = getHandlerReturn(receipt, ['uint256[]'])[0];
+      // Verify token0
+      expect(handlerReturn[0]).to.be.bignumber.eq(value[0]);
+      expect(await this.token0.balanceOf.call(this.proxy.address)).to.be.zero;
+      expect(await this.token0.balanceOf.call(user)).to.be.bignumber.eq(
+        value[0]
+      );
+
+      // Verify ether
+      expect(handlerReturn[1]).to.be.bignumber.eq(value[1].add(msgValue)); // handlerReturn should include msg.value
+      expect(await balanceProxy.get()).to.be.zero;
+      // user balance will not include msg.value because it is provided by user itself
+      expect(await balanceUser.delta()).to.be.bignumber.eq(
+        value[1].sub(new BN(receipt.receipt.gasUsed))
+      );
+
+      profileGas(receipt);
+    });
+
+    it('native token - 0xEEEE', async function() {
+      const token = [this.token0.address, NATIVE_TOKEN];
+      const msgValue = ether('0.1');
+      const value = [ether('200'), ether('1')];
+      const to = this.hFunds.address;
+      const data = abi.simpleEncode('updateTokens(address[])', token);
+      // Transfer tokens to proxy first
+      await this.token0.transfer(this.proxy.address, value[0], {
+        from: providerAddresses[0],
+      });
+      // Proxy does not allow transfer ether from EOA so we use provider contract
+      await send.ether(MATIC_PROVIDER_CONTRACT, this.proxy.address, value[1]);
+      await balanceUser.get();
+
+      const receipt = await this.proxy.execMock(to, data, {
+        from: user,
+        value: msgValue,
+      });
+
+      const handlerReturn = getHandlerReturn(receipt, ['uint256[]'])[0];
+      // Verify token0
+      expect(handlerReturn[0]).to.be.bignumber.eq(value[0]);
+      expect(await this.token0.balanceOf.call(this.proxy.address)).to.be.zero;
+      expect(await this.token0.balanceOf.call(user)).to.be.bignumber.eq(
+        value[0]
+      );
+
+      // Verify ether
+      expect(handlerReturn[1]).to.be.bignumber.eq(value[1].add(msgValue)); // handlerReturn should include msg.value
+      expect(await balanceProxy.get()).to.be.zero;
+      // user balance will not include msg.value because it is provided by user itself
+      expect(await balanceUser.delta()).to.be.bignumber.eq(
+        value[1].sub(new BN(receipt.receipt.gasUsed))
       );
 
       profileGas(receipt);
