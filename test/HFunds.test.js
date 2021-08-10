@@ -25,6 +25,7 @@ const {
   USDT_TOKEN,
   USDT_PROVIDER,
   MATIC_PROVIDER_CONTRACT,
+  NATIVE_TOKEN,
 } = require('./utils/constants');
 const {
   evmRevert,
@@ -38,8 +39,6 @@ const Registry = artifacts.require('Registry');
 const Proxy = artifacts.require('ProxyMock');
 const IToken = artifacts.require('IERC20');
 const IUsdt = artifacts.require('IERC20Usdt');
-
-const NATIVE_TOKEN = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
 
 contract('Funds', function([_, user, someone]) {
   let id;
