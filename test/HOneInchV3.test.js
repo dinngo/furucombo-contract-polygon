@@ -33,23 +33,18 @@ const SELECTOR_1INCH_UNOSWAP = getFuncSig(IOneInch, 'unoswap');
 /// - Ethereum: https://api.1inch.exchange/v3.0/1/
 /// - Polygon: https://api.1inch.exchange/v3.0/137/
 /// - BSC: https://api.1inch.exchange/v3.0/56/
-const URL_1INCH = 'https://api.1inch.exchange/v3.0/1/';
+const URL_1INCH = 'https://api.1inch.exchange/v3.0/137/';
 const URL_1INCH_SWAP = URL_1INCH + 'swap';
 
-const UNOSWAP_PROTOCOLS = ['SHIBASWAP', 'SUSHI', 'UNISWAP_V2'].join(',');
+const UNOSWAP_PROTOCOLS = ['POLYGON_SUSHISWAP', 'POLYGON_QUICKSWAP'].join(',');
 const NON_UNOSWAP_PROTOCOLS = [
-  'CURVE_V2',
-  'WETH',
-  'CURVE',
-  'UNISWAP_V1',
-  'BALANCER',
-  'BLACKHOLESWAP',
-  'ONE_INCH_LP',
-  'PMM2',
-  'PMM3',
-  'KYBER_DMM',
-  'BALANCER_V2',
-  'UNISWAP_V3',
+  'POLYGON_DODO',
+  'POLYGON_DODO_V2',
+  'POLYGON_KYBER_DMM',
+  'POLYGON_BALANCER_V2',
+  'WMATIC',
+  'POLYGON_CURVE',
+  'POLYGON_AAVE_V2',
 ].join(',');
 
 contract('OneInchV3 Swap', function([_, user]) {
@@ -81,7 +76,7 @@ contract('OneInchV3 Swap', function([_, user]) {
     await evmRevert(id);
   });
 
-  describe('Ether to Token', function() {
+  describe('Matic to Token', function() {
     const tokenAddress = DAI_TOKEN;
 
     let balanceUser;
@@ -218,7 +213,7 @@ contract('OneInchV3 Swap', function([_, user]) {
       });
     });
 
-    describe('Unoswap', function() {
+    describe.skip('Unoswap', function() {
       // Prepare data
       it('normal', async function() {
         const value = ether('0.1');
@@ -282,7 +277,7 @@ contract('OneInchV3 Swap', function([_, user]) {
     });
   });
 
-  describe('Token to Ether', function() {
+  describe('Token to Matic', function() {
     const tokenAddress = DAI_TOKEN;
     const providerAddress = DAI_PROVIDER;
 
@@ -369,7 +364,7 @@ contract('OneInchV3 Swap', function([_, user]) {
       });
     });
 
-    describe('Unoswap', function() {
+    describe.skip('Unoswap', function() {
       it('normal', async function() {
         // Prepare data
         const value = ether('100');
@@ -540,7 +535,7 @@ contract('OneInchV3 Swap', function([_, user]) {
       });
     });
 
-    describe('Unoswap', function() {
+    describe.skip('Unoswap', function() {
       it('normal', async function() {
         // Prepare data
         const value = ether('100');
