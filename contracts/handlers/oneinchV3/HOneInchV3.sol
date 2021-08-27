@@ -34,6 +34,8 @@ contract HOneInchV3 is HandlerBase {
         IAggregationRouterV3.SwapDescriptionV3 calldata desc,
         bytes calldata data
     ) external payable returns (uint256 returnAmount) {
+        _notMaticToken(address(desc.srcToken));
+
         if (_isNotNativeToken(address(desc.srcToken))) {
             _tokenApprove(
                 address(desc.srcToken),
@@ -76,6 +78,8 @@ contract HOneInchV3 is HandlerBase {
         uint256 minReturn,
         bytes32[] calldata data
     ) external payable returns (uint256 returnAmount) {
+        _notMaticToken(address(srcToken));
+
         // Interact with 1inch
         if (_isNotNativeToken(address(srcToken))) {
             _tokenApprove(address(srcToken), _ONEINCH_SPENDER, amount);
