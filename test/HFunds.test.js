@@ -6,6 +6,7 @@ const {
   expectEvent,
   expectRevert,
   time,
+  send,
 } = require('@openzeppelin/test-helpers');
 const { ZERO_ADDRESS, MAX_UINT256 } = constants;
 const { tracker } = balance;
@@ -23,6 +24,8 @@ const {
   BAT_PROVIDER,
   USDT_TOKEN,
   USDT_PROVIDER,
+  MATIC_PROVIDER_CONTRACT,
+  NATIVE_TOKEN,
 } = require('./utils/constants');
 const {
   evmRevert,
@@ -39,6 +42,8 @@ const IUsdt = artifacts.require('IERC20Usdt');
 
 contract('Funds', function([_, user, someone]) {
   let id;
+  let balanceUser;
+  let balanceProxy;
   const tokenAddresses = [DAI_TOKEN, BAT_TOKEN];
   const providerAddresses = [DAI_PROVIDER, BAT_PROVIDER];
 
@@ -60,123 +65,313 @@ contract('Funds', function([_, user, someone]) {
     await evmRevert(id);
   });
 
-  describe('single token', function() {
+  describe('update tokens', function() {
     before(async function() {
       this.token0 = await IToken.at(tokenAddresses[0]);
-      this.usdt = await IUsdt.at(USDT_TOKEN);
+      this.token1 = await IToken.at(tokenAddresses[1]);
+      balanceUser = await tracker(user);
+      balanceProxy = await tracker(this.proxy.address);
     });
 
     it('normal', async function() {
-      const token = [this.token0.address];
-      const value = [ether('100')];
+      const token = [this.token0.address, this.token1.address];
+      const value = [ether('100'), ether('200')];
       const to = this.hFunds.address;
-      const data = abi.simpleEncode(
-        'inject(address[],uint256[])',
-        token,
-        value
-      );
-      await this.token0.transfer(user, value[0], {
+      const data = abi.simpleEncode('updateTokens(address[])', token);
+      await this.token0.transfer(this.proxy.address, value[0], {
         from: providerAddresses[0],
       });
-      await this.token0.approve(this.proxy.address, value[0], { from: user });
+      await this.token1.transfer(this.proxy.address, value[1], {
+        from: providerAddresses[1],
+      });
 
       const receipt = await this.proxy.execMock(to, data, {
         from: user,
-        value: ether('0.1'),
+        value: ether('1'),
       });
 
-      await expectEvent.inTransaction(receipt.tx, this.token0, 'Transfer', {
-        from: user,
-        to: this.proxy.address,
-        value: value[0],
-      });
-      await expectEvent.inTransaction(receipt.tx, this.token0, 'Transfer', {
-        from: this.proxy.address,
-        to: user,
-        value: value[0],
-      });
+      const handlerReturn = getHandlerReturn(receipt, ['uint256[]'])[0];
+      // Verify token0
+      expect(handlerReturn[0]).to.be.bignumber.eq(value[0]);
+      expect(await this.token0.balanceOf.call(this.proxy.address)).to.be.zero;
+      expect(await this.token0.balanceOf.call(user)).to.be.bignumber.eq(
+        value[0]
+      );
+
+      // Verify token1
+      expect(handlerReturn[1]).to.be.bignumber.eq(value[1]);
+      expect(await this.token1.balanceOf.call(this.proxy.address)).to.be.zero;
+      expect(await this.token1.balanceOf.call(user)).to.be.bignumber.eq(
+        value[1]
+      );
+
       profileGas(receipt);
     });
 
-    it('USDT', async function() {
-      const token = [this.usdt.address];
-      const value = [new BN('1000000')];
+    it('native token - zero address', async function() {
+      const token = [this.token0.address, ZERO_ADDRESS];
+      const msgValue = ether('0.1');
+      const value = [ether('200'), ether('1')];
       const to = this.hFunds.address;
-      const data = abi.simpleEncode(
-        'inject(address[],uint256[])',
-        token,
-        value
-      );
-      await this.usdt.transfer(user, value[0], {
-        from: USDT_PROVIDER,
+      const data = abi.simpleEncode('updateTokens(address[])', token);
+      // Transfer tokens to proxy first
+      await this.token0.transfer(this.proxy.address, value[0], {
+        from: providerAddresses[0],
       });
-      await this.usdt.approve(this.proxy.address, value[0], { from: user });
+      // Proxy does not allow transfer ether from EOA so we use provider contract
+      await send.ether(MATIC_PROVIDER_CONTRACT, this.proxy.address, value[1]);
+      await balanceUser.get();
 
       const receipt = await this.proxy.execMock(to, data, {
         from: user,
-        value: ether('0.1'),
+        value: msgValue,
       });
 
-      await expectEvent.inTransaction(receipt.tx, this.usdt, 'Transfer', {
-        from: user,
-        to: this.proxy.address,
-        value: value[0],
-      });
-      await expectEvent.inTransaction(receipt.tx, this.usdt, 'Transfer', {
-        from: this.proxy.address,
-        to: user,
-        value: value[0],
-      });
+      const handlerReturn = getHandlerReturn(receipt, ['uint256[]'])[0];
+      // Verify token0
+      expect(handlerReturn[0]).to.be.bignumber.eq(value[0]);
+      expect(await this.token0.balanceOf.call(this.proxy.address)).to.be.zero;
+      expect(await this.token0.balanceOf.call(user)).to.be.bignumber.eq(
+        value[0]
+      );
+
+      // Verify ether
+      expect(handlerReturn[1]).to.be.bignumber.eq(value[1].add(msgValue)); // handlerReturn should include msg.value
+      expect(await balanceProxy.get()).to.be.zero;
+      // user balance will not include msg.value because it is provided by user itself
+      expect(await balanceUser.delta()).to.be.bignumber.eq(
+        value[1].sub(new BN(receipt.receipt.gasUsed))
+      );
+
       profileGas(receipt);
     });
 
-    it('should revert: inject not support MRC20', async function() {
-      const token = [MATIC_TOKEN];
-      const value = [ether('1')];
+    it('native token - 0xEEEE', async function() {
+      const token = [this.token0.address, NATIVE_TOKEN];
+      const msgValue = ether('0.1');
+      const value = [ether('200'), ether('1')];
       const to = this.hFunds.address;
-      const data = abi.simpleEncode(
-        'inject(address[],uint256[])',
-        token,
-        value
+      const data = abi.simpleEncode('updateTokens(address[])', token);
+      // Transfer tokens to proxy first
+      await this.token0.transfer(this.proxy.address, value[0], {
+        from: providerAddresses[0],
+      });
+      // Proxy does not allow transfer ether from EOA so we use provider contract
+      await send.ether(MATIC_PROVIDER_CONTRACT, this.proxy.address, value[1]);
+      await balanceUser.get();
+
+      const receipt = await this.proxy.execMock(to, data, {
+        from: user,
+        value: msgValue,
+      });
+
+      const handlerReturn = getHandlerReturn(receipt, ['uint256[]'])[0];
+      // Verify token0
+      expect(handlerReturn[0]).to.be.bignumber.eq(value[0]);
+      expect(await this.token0.balanceOf.call(this.proxy.address)).to.be.zero;
+      expect(await this.token0.balanceOf.call(user)).to.be.bignumber.eq(
+        value[0]
       );
 
+      // Verify ether
+      expect(handlerReturn[1]).to.be.bignumber.eq(value[1].add(msgValue)); // handlerReturn should include msg.value
+      expect(await balanceProxy.get()).to.be.zero;
+      // user balance will not include msg.value because it is provided by user itself
+      expect(await balanceUser.delta()).to.be.bignumber.eq(
+        value[1].sub(new BN(receipt.receipt.gasUsed))
+      );
+
+      profileGas(receipt);
+    });
+
+    it('should revert: updateToken not support MRC20', async function() {
+      const token = [this.token0.address, MATIC_TOKEN];
+      const value = [ether('100'), ether('1')];
+      const to = this.hFunds.address;
+      const data = abi.simpleEncode('updateTokens(address[])', token);
       await expectRevert(
         this.proxy.execMock(to, data, {
           from: user,
-          value: value[0],
+          value: ether('0.01'),
         }),
         'Not support matic token'
       );
     });
   });
 
-  describe('multiple tokens', function() {
-    before(async function() {
-      this.token0 = await IToken.at(tokenAddresses[0]);
-      this.token1 = await IToken.at(tokenAddresses[1]);
+  describe('inject', function() {
+    describe('single token', function() {
+      before(async function() {
+        this.token0 = await IToken.at(tokenAddresses[0]);
+        this.usdt = await IUsdt.at(USDT_TOKEN);
+      });
+
+      it('normal', async function() {
+        const token = [this.token0.address];
+        const value = [ether('100')];
+        const to = this.hFunds.address;
+        const data = abi.simpleEncode(
+          'inject(address[],uint256[])',
+          token,
+          value
+        );
+        await this.token0.transfer(user, value[0], {
+          from: providerAddresses[0],
+        });
+        await this.token0.approve(this.proxy.address, value[0], { from: user });
+
+        const receipt = await this.proxy.execMock(to, data, {
+          from: user,
+          value: ether('0.1'),
+        });
+
+        const handlerReturn = getHandlerReturn(receipt, ['uint256[]'])[0];
+        expect(handlerReturn[0]).to.be.bignumber.eq(value[0]);
+        await expectEvent.inTransaction(receipt.tx, this.token0, 'Transfer', {
+          from: user,
+          to: this.proxy.address,
+          value: value[0],
+        });
+        await expectEvent.inTransaction(receipt.tx, this.token0, 'Transfer', {
+          from: this.proxy.address,
+          to: user,
+          value: value[0],
+        });
+        profileGas(receipt);
+      });
+
+      it('USDT', async function() {
+        const token = [this.usdt.address];
+        const value = [new BN('1000000')];
+        const to = this.hFunds.address;
+        const data = abi.simpleEncode(
+          'inject(address[],uint256[])',
+          token,
+          value
+        );
+        await this.usdt.transfer(user, value[0], {
+          from: USDT_PROVIDER,
+        });
+        await this.usdt.approve(this.proxy.address, value[0], { from: user });
+
+        const receipt = await this.proxy.execMock(to, data, {
+          from: user,
+          value: ether('0.1'),
+        });
+
+        const handlerReturn = getHandlerReturn(receipt, ['uint256[]'])[0];
+        expect(handlerReturn[0]).to.be.bignumber.eq(value[0]);
+        await expectEvent.inTransaction(receipt.tx, this.usdt, 'Transfer', {
+          from: user,
+          to: this.proxy.address,
+          value: value[0],
+        });
+        await expectEvent.inTransaction(receipt.tx, this.usdt, 'Transfer', {
+          from: this.proxy.address,
+          to: user,
+          value: value[0],
+        });
+        profileGas(receipt);
+      });
+
+      it('should revert: inject not support MRC20', async function() {
+        const token = [MATIC_TOKEN];
+        const value = [ether('1')];
+        const to = this.hFunds.address;
+        const data = abi.simpleEncode(
+          'inject(address[],uint256[])',
+          token,
+          value
+        );
+
+        await expectRevert(
+          this.proxy.execMock(to, data, {
+            from: user,
+            value: value[0],
+          }),
+          'Not support matic token'
+        );
+      });
     });
 
-    it('should revert: inject not support MRC20', async function() {
-      const token = [this.token0.address, MATIC_TOKEN];
-      const value = [ether('100'), ether('1')];
-      const to = this.hFunds.address;
-      const data = abi.simpleEncode(
-        'inject(address[],uint256[])',
-        token,
-        value
-      );
-      await this.token0.transfer(user, value[0], {
-        from: providerAddresses[0],
+    describe('multiple tokens', function() {
+      before(async function() {
+        this.token0 = await IToken.at(tokenAddresses[0]);
+        this.token1 = await IToken.at(tokenAddresses[1]);
       });
-      await this.token0.approve(this.proxy.address, value[0], { from: user });
 
-      await expectRevert(
-        this.proxy.execMock(to, data, {
+      it('normal', async function() {
+        const token = [this.token0.address, this.token1.address];
+        const value = [ether('100'), ether('200')];
+        const to = this.hFunds.address;
+        const data = abi.simpleEncode(
+          'inject(address[],uint256[])',
+          token,
+          value
+        );
+        await this.token0.transfer(user, value[0], {
+          from: providerAddresses[0],
+        });
+        await this.token0.approve(this.proxy.address, value[0], { from: user });
+        await this.token1.transfer(user, value[1], {
+          from: providerAddresses[1],
+        });
+        await this.token1.approve(this.proxy.address, value[1], { from: user });
+
+        const receipt = await this.proxy.execMock(to, data, {
           from: user,
+          value: ether('1'),
+        });
+
+        const handlerReturn = getHandlerReturn(receipt, ['uint256[]'])[0];
+        expect(handlerReturn[0]).to.be.bignumber.eq(value[0]);
+        await expectEvent.inTransaction(receipt.tx, this.token0, 'Transfer', {
+          from: user,
+          to: this.proxy.address,
           value: value[0],
-        }),
-        'Not support matic token'
-      );
+        });
+        await expectEvent.inTransaction(receipt.tx, this.token0, 'Transfer', {
+          from: this.proxy.address,
+          to: user,
+          value: value[0],
+        });
+
+        expect(handlerReturn[1]).to.be.bignumber.eq(value[1]);
+        await expectEvent.inTransaction(receipt.tx, this.token1, 'Transfer', {
+          from: user,
+          to: this.proxy.address,
+          value: value[1],
+        });
+        await expectEvent.inTransaction(receipt.tx, this.token1, 'Transfer', {
+          from: this.proxy.address,
+          to: user,
+          value: value[1],
+        });
+        profileGas(receipt);
+      });
+
+      it('should revert: inject not support MRC20', async function() {
+        const token = [this.token0.address, MATIC_TOKEN];
+        const value = [ether('100'), ether('1')];
+        const to = this.hFunds.address;
+        const data = abi.simpleEncode(
+          'inject(address[],uint256[])',
+          token,
+          value
+        );
+        await this.token0.transfer(user, value[0], {
+          from: providerAddresses[0],
+        });
+        await this.token0.approve(this.proxy.address, value[0], { from: user });
+
+        await expectRevert(
+          this.proxy.execMock(to, data, {
+            from: user,
+            value: value[0],
+          }),
+          'Not support matic token'
+        );
+      });
     });
   });
 

@@ -1,6 +1,6 @@
 {
   "name": "Furucombo",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "Furucombo contracts",
   "main": "truffle-config.js",
   "directories": {
@@ -33,8 +33,8 @@
     "husky": "^4.2.5",
     "node-fetch": "^2.6.0",
     "pify": "^5.0.0",
-    "prettier": "^1.19.1",
-    "prettier-plugin-solidity": "^1.0.0-beta.1",
+    "prettier": "1.19.1",
+    "prettier-plugin-solidity": "1.0.0-beta.1",
     "query-string": "^6.13.1",
     "solc": "0.6.12",
     "solhint": "^3.0.0",
