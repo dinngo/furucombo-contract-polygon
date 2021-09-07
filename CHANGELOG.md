@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## [unreleased]
 
+## [1.8.0] - 2021-09-07
+
 ### Added
 
 - Support 1inch v3 swap and unoswap.
