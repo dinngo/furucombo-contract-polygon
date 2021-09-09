@@ -59,12 +59,12 @@ module.exports = {
       provider: function() {
         return new HDWalletProvider(
           key_beta,
-          'https://geth-beta.furucombo.app'
+          'https://polygon-beta.furucombo.app'
         );
       },
       network_id: '*',
-      gasPrice: 0x01,
-      gas: 5000000,
+      gasPrice: 0x3b9aca00, // 1 gwei
+      gas: 20000000,
     },
   },
   compilers: {
