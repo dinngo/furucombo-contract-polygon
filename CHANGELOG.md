@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [unreleased]
 
+## [1.8.1] - 2021-09-13
+
+### Fixed
+
+- Fix Curve handler add liquidity getting max amount on native token mechanism.
+
 ## [1.8.0] - 2021-09-07
 
 ### Added
