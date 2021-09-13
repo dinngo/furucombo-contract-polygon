@@ -162,7 +162,7 @@ contract('Aave V2', function([_, user]) {
       // Verify proxy balance
       expect(
         await this.borrowToken.balanceOf.call(this.proxy.address)
-      ).to.be.zero;
+      ).to.be.bignumber.zero;
       // Verify user balance
       // (borrow - repay) <= debtTokenUserAfter < (borrow + interestMax - repay)
       expect(debtTokenUserAfter).to.be.bignumber.gte(borrowAmount.sub(value));
@@ -208,7 +208,7 @@ contract('Aave V2', function([_, user]) {
       // Verify proxy balance
       expect(
         await this.borrowToken.balanceOf.call(this.proxy.address)
-      ).to.be.zero;
+      ).to.be.bignumber.zero;
       // Verify user balance
       // (borrow - repay) <= debtTokenUserAfter < (borrow + interestMax - repay)
       expect(debtTokenUserAfter).to.be.bignumber.gte(borrowAmount.sub(value));
@@ -257,13 +257,13 @@ contract('Aave V2', function([_, user]) {
       const interestMax = borrowAmount.mul(new BN(1)).div(new BN(10000));
 
       // Verify handler return
-      expect(handlerReturn).to.be.zero;
+      expect(handlerReturn).to.be.bignumber.zero;
       // Verify proxy balance
       expect(
         await this.borrowToken.balanceOf.call(this.proxy.address)
-      ).to.be.zero;
+      ).to.be.bignumber.zero;
       // Verify user balance
-      expect(debtTokenUserAfter).to.be.zero;
+      expect(debtTokenUserAfter).to.be.bignumber.zero;
       // (repay - borrow - interestMax) < borrowTokenUserAfter <= (repay - borrow)
       expect(borrowTokenUserAfter).to.be.bignumber.lte(value.sub(borrowAmount));
       expect(borrowTokenUserAfter).to.be.bignumber.gt(
@@ -299,13 +299,13 @@ contract('Aave V2', function([_, user]) {
       const interestMax = borrowAmount.mul(new BN(1)).div(new BN(10000));
 
       // Verify handler return
-      expect(handlerReturn).to.be.zero;
+      expect(handlerReturn).to.be.bignumber.zero;
       // Verify proxy balance
       expect(
         await this.borrowToken.balanceOf.call(this.proxy.address)
-      ).to.be.zero;
+      ).to.be.bignumber.zero;
       // Verify user balance
-      expect(debtTokenUserAfter).to.be.zero;
+      expect(debtTokenUserAfter).to.be.bignumber.zero;
       // (repay - borrow - interestMax) < borrowTokenUserAfter <= (repay - borrow)
       expect(
         (await balanceUser.delta()).add(new BN(receipt.receipt.gasUsed))
@@ -475,7 +475,7 @@ contract('Aave V2', function([_, user]) {
       // Verify proxy balance
       expect(
         await this.borrowToken.balanceOf.call(this.proxy.address)
-      ).to.be.zero;
+      ).to.be.bignumber.zero;
       // Verify user balance
       // (borrow - repay) <= debtTokenUserAfter < (borrow + interestMax - repay)
       expect(debtTokenUserAfter).to.be.bignumber.gte(borrowAmount.sub(value));
@@ -524,7 +524,7 @@ contract('Aave V2', function([_, user]) {
       // Verify proxy balance
       expect(
         await this.borrowToken.balanceOf.call(this.proxy.address)
-      ).to.be.zero;
+      ).to.be.bignumber.zero;
       // Verify user balance
       // (borrow - repay) <= debtTokenUserAfter < (borrow + interestMax - repay)
       expect(debtTokenUserAfter).to.be.bignumber.gte(borrowAmount.sub(value));
@@ -573,13 +573,13 @@ contract('Aave V2', function([_, user]) {
       const interestMax = borrowAmount.mul(new BN(1)).div(new BN(10000));
 
       // Verify handler return
-      expect(handlerReturn).to.be.zero;
+      expect(handlerReturn).to.be.bignumber.zero;
       // Verify proxy balance
       expect(
         await this.borrowToken.balanceOf.call(this.proxy.address)
-      ).to.be.zero;
+      ).to.be.bignumber.zero;
       // Verify user balance
-      expect(debtTokenUserAfter).to.be.zero;
+      expect(debtTokenUserAfter).to.be.bignumber.zero;
       // (repay - borrow - interestMax) < borrowTokenUserAfter <= (repay - borrow)
       expect(borrowTokenUserAfter).to.be.bignumber.lte(value.sub(borrowAmount));
       expect(borrowTokenUserAfter).to.be.bignumber.gt(
@@ -615,13 +615,13 @@ contract('Aave V2', function([_, user]) {
       const interestMax = borrowAmount.mul(new BN(1)).div(new BN(10000));
 
       // Verify handler return
-      expect(handlerReturn).to.be.zero;
+      expect(handlerReturn).to.be.bignumber.zero;
       // Verify proxy balance
       expect(
         await this.borrowToken.balanceOf.call(this.proxy.address)
-      ).to.be.zero;
+      ).to.be.bignumber.zero;
       // Verify user balance
-      expect(debtTokenUserAfter).to.be.zero;
+      expect(debtTokenUserAfter).to.be.bignumber.zero;
       // (repay - borrow - interestMax) < borrowTokenUserAfter <= (repay - borrow)
       expect(
         (await balanceUser.delta()).add(new BN(receipt.receipt.gasUsed))
