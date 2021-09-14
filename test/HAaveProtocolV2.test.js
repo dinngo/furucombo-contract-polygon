@@ -37,6 +37,7 @@ const IAToken = artifacts.require('IATokenV2');
 const ILendingPool = artifacts.require('ILendingPoolV2');
 const IProvider = artifacts.require('ILendingPoolAddressesProviderV2');
 const SimpleToken = artifacts.require('SimpleToken');
+const ATOKEN_DUST = ether('0.00001');
 
 contract('Aave V2', function([_, user, someone]) {
   const aTokenAddress = ADAI_V2_TOKEN;
@@ -464,7 +465,7 @@ contract('Aave V2', function([_, user, someone]) {
           await this.token.balanceOf.call(this.proxy.address)
         ).to.be.bignumber.zero;
         // Verify user balance
-        expect(aTokenUserAfter).to.be.bignumber.zero;
+        expect(aTokenUserAfter).to.be.bignumber.lt(ATOKEN_DUST);
         expect(tokenUserAfter).to.be.bignumber.eq(handlerReturn);
         expect(await balanceUser.delta()).to.be.bignumber.eq(
           ether('0').sub(new BN(receipt.receipt.gasUsed))
