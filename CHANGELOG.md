@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [unreleased]
 
+### Added
+
+- Add event to log the handler execution.
+
 ### Changed
 
 - Migrate developing environment from Truffle to Hardhat.
