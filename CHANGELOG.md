@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## [unreleased]
 
+## [1.9.0] - 2021-10-01
+
 ### Changed
 
 - Change 1inch v3 unoswap dst token fetching mechanism.
