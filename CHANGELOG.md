@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [unreleased]
 
+## [1.9.0] - 2021-10-01
+
+### Changed
+
+- Change 1inch v3 unoswap dst token fetching mechanism.
+
 ## [1.8.1] - 2021-09-13
 
 ### Fixed
@@ -45,14 +51,14 @@ All notable changes to this project will be documented in this file.
 - Migrate Furucombo System to Polygon.
 - Add `function _notMaticToken` in `HandlerBase` and used to prevent using matic token in handlers.
 - Inital handlers
-    - `HFunds`
-    - `HWMatic`
-    - `HAaveProtocolV2`
-    - `HCurve`
-    - `HCurveDao`
-    - `HFurucomboStaking`
-    - `HQuickSwap`
-    - `HSushiSwap`
+  - `HFunds`
+  - `HWMatic`
+  - `HAaveProtocolV2`
+  - `HCurve`
+  - `HCurveDao`
+  - `HFurucomboStaking`
+  - `HQuickSwap`
+  - `HSushiSwap`
 
 ## [1.5.0] - 2021-04-15
 
@@ -63,6 +69,7 @@ All notable changes to this project will be documented in this file.
 ## [1.4.1] - 2021-04-15
 
 ### Fixed
+
 - Certora audit fix.
 
 ## [1.4.0] - 2021-03-09
@@ -87,6 +94,7 @@ All notable changes to this project will be documented in this file.
 - Read `MCD_JUG` address from Maker ChainLog contract. This change would support JUG contract upgardes on Maker side.
 
 ### Removed
+
 - Remove Oasis related contracts and tests.
 - Remove 1inch related contracts and tests.
 
