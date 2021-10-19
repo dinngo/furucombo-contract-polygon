@@ -64,12 +64,17 @@ contract('QuickSwap Liquidity', function([_, user]) {
     this.lpTokenToken = await IToken.at(lpToken1Address);
     this.router = await UniswapV2Router02.at(routerAddress);
 
-    await this.tokenA.transfer(user, ether('1'), {
-      from: tokenAProviderAddress,
+    await hre.network.provider.request({
+      method: 'hardhat_impersonateAccount',
+      params: [tokenAProviderAddress],
     });
     await hre.network.provider.request({
       method: 'hardhat_impersonateAccount',
-      params: [DAI_PROVIDER],
+      params: [tokenBProviderAddress],
+    });
+
+    await this.tokenA.transfer(user, ether('1'), {
+      from: tokenAProviderAddress,
     });
     await this.tokenB.transfer(user, ether('1000'), {
       from: tokenBProviderAddress,

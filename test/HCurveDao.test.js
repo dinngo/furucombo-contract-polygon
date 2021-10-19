@@ -51,11 +51,7 @@ contract('Curve DAO', function([_, user]) {
 
     await hre.network.provider.request({
       method: 'hardhat_impersonateAccount',
-      params: [CURVE_YCRV_PROVIDER],
-    });
-    await hre.network.provider.request({
-      method: 'hardhat_impersonateAccount',
-      params: [CURVE_TCRV_PROVIDER],
+      params: [token0Provider],
     });
   });
 

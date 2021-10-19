@@ -50,7 +50,7 @@ const NON_UNOSWAP_PROTOCOLS = [
   'POLYGON_BALANCER_V2',
   'WMATIC',
   'POLYGON_CURVE',
-  'POLYGON_AAVE_V2'
+  'POLYGON_AAVE_V2',
 ].join(',');
 
 contract('OneInchV3 Swap', function([_, user]) {

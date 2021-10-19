@@ -35,7 +35,7 @@ const {
   evmSnapshot,
   profileGas,
   getHandlerReturn,
-  mulPercent,
+  expectEqWithinBps,
 } = require('./utils/utils');
 
 const HAaveV2 = artifacts.require('HAaveProtocolV2');
@@ -73,11 +73,11 @@ contract('Aave V2', function([_, user, someone]) {
 
     await hre.network.provider.request({
       method: 'hardhat_impersonateAccount',
-      params: [WETH_PROVIDER],
+      params: [providerAddress],
     });
     await hre.network.provider.request({
       method: 'hardhat_impersonateAccount',
-      params: [DAI_PROVIDER],
+      params: [WMATIC_PROVIDER],
     });
   });
 
@@ -438,8 +438,10 @@ contract('Aave V2', function([_, user, someone]) {
       expect(await this.borrowToken.balanceOf.call(user)).to.be.bignumber.eq(
         borrowAmount
       );
-      expect(await this.debtToken.balanceOf.call(user)).to.be.bignumber.eq(
-        borrowAmount
+      expectEqWithinBps(
+        await this.debtToken.balanceOf.call(user),
+        borrowAmount,
+        100
       );
     });
 

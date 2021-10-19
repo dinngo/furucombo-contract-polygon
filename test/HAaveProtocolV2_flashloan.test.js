@@ -83,11 +83,11 @@ contract('AaveV2 flashloan', function([_, user, someone]) {
 
     await hre.network.provider.request({
       method: 'hardhat_impersonateAccount',
-      params: [WETH_PROVIDER],
+      params: [this.tokenAProvider],
     });
     await hre.network.provider.request({
       method: 'hardhat_impersonateAccount',
-      params: [DAI_PROVIDER],
+      params: [this.tokenBProvider],
     });
   });
 

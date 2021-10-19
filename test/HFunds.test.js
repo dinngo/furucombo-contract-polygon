@@ -58,19 +58,19 @@ contract('Funds', function([_, user, someone]) {
 
     await hre.network.provider.request({
       method: 'hardhat_impersonateAccount',
-      params: [DAI_PROVIDER],
+      params: [providerAddresses[0]],
     });
     await hre.network.provider.request({
       method: 'hardhat_impersonateAccount',
-      params: [BAT_PROVIDER],
+      params: [providerAddresses[1]],
+    });
+    await hre.network.provider.request({
+      method: 'hardhat_impersonateAccount',
+      params: [MATIC_PROVIDER_CONTRACT],
     });
     await hre.network.provider.request({
       method: 'hardhat_impersonateAccount',
       params: [USDT_PROVIDER],
-    });
-    await hre.network.provider.request({
-      method: 'hardhat_impersonateAccount',
-      params: [ETH_PROVIDER_CONTRACT],
     });
   });
 

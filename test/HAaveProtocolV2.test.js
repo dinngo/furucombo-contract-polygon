@@ -32,7 +32,7 @@ const {
   profileGas,
   getHandlerReturn,
   mulPercent,
-  expectEqWithinBps
+  expectEqWithinBps,
 } = require('./utils/utils');
 
 const HAaveV2 = artifacts.require('HAaveProtocolV2');
@@ -49,7 +49,6 @@ contract('Aave V2', function([_, user, someone]) {
   const tokenAddress = DAI_TOKEN;
   const providerAddress = DAI_PROVIDER;
   const awmaticAddress = AWMATIC_V2;
-  const wmaticAddress = WMATIC_TOKEN;
   const wmaticProviderAddress = WMATIC_PROVIDER;
 
   let id;
@@ -75,11 +74,11 @@ contract('Aave V2', function([_, user, someone]) {
 
     await hre.network.provider.request({
       method: 'hardhat_impersonateAccount',
-      params: [DAI_PROVIDER],
+      params: [providerAddress],
     });
     await hre.network.provider.request({
       method: 'hardhat_impersonateAccount',
-      params: [WETH_PROVIDER],
+      params: [wmaticProviderAddress],
     });
   });
 

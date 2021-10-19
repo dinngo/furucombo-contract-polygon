@@ -60,38 +60,6 @@ contract('Curve', function([_, user]) {
     });
     await hre.network.provider.request({
       method: 'hardhat_impersonateAccount',
-      params: [SETH_PROVIDER],
-    });
-    await hre.network.provider.request({
-      method: 'hardhat_impersonateAccount',
-      params: [SUSD_PROVIDER],
-    });
-    await hre.network.provider.request({
-      method: 'hardhat_impersonateAccount',
-      params: [WBTC_PROVIDER],
-    });
-    await hre.network.provider.request({
-      method: 'hardhat_impersonateAccount',
-      params: [RENBTC_PROVIDER],
-    });
-    await hre.network.provider.request({
-      method: 'hardhat_impersonateAccount',
-      params: [HBTC_PROVIDER],
-    });
-    await hre.network.provider.request({
-      method: 'hardhat_impersonateAccount',
-      params: [CURVE_YCRV_PROVIDER],
-    });
-    await hre.network.provider.request({
-      method: 'hardhat_impersonateAccount',
-      params: [CURVE_SBTCCRV_PROVIDER],
-    });
-    await hre.network.provider.request({
-      method: 'hardhat_impersonateAccount',
-      params: [CURVE_SETHCRV_PROVIDER],
-    });
-    await hre.network.provider.request({
-      method: 'hardhat_impersonateAccount',
       params: [CURVE_AAVECRV_PROVIDER],
     });
   });

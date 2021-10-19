@@ -55,7 +55,7 @@ contract('Furucombo', function([_, user, someone]) {
 
     await hre.network.provider.request({
       method: 'hardhat_impersonateAccount',
-      params: [BALANCER_DAI_ETH_PROVIDER],
+      params: [providerAddress],
     });
   });
 

@@ -49,6 +49,11 @@ contract('QuickSwap Swap', function([_, user, someone]) {
     );
     this.router = await IUniswapV2Router.at(QUICKSWAP_ROUTER);
     this.proxy = await Proxy.new(this.registry.address);
+
+    await hre.network.provider.request({
+      method: 'hardhat_impersonateAccount',
+      params: [WETH_PROVIDER],
+    });
   });
 
   beforeEach(async function() {
@@ -311,7 +316,7 @@ contract('QuickSwap Swap', function([_, user, someone]) {
       });
 
       it('insufficient matic', async function() {
-        const buyAmt = ether('100');
+        const buyAmt = ether('0.1');
         const to = this.hQuickSwap.address;
         const path = [WMATIC_TOKEN, tokenAddress];
         const result = await this.router.getAmountsIn.call(buyAmt, path, {
@@ -640,7 +645,7 @@ contract('QuickSwap Swap', function([_, user, someone]) {
         await this.proxy.updateTokenMock(this.token.address);
         await expectRevert(
           this.proxy.execMock(to, data, { from: user }),
-          'HQuickSwap_swapTokensForExactETH: UniswapV2Router: EXCESSIVE_INPUT_AMOUNT.'
+          'HQuickSwap_swapTokensForExactETH: UniswapV2Router: EXCESSIVE_INPUT_AMOUNT'
         );
       });
 

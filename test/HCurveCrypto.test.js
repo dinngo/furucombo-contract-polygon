@@ -44,6 +44,10 @@ contract('Curve Crypto', function([_, user]) {
     this.atricryptoDeposit = await ICurveHandler.at(CURVE_ATRICRYPTO_DEPOSIT);
     await hre.network.provider.request({
       method: 'hardhat_impersonateAccount',
+      params: [WETH_PROVIDER],
+    });
+    await hre.network.provider.request({
+      method: 'hardhat_impersonateAccount',
       params: [USDT_PROVIDER],
     });
     await hre.network.provider.request({
@@ -52,7 +56,7 @@ contract('Curve Crypto', function([_, user]) {
     });
     await hre.network.provider.request({
       method: 'hardhat_impersonateAccount',
-      params: [CURVE_ATRICRYPTO_DEPOSIT],
+      params: [CURVE_ATRICRYPTOCRV_PROVIDER],
     });
   });
 

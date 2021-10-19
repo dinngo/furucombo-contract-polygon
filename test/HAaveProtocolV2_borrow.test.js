@@ -79,11 +79,7 @@ contract('Aave V2', function([_, user, someone]) {
 
     await hre.network.provider.request({
       method: 'hardhat_impersonateAccount',
-      params: [WETH_PROVIDER],
-    });
-    await hre.network.provider.request({
-      method: 'hardhat_impersonateAccount',
-      params: [DAI_PROVIDER],
+      params: [providerAddress],
     });
   });
 
