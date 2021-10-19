@@ -67,6 +67,10 @@ contract('QuickSwap Liquidity', function([_, user]) {
     await this.tokenA.transfer(user, ether('1'), {
       from: tokenAProviderAddress,
     });
+    await hre.network.provider.request({
+      method: 'hardhat_impersonateAccount',
+      params: [DAI_PROVIDER],
+    });
     await this.tokenB.transfer(user, ether('1000'), {
       from: tokenBProviderAddress,
     });

@@ -50,7 +50,7 @@ const NON_UNOSWAP_PROTOCOLS = [
   'POLYGON_BALANCER_V2',
   'WMATIC',
   'POLYGON_CURVE',
-  'POLYGON_AAVE_V2',
+  'POLYGON_AAVE_V2'
 ].join(',');
 
 contract('OneInchV3 Swap', function([_, user]) {
@@ -72,6 +72,15 @@ contract('OneInchV3 Swap', function([_, user]) {
       utils.asciiToHex('OneInchV3')
     );
     this.proxy = await Proxy.new(this.registry.address);
+
+    await hre.network.provider.request({
+      method: 'hardhat_impersonateAccount',
+      params: [WETH_PROVIDER],
+    });
+    await hre.network.provider.request({
+      method: 'hardhat_impersonateAccount',
+      params: [DAI_PROVIDER],
+    });
   });
 
   beforeEach(async function() {

@@ -4,12 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [unreleased]
 
+- Migrate developing environment from Truffle to Hardhat.
 ## [1.9.0] - 2021-10-01
 
 ### Changed
 
 - Change 1inch v3 unoswap dst token fetching mechanism.
-
 ## [1.8.1] - 2021-09-13
 
 ### Fixed
