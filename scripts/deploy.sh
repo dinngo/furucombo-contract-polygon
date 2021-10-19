@@ -19,7 +19,7 @@ hardhat_running() {
 
 start_hardhat() {
     
-    npx hardhat node --fork $ETH_MAINNET_NODE &
+    npx hardhat node --fork $POLYGON_MAINNET_NODE &
     echo "deployment script will be executed" 
 
     hardhat_pid=$!

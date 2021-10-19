@@ -23,9 +23,9 @@ echo "$tests"
 
 start_hardhat() {
 
-    echo "ETH_MAINNET_NODE:" $ETH_MAINNET_NODE
+    echo "POLYGON_MAINNET_NODE:" $POLYGON_MAINNET_NODE
     
-    npx hardhat node --fork $ETH_MAINNET_NODE --no-deploy >/dev/null &
+    npx hardhat node --fork $POLYGON_MAINNET_NODE --no-deploy >/dev/null &
     
     echo "no deployment script will be executed"    
 
