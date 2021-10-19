@@ -4,23 +4,20 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   const { deploy } = deployments;
   const { deployer } = await getNamedAccounts();
 
-  await deploy('HOneInchExchange', {
+  await deploy('HWmatic', {
     from: deployer,
     args: [],
     log: true,
   });
 
   const registry = await ethers.getContract('Registry', deployer);
-  const hOneInchExchange = await ethers.getContract(
-    'HOneInchExchange',
-    deployer
-  );
+  const hWmatic = await ethers.getContract('HWmatic', deployer);
 
   await registry.register(
-    hOneInchExchange.address,
-    utils.formatBytes32String('HOneInchExchange')
+    hWmatic.address,
+    utils.formatBytes32String('HWmatic')
   );
 };
 
-module.exports.tags = ['HOneInchExchange'];
+module.exports.tags = ['HWmatic'];
 module.exports.dependencies = ['Registry'];
