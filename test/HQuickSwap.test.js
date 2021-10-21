@@ -17,7 +17,6 @@ const {
   USDC_TOKEN,
   WMATIC_TOKEN,
   WETH_TOKEN,
-  WETH_PROVIDER,
   QUICKSWAP_ROUTER,
   MATIC_TOKEN,
 } = require('./utils/constants');
@@ -28,6 +27,7 @@ const {
   profileGas,
   getHandlerReturn,
   decimal6,
+  tokenProviderSushi,
 } = require('./utils/utils');
 
 const HQuickSwap = artifacts.require('HQuickSwap');
@@ -49,11 +49,6 @@ contract('QuickSwap Swap', function([_, user, someone]) {
     );
     this.router = await IUniswapV2Router.at(QUICKSWAP_ROUTER);
     this.proxy = await Proxy.new(this.registry.address);
-
-    await hre.network.provider.request({
-      method: 'hardhat_impersonateAccount',
-      params: [WETH_PROVIDER],
-    });
   });
 
   beforeEach(async function() {
@@ -382,13 +377,15 @@ contract('QuickSwap Swap', function([_, user, someone]) {
 
   describe('Token to Matic', function() {
     const tokenAddress = WETH_TOKEN;
-    const providerAddress = WETH_PROVIDER;
 
     let balanceUser;
     let balanceProxy;
     let tokenUser;
+    let providerAddress;
 
     before(async function() {
+      providerAddress = await tokenProviderSushi(tokenAddress);
+
       this.token = await IToken.at(tokenAddress);
     });
 
@@ -692,12 +689,14 @@ contract('QuickSwap Swap', function([_, user, someone]) {
   describe('Token to Token', function() {
     const token0Address = WETH_TOKEN;
     const token1Address = USDC_TOKEN;
-    const providerAddress = WETH_PROVIDER;
 
     let token0User;
     let token1User;
+    let providerAddress;
 
     before(async function() {
+      providerAddress = await tokenProviderSushi(token0Address);
+
       this.token0 = await IToken.at(token0Address);
       this.token1 = await IToken.at(token1Address);
     });

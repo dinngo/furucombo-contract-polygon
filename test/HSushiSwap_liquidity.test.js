@@ -3,7 +3,6 @@ const {
   BN,
   constants,
   ether,
-  expectEvent,
   expectRevert,
   time,
 } = require('@openzeppelin/test-helpers');
@@ -14,12 +13,10 @@ const abi = require('ethereumjs-abi');
 const utils = web3.utils;
 const { expect } = require('chai');
 const {
-  SUSHI_TOKEN,
+  DAI_TOKEN,
   USDC_TOKEN,
-  SUSHI_PROVIDER,
-  USDC_PROVIDER,
-  SUSHISWAP_SUSHI_WMATIC,
-  SUSHISWAP_SUSHI_USDC,
+  SUSHISWAP_DAI_WMATIC,
+  SUSHISWAP_DAI_USDC,
   SUSHISWAP_ROUTER,
   MATIC_TOKEN,
 } = require('./utils/constants');
@@ -29,6 +26,7 @@ const {
   profileGas,
   getHandlerReturn,
   decimal6,
+  tokenProviderQuick,
 } = require('./utils/utils');
 
 const HSushiSwap = artifacts.require('HSushiSwap');
@@ -39,18 +37,21 @@ const UniswapV2Router02 = artifacts.require('IUniswapV2Router02');
 
 contract('SushiSwap Liquidity', function([_, user]) {
   let id;
-  const tokenAAddress = SUSHI_TOKEN;
+  const tokenAAddress = DAI_TOKEN;
   const tokenBAddress = USDC_TOKEN;
-  const tokenAProviderAddress = SUSHI_PROVIDER;
-  const tokenBProviderAddress = USDC_PROVIDER;
-  const sushiswapPoolAAddress = SUSHISWAP_SUSHI_WMATIC;
-  const sushiswapPoolBAddress = SUSHISWAP_SUSHI_USDC;
+  const sushiswapPoolAAddress = SUSHISWAP_DAI_WMATIC;
+  const sushiswapPoolBAddress = SUSHISWAP_DAI_USDC;
   const sushiswapRouterAddress = SUSHISWAP_ROUTER;
 
   let balanceUser;
   let uniTokenUserAmount;
+  let tokenAProviderAddress;
+  let tokenBProviderAddress;
 
   before(async function() {
+    tokenAProviderAddress = await tokenProviderQuick(tokenAAddress);
+    tokenBProviderAddress = await tokenProviderQuick(tokenBAddress);
+
     this.registry = await Registry.new();
     this.proxy = await Proxy.new(this.registry.address);
     this.hSushiSwap = await HSushiSwap.new();
@@ -63,23 +64,6 @@ contract('SushiSwap Liquidity', function([_, user]) {
     this.uniTokenMatic = await IToken.at(sushiswapPoolAAddress);
     this.uniTokenToken = await IToken.at(sushiswapPoolBAddress);
     this.router = await UniswapV2Router02.at(sushiswapRouterAddress);
-
-    await hre.network.provider.request({
-      method: 'hardhat_impersonateAccount',
-      params: [tokenAProviderAddress],
-    });
-
-    await hre.network.provider.request({
-      method: 'hardhat_impersonateAccount',
-      params: [tokenBProviderAddress],
-    });
-
-    await this.tokenA.transfer(user, ether('1000'), {
-      from: tokenAProviderAddress,
-    });
-    await this.tokenB.transfer(user, decimal6('1000'), {
-      from: tokenBProviderAddress,
-    });
   });
 
   beforeEach(async function() {
@@ -90,6 +74,13 @@ contract('SushiSwap Liquidity', function([_, user]) {
     tokenBUserAmount = await this.tokenB.balanceOf.call(user);
     uniTokenMaticUserAmount = await this.uniTokenMatic.balanceOf.call(user);
     uniTokenTokenUserAmount = await this.uniTokenToken.balanceOf.call(user);
+
+    await this.tokenA.transfer(user, ether('1000'), {
+      from: tokenAProviderAddress,
+    });
+    await this.tokenB.transfer(user, decimal6('1000'), {
+      from: tokenBProviderAddress,
+    });
   });
 
   afterEach(async function() {

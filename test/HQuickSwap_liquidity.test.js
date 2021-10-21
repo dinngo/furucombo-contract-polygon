@@ -16,8 +16,6 @@ const { expect } = require('chai');
 const {
   WETH_TOKEN,
   DAI_TOKEN,
-  WETH_PROVIDER,
-  DAI_PROVIDER,
   QUICKSWAP_WMATIC_WETH,
   QUICKSWAP_DAI_WETH,
   QUICKSWAP_ROUTER,
@@ -28,6 +26,7 @@ const {
   evmSnapshot,
   profileGas,
   getHandlerReturn,
+  tokenProviderSushi,
 } = require('./utils/utils');
 
 const HQuickSwap = artifacts.require('HQuickSwap');
@@ -40,17 +39,19 @@ contract('QuickSwap Liquidity', function([_, user]) {
   let id;
   const tokenAAddress = WETH_TOKEN;
   const tokenBAddress = DAI_TOKEN;
-  const tokenAProviderAddress = WETH_PROVIDER;
-  const tokenBProviderAddress = DAI_PROVIDER;
   const lpToken0Address = QUICKSWAP_WMATIC_WETH;
   const lpToken1Address = QUICKSWAP_DAI_WETH;
   const routerAddress = QUICKSWAP_ROUTER;
 
   let balanceUser;
-  let tokenUser;
   let lpTokenUserAmount;
+  let tokenAProviderAddress;
+  let tokenBProviderAddress;
 
   before(async function() {
+    tokenAProviderAddress = await tokenProviderSushi(tokenAAddress);
+    tokenBProviderAddress = await tokenProviderSushi(tokenBAddress);
+
     this.registry = await Registry.new();
     this.proxy = await Proxy.new(this.registry.address);
     this.hQuickSwap = await HQuickSwap.new();
@@ -63,22 +64,6 @@ contract('QuickSwap Liquidity', function([_, user]) {
     this.lpTokenMatic = await IToken.at(lpToken0Address);
     this.lpTokenToken = await IToken.at(lpToken1Address);
     this.router = await UniswapV2Router02.at(routerAddress);
-
-    await hre.network.provider.request({
-      method: 'hardhat_impersonateAccount',
-      params: [tokenAProviderAddress],
-    });
-    await hre.network.provider.request({
-      method: 'hardhat_impersonateAccount',
-      params: [tokenBProviderAddress],
-    });
-
-    await this.tokenA.transfer(user, ether('1'), {
-      from: tokenAProviderAddress,
-    });
-    await this.tokenB.transfer(user, ether('1000'), {
-      from: tokenBProviderAddress,
-    });
   });
 
   beforeEach(async function() {
@@ -89,6 +74,13 @@ contract('QuickSwap Liquidity', function([_, user]) {
     tokenBUserAmount = await this.tokenB.balanceOf.call(user);
     uniTokenEthUserAmount = await this.lpTokenMatic.balanceOf.call(user);
     this.lpTokenTokenUserAmount = await this.lpTokenToken.balanceOf.call(user);
+
+    await this.tokenA.transfer(user, ether('1'), {
+      from: tokenAProviderAddress,
+    });
+    await this.tokenB.transfer(user, ether('1000'), {
+      from: tokenBProviderAddress,
+    });
   });
 
   afterEach(async function() {

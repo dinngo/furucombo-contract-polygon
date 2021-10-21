@@ -1,25 +1,16 @@
-const {
-  balance,
-  BN,
-  constants,
-  ether,
-  expectEvent,
-  expectRevert,
-  time,
-} = require('@openzeppelin/test-helpers');
+const { balance, BN, ether } = require('@openzeppelin/test-helpers');
 const { tracker } = balance;
-const { latest } = time;
 const abi = require('ethereumjs-abi');
 const utils = web3.utils;
 
 const { expect } = require('chai');
 
-const { WMATIC_TOKEN, WMATIC_PROVIDER } = require('./utils/constants');
+const { WMATIC_TOKEN } = require('./utils/constants');
 const {
   evmRevert,
   evmSnapshot,
   profileGas,
-  sendMaticToProviders,
+  tokenProviderQuick,
 } = require('./utils/utils');
 
 const HWmatic = artifacts.require('HWmatic');
@@ -29,10 +20,12 @@ const IToken = artifacts.require('IERC20');
 
 contract('Wmatic', function([_, user]) {
   const tokenAddress = WMATIC_TOKEN;
-  const tokenProviderAddress = WMATIC_PROVIDER;
   let id;
+  let tokenProviderAddress;
 
   before(async function() {
+    tokenProviderAddress = await tokenProviderQuick(tokenAddress);
+
     this.token = await IToken.at(tokenAddress);
     this.registry = await Registry.new();
     this.proxy = await Proxy.new(this.registry.address);
@@ -41,10 +34,6 @@ contract('Wmatic', function([_, user]) {
       this.hWmatic.address,
       utils.asciiToHex('Wmatic')
     );
-    await hre.network.provider.request({
-      method: 'hardhat_impersonateAccount',
-      params: [tokenProviderAddress],
-    });
   });
 
   beforeEach(async function() {

@@ -3,7 +3,6 @@ const {
   BN,
   constants,
   ether,
-  expectEvent,
   expectRevert,
 } = require('@openzeppelin/test-helpers');
 const { tracker } = balance;
@@ -13,7 +12,7 @@ const utils = web3.utils;
 
 const { expect } = require('chai');
 
-const { evmRevert, evmSnapshot, profileGas } = require('./utils/utils');
+const { evmRevert, evmSnapshot } = require('./utils/utils');
 
 const Foo = artifacts.require('Foo');
 const FooFactory = artifacts.require('FooFactory');

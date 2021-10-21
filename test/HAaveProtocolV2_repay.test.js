@@ -1,26 +1,18 @@
 const {
   balance,
   BN,
-  constants,
   ether,
-  expectEvent,
   expectRevert,
-  time,
 } = require('@openzeppelin/test-helpers');
-const { MAX_UINT256 } = constants;
 const { tracker } = balance;
-const { latest } = time;
 const abi = require('ethereumjs-abi');
-const util = require('ethereumjs-util');
 const utils = web3.utils;
 
 const { expect } = require('chai');
 
 const {
   WMATIC_TOKEN,
-  WMATIC_PROVIDER,
   DAI_TOKEN,
-  DAI_PROVIDER,
   ADAI_V2_TOKEN,
   AWMATIC_V2,
   AAVEPROTOCOL_V2_PROVIDER,
@@ -36,6 +28,7 @@ const {
   profileGas,
   getHandlerReturn,
   expectEqWithinBps,
+  tokenProviderQuick,
 } = require('./utils/utils');
 
 const HAaveV2 = artifacts.require('HAaveProtocolV2');
@@ -47,16 +40,17 @@ const ILendingPool = artifacts.require('ILendingPoolV2');
 const IProvider = artifacts.require('ILendingPoolAddressesProviderV2');
 const SimpleToken = artifacts.require('SimpleToken');
 
-contract('Aave V2', function([_, user, someone]) {
+contract('Aave V2', function([_, user]) {
   const aTokenAddress = ADAI_V2_TOKEN;
   const tokenAddress = DAI_TOKEN;
-  const providerAddress = DAI_PROVIDER;
 
   let id;
   let balanceUser;
-  let balanceProxy;
+  let providerAddress;
 
   before(async function() {
+    providerAddress = await tokenProviderQuick(tokenAddress);
+
     this.registry = await Registry.new();
     this.proxy = await Proxy.new(this.registry.address);
     this.hAaveV2 = await HAaveV2.new();
@@ -70,15 +64,6 @@ contract('Aave V2', function([_, user, someone]) {
     this.token = await IToken.at(tokenAddress);
     this.aToken = await IAToken.at(aTokenAddress);
     this.mockToken = await SimpleToken.new();
-
-    await hre.network.provider.request({
-      method: 'hardhat_impersonateAccount',
-      params: [providerAddress],
-    });
-    await hre.network.provider.request({
-      method: 'hardhat_impersonateAccount',
-      params: [WMATIC_PROVIDER],
-    });
   });
 
   beforeEach(async function() {
@@ -402,11 +387,14 @@ contract('Aave V2', function([_, user, someone]) {
     var depositAmount = ether('10000');
     const borrowAmount = ether('2');
     const borrowTokenAddr = WMATIC_TOKEN;
-    const borrowTokenProvider = WMATIC_PROVIDER;
     const rateMode = AAVE_RATEMODE.VARIABLE;
     const debtTokenAddr = AWMATIC_V2_DEBT_VARIABLE;
 
+    let borrowTokenProvider;
+
     before(async function() {
+      borrowTokenProvider = await tokenProviderQuick(borrowTokenAddr);
+
       this.borrowToken = await IToken.at(borrowTokenAddr);
       this.debtToken = await IToken.at(debtTokenAddr);
     });

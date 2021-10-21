@@ -5,11 +5,9 @@ const {
   ether,
   expectEvent,
   expectRevert,
-  time,
 } = require('@openzeppelin/test-helpers');
 const { MAX_UINT256 } = constants;
 const { tracker } = balance;
-const { latest } = time;
 const abi = require('ethereumjs-abi');
 const utils = web3.utils;
 
@@ -17,14 +15,18 @@ const { expect } = require('chai');
 
 const {
   WMATIC_TOKEN,
-  WMATIC_PROVIDER,
   MR_TOTAL_SUPPLY,
   MR_CLAIM_USER,
   MR_CLAIM_AMOUNT,
   MR_CLAIM_MERKLE_ROOT,
   MR_CLAIM_MERKLE_PROOFS,
 } = require('./utils/constants');
-const { evmRevert, evmSnapshot, profileGas } = require('./utils/utils');
+const {
+  evmRevert,
+  evmSnapshot,
+  profileGas,
+  tokenProviderQuick,
+} = require('./utils/utils');
 
 const HFurucombo = artifacts.require('HFurucomboStaking');
 const Registry = artifacts.require('Registry');
@@ -36,9 +38,12 @@ const MerkleRedeem = artifacts.require('MerkleRedeem');
 
 contract('Furucombo', function([_, user, someone]) {
   const tokenAddress = WMATIC_TOKEN;
-  const providerAddress = WMATIC_PROVIDER;
+
+  let providerAddress;
 
   before(async function() {
+    providerAddress = await tokenProviderQuick(tokenAddress);
+
     this.registry = await Registry.new();
     this.proxy = await Proxy.new(this.registry.address);
     this.hFurucombo = await HFurucombo.new();
@@ -52,11 +57,6 @@ contract('Furucombo', function([_, user, someone]) {
     this.stakingRedeem = await MerkleRedeem.at(await this.staking.redeemable());
     this.merkleRedeem = await MerkleRedeem.new(this.rewardToken.address);
     this.token = await IToken.at(tokenAddress);
-
-    await hre.network.provider.request({
-      method: 'hardhat_impersonateAccount',
-      params: [providerAddress],
-    });
   });
 
   beforeEach(async function() {

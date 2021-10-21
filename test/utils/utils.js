@@ -1,13 +1,15 @@
-const { BN, ether } = require('@openzeppelin/test-helpers');
+const { BN, ether, ZERO_ADDRESS } = require('@openzeppelin/test-helpers');
 const fetch = require('node-fetch');
 const { expect } = require('chai');
 const {
-  MATIC_PROVIDER,
+  QUICKSWAP_FACTORY,
+  SUSHISWAP_FACTORY,
+  DYFNSWAP_FACTORY,
+  CURVE_ADDRESS_PROVIDER,
+  WETH_TOKEN,
+  USDC_TOKEN,
+  WMATIC_TOKEN,
   RecordHandlerResultSig,
-  STORAGE_KEY_MSG_SENDER,
-  STORAGE_KEY_CUBE_COUNTER,
-  STORAGE_KEY_FEE_RATE,
-  STORAGE_KEY_FEE_COLLECTOR,
 } = require('./constants');
 
 function profileGas(receipt) {
@@ -139,6 +141,98 @@ function expectEqWithinBps(actual, expected, bps = 1) {
   expect(actual).to.be.bignumber.gte(lower);
 }
 
+async function maticProviderWmatic() {
+  // Impersonate wmatic
+  await network.provider.send('hardhat_impersonateAccount', [WMATIC_TOKEN]);
+
+  return WMATIC_TOKEN;
+}
+
+async function tokenProviderQuick(
+  token0 = USDC_TOKEN,
+  token1 = WETH_TOKEN,
+  factoryAddress = QUICKSWAP_FACTORY
+) {
+  if (token0 === WETH_TOKEN) {
+    token1 = USDC_TOKEN;
+  }
+  return _tokenProviderUniLike(token0, token1, factoryAddress);
+}
+
+async function tokenProviderSushi(
+  token0 = USDC_TOKEN,
+  token1 = WETH_TOKEN,
+  factoryAddress = SUSHISWAP_FACTORY
+) {
+  if (token0 === WETH_TOKEN) {
+    token1 = USDC_TOKEN;
+  }
+  return _tokenProviderUniLike(token0, token1, factoryAddress);
+}
+
+async function tokenProviderDyfn(
+  token0 = USDC_TOKEN,
+  token1 = WETH_TOKEN,
+  factoryAddress = DYFNSWAP_FACTORY
+) {
+  if (token0 === WETH_TOKEN) {
+    token1 = USDC_TOKEN;
+  }
+  return _tokenProviderUniLike(token0, token1, factoryAddress);
+}
+
+async function _tokenProviderUniLike(token0, token1, factoryAddress) {
+  const IUniswapV2Factory = artifacts.require('IUniswapV2Factory');
+  const factory = await IUniswapV2Factory.at(factoryAddress);
+  const pair = await factory.getPair.call(token0, token1);
+  _impersonateAndInjectEther(pair);
+
+  return pair;
+}
+
+async function tokenProviderCurveGauge(lpToken) {
+  // Get curve registry
+  const addressProvider = await ethers.getContractAt(
+    ['function get_registry() view returns (address)'],
+    CURVE_ADDRESS_PROVIDER
+  );
+  const registryAddress = await addressProvider.get_registry();
+
+  // Get curve gauge
+  const registry = await ethers.getContractAt(
+    [
+      'function get_pool_from_lp_token(address) view returns (address)',
+      'function get_gauges(address) view returns (address[10], int128[10])',
+    ],
+    registryAddress
+  );
+  const poolAddress = await registry.get_pool_from_lp_token(lpToken);
+  const gauges = await registry.get_gauges(poolAddress);
+
+  // Return non-zero gauge
+  let gauge;
+  for (let element of gauges[0]) {
+    if (element != ZERO_ADDRESS) {
+      gauge = element;
+      break;
+    }
+  }
+  _impersonateAndInjectEther(gauge);
+
+  return gauge;
+}
+
+async function _impersonateAndInjectEther(address) {
+  // Impersonate pair
+  await network.provider.send('hardhat_impersonateAccount', [address]);
+
+  // Inject 1 ether
+  await network.provider.send('hardhat_setBalance', [
+    address,
+    '0xde0b6b3a7640000',
+  ]);
+}
+
 module.exports = {
   profileGas,
   evmSnapshot,
@@ -155,4 +249,9 @@ module.exports = {
   decodeOutputData,
   getFuncSig,
   expectEqWithinBps,
+  maticProviderWmatic,
+  tokenProviderQuick,
+  tokenProviderSushi,
+  tokenProviderDyfn,
+  tokenProviderCurveGauge,
 };
