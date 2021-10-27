@@ -48,7 +48,6 @@ contract('SushiSwap Liquidity', function([_, user]) {
   const sushiswapRouterAddress = SUSHISWAP_ROUTER;
 
   let balanceUser;
-  let tokenUser;
   let uniTokenUserAmount;
 
   before(async function() {
@@ -64,6 +63,16 @@ contract('SushiSwap Liquidity', function([_, user]) {
     this.uniTokenMatic = await IToken.at(sushiswapPoolAAddress);
     this.uniTokenToken = await IToken.at(sushiswapPoolBAddress);
     this.router = await UniswapV2Router02.at(sushiswapRouterAddress);
+
+    await hre.network.provider.request({
+      method: 'hardhat_impersonateAccount',
+      params: [tokenAProviderAddress],
+    });
+
+    await hre.network.provider.request({
+      method: 'hardhat_impersonateAccount',
+      params: [tokenBProviderAddress],
+    });
 
     await this.tokenA.transfer(user, ether('1000'), {
       from: tokenAProviderAddress,

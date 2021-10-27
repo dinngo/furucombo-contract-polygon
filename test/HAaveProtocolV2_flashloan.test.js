@@ -80,6 +80,15 @@ contract('AaveV2 flashloan', function([_, user, someone]) {
       AWMATIC_V2_DEBT_VARIABLE
     );
     this.mockToken = await SimpleToken.new();
+
+    await hre.network.provider.request({
+      method: 'hardhat_impersonateAccount',
+      params: [this.tokenAProvider],
+    });
+    await hre.network.provider.request({
+      method: 'hardhat_impersonateAccount',
+      params: [this.tokenBProvider],
+    });
   });
 
   beforeEach(async function() {

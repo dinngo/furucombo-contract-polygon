@@ -114,7 +114,6 @@ module.exports = {
   /* Event Signature */
   RecordHandlerResultSig:
     '0x90c726ff5efa7268723ee48df835144384bc0f012e89750782886764b5e54f16',
-
   /* Storage */
   STORAGE_KEY_MSG_SENDER:
     '0xb2f2618cecbbb6e7468cc0f2aa43858ad8d153e0280b22285e28e853bb9d453a',
@@ -132,5 +131,5 @@ module.exports = {
     '0x94ed398e27e849376accc051f67010c2f0bf9df5ed2dc86c179fc7132c780180',
     '0xc1426e8cdac7d0d5c911219007db6366856d7c6e82baade601db7aa3c3343dd8',
     '0xed112d2d07db65f0ff74ad495d1ca35e89d51ea233be7ab2cc275d69559c97fa',
-  ],
+  ]
 };

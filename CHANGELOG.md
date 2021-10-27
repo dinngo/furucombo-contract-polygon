@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [unreleased]
 
+### Changed
+
+- Migrate developing environment from Truffle to Hardhat.
+
 ## [1.9.0] - 2021-10-01
 
 ### Changed

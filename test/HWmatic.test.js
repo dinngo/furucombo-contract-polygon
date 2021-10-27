@@ -41,6 +41,10 @@ contract('Wmatic', function([_, user]) {
       this.hWmatic.address,
       utils.asciiToHex('Wmatic')
     );
+    await hre.network.provider.request({
+      method: 'hardhat_impersonateAccount',
+      params: [tokenProviderAddress],
+    });
   });
 
   beforeEach(async function() {

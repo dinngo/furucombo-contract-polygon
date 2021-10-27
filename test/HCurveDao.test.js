@@ -48,6 +48,11 @@ contract('Curve DAO', function([_, user]) {
     this.token0 = await IToken.at(token0Address);
     this.gauge0 = await ILiquidityGauge.at(gauge0Address);
     this.proxy = await Proxy.new(this.registry.address);
+
+    await hre.network.provider.request({
+      method: 'hardhat_impersonateAccount',
+      params: [token0Provider],
+    });
   });
 
   beforeEach(async function() {

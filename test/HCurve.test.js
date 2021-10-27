@@ -27,6 +27,7 @@ const {
   mulPercent,
   profileGas,
   getHandlerReturn,
+  expectEqWithinBps,
 } = require('./utils/utils');
 
 const Proxy = artifacts.require('ProxyMock');
@@ -48,6 +49,19 @@ contract('Curve', function([_, user]) {
 
     this.proxy = await Proxy.new(this.registry.address);
     this.aaveSwap = await ICurveHandler.at(CURVE_AAVE_SWAP);
+
+    await hre.network.provider.request({
+      method: 'hardhat_impersonateAccount',
+      params: [DAI_PROVIDER],
+    });
+    await hre.network.provider.request({
+      method: 'hardhat_impersonateAccount',
+      params: [USDT_PROVIDER],
+    });
+    await hre.network.provider.request({
+      method: 'hardhat_impersonateAccount',
+      params: [CURVE_AAVECRV_PROVIDER],
+    });
   });
 
   beforeEach(async function() {

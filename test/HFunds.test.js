@@ -55,6 +55,23 @@ contract('Funds', function([_, user, someone]) {
       this.hFunds.address,
       utils.asciiToHex('Funds')
     );
+
+    await hre.network.provider.request({
+      method: 'hardhat_impersonateAccount',
+      params: [providerAddresses[0]],
+    });
+    await hre.network.provider.request({
+      method: 'hardhat_impersonateAccount',
+      params: [providerAddresses[1]],
+    });
+    await hre.network.provider.request({
+      method: 'hardhat_impersonateAccount',
+      params: [MATIC_PROVIDER_CONTRACT],
+    });
+    await hre.network.provider.request({
+      method: 'hardhat_impersonateAccount',
+      params: [USDT_PROVIDER],
+    });
   });
 
   beforeEach(async function() {
