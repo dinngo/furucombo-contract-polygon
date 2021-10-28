@@ -1,4 +1,6 @@
-pragma solidity ^0.6.0;
+// SPDX-License-Identifier: MIT
+
+pragma solidity ^0.8.4;
 
 import "./lib/LibCache.sol";
 import "./lib/LibStack.sol";
