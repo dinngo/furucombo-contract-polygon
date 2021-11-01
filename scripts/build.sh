@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Configure to exit script as soon as a command fails.
 set -o errexit
 
@@ -8,3 +10,10 @@ rm -rf cache
 
 # Compile everything else.
 npm run compile
+
+./scripts/check_warning.sh
+result=$?
+
+if [ $result -ne 0 ]; then
+    exit 1
+fi

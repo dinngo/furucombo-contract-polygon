@@ -29,6 +29,7 @@ const {
   evmSnapshot,
   profileGas,
   tokenProviderQuick,
+  expectEqWithinBps,
 } = require('./utils/utils');
 
 const HAaveV2 = artifacts.require('HAaveProtocolV2');
@@ -405,8 +406,10 @@ contract('Aave V2', function([_, user, someone]) {
         0,
         { from: providerAddress }
       );
-      expect(await this.aToken.balanceOf.call(user)).to.be.bignumber.eq(
-        depositAmount
+      expectEqWithinBps(
+        await this.aToken.balanceOf.call(user),
+        depositAmount,
+        10
       );
 
       borrowTokenUserBefore = await this.borrowToken.balanceOf.call(user);
