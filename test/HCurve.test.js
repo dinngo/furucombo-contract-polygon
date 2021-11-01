@@ -1,12 +1,10 @@
 const {
-  balance,
   BN,
   ether,
   constants,
   expectRevert,
 } = require('@openzeppelin/test-helpers');
 const { web3 } = require('@openzeppelin/test-helpers/src/setup');
-const { tracker } = balance;
 const { MAX_UINT256 } = constants;
 const { expect } = require('chai');
 const abi = require('ethereumjs-abi');
@@ -14,12 +12,9 @@ const utils = web3.utils;
 const {
   MATIC_TOKEN,
   DAI_TOKEN,
-  DAI_PROVIDER,
   USDT_TOKEN,
-  USDT_PROVIDER,
   CURVE_AAVE_SWAP,
   CURVE_AAVECRV,
-  CURVE_AAVECRV_PROVIDER,
 } = require('./utils/constants');
 const {
   evmRevert,
@@ -27,7 +22,8 @@ const {
   mulPercent,
   profileGas,
   getHandlerReturn,
-  expectEqWithinBps,
+  tokenProviderQuick,
+  tokenProviderCurveGauge,
 } = require('./utils/utils');
 
 const Proxy = artifacts.require('ProxyMock');
@@ -49,19 +45,6 @@ contract('Curve', function([_, user]) {
 
     this.proxy = await Proxy.new(this.registry.address);
     this.aaveSwap = await ICurveHandler.at(CURVE_AAVE_SWAP);
-
-    await hre.network.provider.request({
-      method: 'hardhat_impersonateAccount',
-      params: [DAI_PROVIDER],
-    });
-    await hre.network.provider.request({
-      method: 'hardhat_impersonateAccount',
-      params: [USDT_PROVIDER],
-    });
-    await hre.network.provider.request({
-      method: 'hardhat_impersonateAccount',
-      params: [CURVE_AAVECRV_PROVIDER],
-    });
   });
 
   beforeEach(async function() {
@@ -75,12 +58,14 @@ contract('Curve', function([_, user]) {
   describe('Exchange underlying', function() {
     const token0Address = USDT_TOKEN;
     const token1Address = DAI_TOKEN;
-    const providerAddress = USDT_PROVIDER;
 
     let token0User;
     let token1User;
+    let providerAddress;
 
     before(async function() {
+      providerAddress = await tokenProviderQuick(token0Address);
+
       this.token0 = await IToken.at(token0Address);
       this.token1 = await IToken.at(token1Address);
     });
@@ -211,15 +196,19 @@ contract('Curve', function([_, user]) {
     describe('aave pool', function() {
       const token0Address = DAI_TOKEN;
       const token1Address = USDT_TOKEN;
-      const provider0Address = DAI_PROVIDER;
-      const provider1Address = USDT_PROVIDER;
       const poolTokenAddress = CURVE_AAVECRV;
-      const poolTokenProvider = CURVE_AAVECRV_PROVIDER;
 
       let token0User;
       let token1User;
+      let provider0Address;
+      let provider1Address;
+      let poolTokenProvider;
 
       before(async function() {
+        provider0Address = await tokenProviderQuick(token0Address);
+        provider1Address = await tokenProviderQuick(token1Address);
+        poolTokenProvider = await tokenProviderCurveGauge(poolTokenAddress);
+
         this.token0 = await IToken.at(token0Address);
         this.token1 = await IToken.at(token1Address);
         this.poolToken = await IToken.at(poolTokenAddress);

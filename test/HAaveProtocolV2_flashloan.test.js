@@ -3,13 +3,10 @@ const {
   BN,
   constants,
   ether,
-  expectEvent,
   expectRevert,
-  time,
 } = require('@openzeppelin/test-helpers');
 const { tracker } = balance;
-const { ZERO_BYTES32, ZERO_ADDRESS } = constants;
-const { latest } = time;
+const { ZERO_BYTES32 } = constants;
 const abi = require('ethereumjs-abi');
 const util = require('ethereumjs-util');
 const utils = web3.utils;
@@ -17,18 +14,15 @@ const utils = web3.utils;
 const { expect } = require('chai');
 
 const {
-  MATIC_PROVIDER,
   WMATIC_TOKEN,
-  WMATIC_PROVIDER,
   DAI_TOKEN,
-  DAI_PROVIDER,
   AAVEPROTOCOL_V2_PROVIDER,
   ADAI_V2_TOKEN,
   AWMATIC_V2_DEBT_STABLE,
   AWMATIC_V2_DEBT_VARIABLE,
   AAVE_RATEMODE,
 } = require('./utils/constants');
-const { evmRevert, evmSnapshot, profileGas } = require('./utils/utils');
+const { evmRevert, evmSnapshot, tokenProviderQuick } = require('./utils/utils');
 
 const Registry = artifacts.require('Registry');
 const Proxy = artifacts.require('ProxyMock');
@@ -69,26 +63,17 @@ contract('AaveV2 flashloan', function([_, user, someone]) {
       this.hAaveV2.address
     );
 
-    this.tokenAProvider = WMATIC_PROVIDER;
-    this.tokenBProvider = DAI_PROVIDER;
     this.faucet = await Faucet.new();
     this.tokenA = await IToken.at(WMATIC_TOKEN);
     this.tokenB = await IToken.at(DAI_TOKEN);
+    this.tokenAProvider = await tokenProviderQuick(this.tokenA.address);
+    this.tokenBProvider = await tokenProviderQuick(this.tokenB.address);
     this.aTokenB = await IToken.at(ADAI_V2_TOKEN);
     this.stableDebtTokenA = await IStableDebtToken.at(AWMATIC_V2_DEBT_STABLE);
     this.variableDebtTokenA = await IVariableDebtToken.at(
       AWMATIC_V2_DEBT_VARIABLE
     );
     this.mockToken = await SimpleToken.new();
-
-    await hre.network.provider.request({
-      method: 'hardhat_impersonateAccount',
-      params: [this.tokenAProvider],
-    });
-    await hre.network.provider.request({
-      method: 'hardhat_impersonateAccount',
-      params: [this.tokenBProvider],
-    });
   });
 
   beforeEach(async function() {

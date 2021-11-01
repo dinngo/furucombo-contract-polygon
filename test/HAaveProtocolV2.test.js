@@ -3,28 +3,21 @@ const {
   BN,
   constants,
   ether,
-  expectEvent,
   expectRevert,
-  time,
 } = require('@openzeppelin/test-helpers');
 const { MAX_UINT256 } = constants;
 const { tracker } = balance;
-const { latest } = time;
 const abi = require('ethereumjs-abi');
-const util = require('ethereumjs-util');
 const utils = web3.utils;
 
 const { expect } = require('chai');
 
 const {
   WMATIC_TOKEN,
-  WMATIC_PROVIDER,
   DAI_TOKEN,
-  DAI_PROVIDER,
   ADAI_V2_TOKEN,
   AWMATIC_V2,
   AAVEPROTOCOL_V2_PROVIDER,
-  AAVE_RATEMODE,
 } = require('./utils/constants');
 const {
   evmRevert,
@@ -33,6 +26,7 @@ const {
   getHandlerReturn,
   mulPercent,
   expectEqWithinBps,
+  tokenProviderQuick,
 } = require('./utils/utils');
 
 const HAaveV2 = artifacts.require('HAaveProtocolV2');
@@ -47,15 +41,18 @@ const SimpleToken = artifacts.require('SimpleToken');
 contract('Aave V2', function([_, user, someone]) {
   const aTokenAddress = ADAI_V2_TOKEN;
   const tokenAddress = DAI_TOKEN;
-  const providerAddress = DAI_PROVIDER;
   const awmaticAddress = AWMATIC_V2;
-  const wmaticProviderAddress = WMATIC_PROVIDER;
 
   let id;
   let balanceUser;
   let balanceProxy;
+  let providerAddress;
+  let wmaticProviderAddress;
 
   before(async function() {
+    providerAddress = await tokenProviderQuick(tokenAddress);
+    wmaticProviderAddress = await tokenProviderQuick(WMATIC_TOKEN);
+
     this.registry = await Registry.new();
     this.proxy = await Proxy.new(this.registry.address);
     this.hAaveV2 = await HAaveV2.new();
@@ -71,15 +68,6 @@ contract('Aave V2', function([_, user, someone]) {
     this.wmatic = await IToken.at(WMATIC_TOKEN);
     this.awmatic = await IAToken.at(awmaticAddress);
     this.mockToken = await SimpleToken.new();
-
-    await hre.network.provider.request({
-      method: 'hardhat_impersonateAccount',
-      params: [providerAddress],
-    });
-    await hre.network.provider.request({
-      method: 'hardhat_impersonateAccount',
-      params: [wmaticProviderAddress],
-    });
   });
 
   beforeEach(async function() {

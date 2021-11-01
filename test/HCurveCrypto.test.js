@@ -7,11 +7,8 @@ const abi = require('ethereumjs-abi');
 const utils = web3.utils;
 const {
   WETH_TOKEN,
-  WETH_PROVIDER,
   USDT_TOKEN,
-  USDT_PROVIDER,
   WBTC_TOKEN,
-  WBTC_PROVIDER,
   CURVE_ATRICRYPTO_DEPOSIT,
   CURVE_ATRICRYPTOCRV,
   CURVE_ATRICRYPTOCRV_PROVIDER,
@@ -22,6 +19,7 @@ const {
   mulPercent,
   profileGas,
   getHandlerReturn,
+  tokenProviderQuick,
 } = require('./utils/utils');
 
 const Proxy = artifacts.require('ProxyMock');
@@ -42,19 +40,9 @@ contract('Curve Crypto', function([_, user]) {
     );
     this.proxy = await Proxy.new(this.registry.address);
     this.atricryptoDeposit = await ICurveHandler.at(CURVE_ATRICRYPTO_DEPOSIT);
-    await hre.network.provider.request({
-      method: 'hardhat_impersonateAccount',
-      params: [WETH_PROVIDER],
-    });
-    await hre.network.provider.request({
-      method: 'hardhat_impersonateAccount',
-      params: [USDT_PROVIDER],
-    });
-    await hre.network.provider.request({
-      method: 'hardhat_impersonateAccount',
-      params: [WBTC_PROVIDER],
-    });
-    await hre.network.provider.request({
+
+    // FIXME: static provider beacuse curve address provider hasn't atricrypto pool
+    await network.provider.request({
       method: 'hardhat_impersonateAccount',
       params: [CURVE_ATRICRYPTOCRV_PROVIDER],
     });
@@ -73,13 +61,15 @@ contract('Curve Crypto', function([_, user]) {
       const token0Address = USDT_TOKEN;
       const token1Address = WBTC_TOKEN;
       const token2Address = WETH_TOKEN;
-      const provider0Address = USDT_PROVIDER;
-      const provider1Address = WBTC_PROVIDER;
 
       let token0, token1, token2;
       let balanceUser, balanceProxy, token0User, token1User, token2User;
+      let provider0Address, provider1Address;
 
       before(async function() {
+        provider0Address = await tokenProviderQuick(token0Address);
+        provider1Address = await tokenProviderQuick(token1Address);
+
         token0 = await IToken.at(token0Address);
         token1 = await IToken.at(token1Address);
         token2 = await IToken.at(token2Address);
@@ -184,16 +174,18 @@ contract('Curve Crypto', function([_, user]) {
       const token0Address = USDT_TOKEN;
       const token1Address = WBTC_TOKEN;
       const token2Address = WETH_TOKEN;
-      const provider0Address = USDT_PROVIDER;
-      const provider1Address = WBTC_PROVIDER;
-      const provider2Address = WETH_PROVIDER;
       const poolTokenAddress = CURVE_ATRICRYPTOCRV;
       const poolTokenProvider = CURVE_ATRICRYPTOCRV_PROVIDER;
 
       let token0, token1, token2, poolToken;
       let balanceProxy, token0User, token1User, token2User, poolTokenUser;
+      let provider0Address, provider1Address, provider2Address;
 
       before(async function() {
+        provider0Address = await tokenProviderQuick(token0Address);
+        provider1Address = await tokenProviderQuick(token1Address);
+        provider2Address = await tokenProviderQuick(token2Address);
+
         token0 = await IToken.at(token0Address);
         token1 = await IToken.at(token1Address);
         token2 = await IToken.at(token2Address);

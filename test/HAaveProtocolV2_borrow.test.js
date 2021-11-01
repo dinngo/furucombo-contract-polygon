@@ -1,26 +1,18 @@
 const {
   balance,
   BN,
-  constants,
   ether,
-  expectEvent,
   expectRevert,
-  time,
 } = require('@openzeppelin/test-helpers');
-const { MAX_UINT256 } = constants;
 const { tracker } = balance;
-const { latest } = time;
 const abi = require('ethereumjs-abi');
-const util = require('ethereumjs-util');
 const utils = web3.utils;
 
 const { expect } = require('chai');
 
 const {
   WMATIC_TOKEN,
-  WMATIC_PROVIDER,
   DAI_TOKEN,
-  DAI_PROVIDER,
   WETH_TOKEN,
   COMP_TOKEN,
   ADAI_V2_TOKEN,
@@ -36,8 +28,7 @@ const {
   evmRevert,
   evmSnapshot,
   profileGas,
-  getHandlerReturn,
-  mulPercent,
+  tokenProviderQuick,
 } = require('./utils/utils');
 
 const HAaveV2 = artifacts.require('HAaveProtocolV2');
@@ -55,13 +46,15 @@ const IVariableDebtToken = artifacts.require('IVariableDebtToken');
 contract('Aave V2', function([_, user, someone]) {
   const aTokenAddress = ADAI_V2_TOKEN;
   const tokenAddress = DAI_TOKEN;
-  const providerAddress = DAI_PROVIDER;
 
   let id;
   let balanceUser;
   let balanceProxy;
+  let providerAddress;
 
   before(async function() {
+    providerAddress = await tokenProviderQuick(tokenAddress);
+
     this.registry = await Registry.new();
     this.proxy = await Proxy.new(this.registry.address);
     this.hAaveV2 = await HAaveV2.new();
@@ -76,11 +69,6 @@ contract('Aave V2', function([_, user, someone]) {
     this.aToken = await IAToken.at(aTokenAddress);
     this.wmatic = await IToken.at(WMATIC_TOKEN);
     this.mockToken = await SimpleToken.new();
-
-    await hre.network.provider.request({
-      method: 'hardhat_impersonateAccount',
-      params: [providerAddress],
-    });
   });
 
   beforeEach(async function() {
