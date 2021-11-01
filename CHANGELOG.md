@@ -13,6 +13,10 @@ All notable changes to this project will be documented in this file.
 - Migrate developing environment from Truffle to Hardhat.
 - Refine token provider for tests.
 
+### Fixed
+
+- Fix bignumber zero checks.
+
 ## [1.9.0] - 2021-10-01
 
 ### Changed

@@ -105,7 +105,7 @@ contract('Aave V2', function([_, user, someone]) {
       await this.token.approve(this.lendingPool.address, depositAmount, {
         from: providerAddress,
       });
-      expect(await this.aToken.balanceOf.call(user)).to.be.zero;
+      expect(await this.aToken.balanceOf.call(user)).to.be.bignumber.zero;
       await this.lendingPool.deposit(
         this.token.address,
         depositAmount,
@@ -143,13 +143,13 @@ contract('Aave V2', function([_, user, someone]) {
       const borrowTokenUserAfter = await this.borrowToken.balanceOf.call(user);
       const debtTokenUserAfter = await this.debtToken.balanceOf.call(user);
       // Verify proxy balance
-      expect(await balanceProxy.get()).to.be.zero;
+      expect(await balanceProxy.get()).to.be.bignumber.zero;
       expect(
         await this.borrowToken.balanceOf.call(this.proxy.address)
-      ).to.be.zero;
+      ).to.be.bignumber.zero;
       expect(
         await this.debtToken.balanceOf.call(this.proxy.address)
-      ).to.be.zero;
+      ).to.be.bignumber.zero;
 
       // Verify user balance
       expect(
@@ -192,13 +192,13 @@ contract('Aave V2', function([_, user, someone]) {
       const borrowWMATICUserAfter = await this.wmatic.balanceOf.call(user);
       const debtWMATICUserAfter = await this.debtWMATIC.balanceOf.call(user);
       // Verify proxy balance
-      expect(await balanceProxy.get()).to.be.zero;
+      expect(await balanceProxy.get()).to.be.bignumber.zero;
       expect(
         await this.borrowToken.balanceOf.call(this.proxy.address)
-      ).to.be.zero;
+      ).to.be.bignumber.zero;
       expect(
         await this.debtToken.balanceOf.call(this.proxy.address)
-      ).to.be.zero;
+      ).to.be.bignumber.zero;
 
       // Verify user balance
       expect(
@@ -240,10 +240,10 @@ contract('Aave V2', function([_, user, someone]) {
       const balancerUserAfter = await balanceUser.get();
       const debtWMATICUserAfter = await this.debtWMATIC.balanceOf.call(user);
       // Verify proxy balance
-      expect(await balanceProxy.get()).to.be.zero;
+      expect(await balanceProxy.get()).to.be.bignumber.zero;
       expect(
         await this.debtToken.balanceOf.call(this.proxy.address)
-      ).to.be.zero;
+      ).to.be.bignumber.zero;
 
       // Verify user balance
       expect(balancerUserAfter.sub(balancerUserBefore)).to.be.bignumber.eq(
@@ -397,7 +397,7 @@ contract('Aave V2', function([_, user, someone]) {
         from: providerAddress,
       });
 
-      expect(await this.aToken.balanceOf.call(user)).to.be.zero;
+      expect(await this.aToken.balanceOf.call(user)).to.be.bignumber.zero;
       await this.lendingPool.deposit(
         this.token.address,
         depositAmount,
@@ -435,13 +435,13 @@ contract('Aave V2', function([_, user, someone]) {
       const borrowTokenUserAfter = await this.borrowToken.balanceOf.call(user);
       const debtTokenUserAfter = await this.debtToken.balanceOf.call(user);
       // Verify proxy balance
-      expect(await balanceProxy.get()).to.be.zero;
+      expect(await balanceProxy.get()).to.be.bignumber.zero;
       expect(
         await this.borrowToken.balanceOf.call(this.proxy.address)
-      ).to.be.zero;
+      ).to.be.bignumber.zero;
       expect(
         await this.debtToken.balanceOf.call(this.proxy.address)
-      ).to.be.zero;
+      ).to.be.bignumber.zero;
 
       // Verify user balance
       expect(
@@ -485,13 +485,13 @@ contract('Aave V2', function([_, user, someone]) {
       const borrowWMATICUserAfter = await this.wmatic.balanceOf.call(user);
       const debtWMATICUserAfter = await this.debtWMATIC.balanceOf.call(user);
       // Verify proxy balance
-      expect(await balanceProxy.get()).to.be.zero;
+      expect(await balanceProxy.get()).to.be.bignumber.zero;
       expect(
         await this.borrowToken.balanceOf.call(this.proxy.address)
-      ).to.be.zero;
+      ).to.be.bignumber.zero;
       expect(
         await this.debtToken.balanceOf.call(this.proxy.address)
-      ).to.be.zero;
+      ).to.be.bignumber.zero;
 
       // Verify user balance
       expect(
@@ -534,10 +534,10 @@ contract('Aave V2', function([_, user, someone]) {
       const balancerUserAfter = await balanceUser.get();
       const debtWMATICUserAfter = await this.debtWMATIC.balanceOf.call(user);
       // Verify proxy balance
-      expect(await balanceProxy.get()).to.be.zero;
+      expect(await balanceProxy.get()).to.be.bignumber.zero;
       expect(
         await this.debtToken.balanceOf.call(this.proxy.address)
-      ).to.be.zero;
+      ).to.be.bignumber.zero;
 
       // Verify user balance
       expect(balancerUserAfter.sub(balancerUserBefore)).to.be.bignumber.eq(
