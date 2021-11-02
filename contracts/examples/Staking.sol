@@ -3,7 +3,6 @@
 pragma solidity 0.8.9;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
@@ -13,7 +12,6 @@ import "./MerkleRedeem.sol";
  * @title The staking contract for Furucombo
  */
 contract Staking is Ownable, Pausable, ReentrancyGuard {
-    
     using SafeERC20 for IERC20;
 
     IERC20 public stakingToken;

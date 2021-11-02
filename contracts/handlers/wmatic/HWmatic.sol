@@ -8,7 +8,7 @@ import "./IWMATIC.sol";
 
 contract HWmatic is HandlerBase {
     // prettier-ignore
-    address payable public constant WMATIC = payable(address(0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270));
+    address public constant WMATIC = 0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270;
 
     function getContractName() public pure override returns (string memory) {
         return "HWmatic";

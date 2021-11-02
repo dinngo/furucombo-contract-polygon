@@ -67,7 +67,7 @@ abstract contract IRewardDistributionRecipient is Ownable {
 
 // File: contracts/CurveRewards.sol
 
-pragma solidity ^0.8.0;
+pragma solidity 0.8.9;
 
 contract LPTokenWrapper {
     using SafeERC20 for IERC20;
