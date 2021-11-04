@@ -16,6 +16,9 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 
 - Fix bignumber zero checks.
+- Upgrade solidity version to 0.8.9
+- Replace all uint256(-1) with type(uint256).max
+- Warning free
 
 ## [1.9.0] - 2021-10-01
 

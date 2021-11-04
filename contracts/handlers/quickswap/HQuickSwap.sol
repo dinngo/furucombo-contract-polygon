@@ -51,7 +51,7 @@ contract HQuickSwap is HandlerBase {
                 amountTokenMin,
                 amountETHMin,
                 address(this),
-                block.timestamp + 1
+                block.timestamp
             )
         returns (uint256 ret1, uint256 ret2, uint256 ret3) {
             amountToken = ret1;
@@ -107,7 +107,7 @@ contract HQuickSwap is HandlerBase {
                 amountAMin,
                 amountBMin,
                 address(this),
-                block.timestamp + 1
+                block.timestamp
             )
         returns (uint256 ret1, uint256 ret2, uint256 ret3) {
             amountA = ret1;
@@ -148,7 +148,7 @@ contract HQuickSwap is HandlerBase {
                 amountTokenMin,
                 amountETHMin,
                 address(this),
-                block.timestamp + 1
+                block.timestamp
             )
         returns (uint256 ret1, uint256 ret2) {
             amountToken = ret1;
@@ -188,7 +188,7 @@ contract HQuickSwap is HandlerBase {
                 amountAMin,
                 amountBMin,
                 address(this),
-                block.timestamp + 1
+                block.timestamp
             )
         returns (uint256 ret1, uint256 ret2) {
             amountA = ret1;
@@ -221,7 +221,7 @@ contract HQuickSwap is HandlerBase {
                 amountOutMin,
                 path,
                 address(this),
-                block.timestamp + 1
+                block.timestamp
             )
         returns (uint256[] memory amounts) {
             amount = amounts[amounts.length - 1];
@@ -254,7 +254,7 @@ contract HQuickSwap is HandlerBase {
                 amountOut,
                 path,
                 address(this),
-                block.timestamp + 1
+                block.timestamp
             )
         returns (uint256[] memory amounts) {
             amount = amounts[0];
@@ -290,7 +290,7 @@ contract HQuickSwap is HandlerBase {
                 amountOutMin,
                 path,
                 address(this),
-                block.timestamp + 1
+                block.timestamp
             )
         returns (uint256[] memory amounts) {
             amount = amounts[amounts.length - 1];
@@ -326,7 +326,7 @@ contract HQuickSwap is HandlerBase {
                 amountInMax,
                 path,
                 address(this),
-                block.timestamp + 1
+                block.timestamp
             )
         returns (uint256[] memory amounts) {
             amount = amounts[0];
@@ -361,7 +361,7 @@ contract HQuickSwap is HandlerBase {
                 amountOutMin,
                 path,
                 address(this),
-                block.timestamp + 1
+                block.timestamp
             )
         returns (uint256[] memory amounts) {
             amount = amounts[amounts.length - 1];
@@ -400,7 +400,7 @@ contract HQuickSwap is HandlerBase {
                 amountInMax,
                 path,
                 address(this),
-                block.timestamp + 1
+                block.timestamp
             )
         returns (uint256[] memory amounts) {
             amount = amounts[0];
