@@ -98,11 +98,6 @@ module.exports = {
   /* Event Signature */
   RecordHandlerResultSig:
     '0x90c726ff5efa7268723ee48df835144384bc0f012e89750782886764b5e54f16',
-  /* Storage */
-  STORAGE_KEY_MSG_SENDER:
-    '0xb2f2618cecbbb6e7468cc0f2aa43858ad8d153e0280b22285e28e853bb9d453a',
-  STORAGE_KEY_CUBE_COUNTER:
-    '0xf9543f11459ccccd21306c8881aaab675ff49d988c1162fd1dd9bbcdbe4446be',
 
   // MerkleRedeem Claim Merkle Proof
   MR_TOTAL_SUPPLY: '20', // ehter
