@@ -1,7 +1,8 @@
-pragma solidity ^0.6.0;
+// SPDX-License-Identifier: MIT
 
-import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
-import "@openzeppelin/contracts/math/SafeMath.sol";
+pragma solidity 0.8.9;
+
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 import "../HandlerBase.sol";
 import "./libraries/UniswapV2Library.sol";
@@ -9,7 +10,6 @@ import "./IUniswapV2Router02.sol";
 
 contract HQuickSwap is HandlerBase {
     using SafeERC20 for IERC20;
-    using SafeMath for uint256;
 
     // prettier-ignore
     address public constant UNISWAPV2_ROUTER = 0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff;
@@ -51,7 +51,7 @@ contract HQuickSwap is HandlerBase {
                 amountTokenMin,
                 amountETHMin,
                 address(this),
-                now + 1
+                block.timestamp
             )
         returns (uint256 ret1, uint256 ret2, uint256 ret3) {
             amountToken = ret1;
@@ -107,7 +107,7 @@ contract HQuickSwap is HandlerBase {
                 amountAMin,
                 amountBMin,
                 address(this),
-                now + 1
+                block.timestamp
             )
         returns (uint256 ret1, uint256 ret2, uint256 ret3) {
             amountA = ret1;
@@ -148,7 +148,7 @@ contract HQuickSwap is HandlerBase {
                 amountTokenMin,
                 amountETHMin,
                 address(this),
-                now + 1
+                block.timestamp
             )
         returns (uint256 ret1, uint256 ret2) {
             amountToken = ret1;
@@ -188,7 +188,7 @@ contract HQuickSwap is HandlerBase {
                 amountAMin,
                 amountBMin,
                 address(this),
-                now + 1
+                block.timestamp
             )
         returns (uint256 ret1, uint256 ret2) {
             amountA = ret1;
@@ -221,7 +221,7 @@ contract HQuickSwap is HandlerBase {
                 amountOutMin,
                 path,
                 address(this),
-                now + 1
+                block.timestamp
             )
         returns (uint256[] memory amounts) {
             amount = amounts[amounts.length - 1];
@@ -254,7 +254,7 @@ contract HQuickSwap is HandlerBase {
                 amountOut,
                 path,
                 address(this),
-                now + 1
+                block.timestamp
             )
         returns (uint256[] memory amounts) {
             amount = amounts[0];
@@ -290,7 +290,7 @@ contract HQuickSwap is HandlerBase {
                 amountOutMin,
                 path,
                 address(this),
-                now + 1
+                block.timestamp
             )
         returns (uint256[] memory amounts) {
             amount = amounts[amounts.length - 1];
@@ -326,7 +326,7 @@ contract HQuickSwap is HandlerBase {
                 amountInMax,
                 path,
                 address(this),
-                now + 1
+                block.timestamp
             )
         returns (uint256[] memory amounts) {
             amount = amounts[0];
@@ -361,7 +361,7 @@ contract HQuickSwap is HandlerBase {
                 amountOutMin,
                 path,
                 address(this),
-                now + 1
+                block.timestamp
             )
         returns (uint256[] memory amounts) {
             amount = amounts[amounts.length - 1];
@@ -400,7 +400,7 @@ contract HQuickSwap is HandlerBase {
                 amountInMax,
                 path,
                 address(this),
-                now + 1
+                block.timestamp
             )
         returns (uint256[] memory amounts) {
             amount = amounts[0];

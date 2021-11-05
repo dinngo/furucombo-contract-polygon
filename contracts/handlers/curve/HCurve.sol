@@ -1,13 +1,13 @@
-pragma solidity ^0.6.0;
+// SPDX-License-Identifier: MIT
 
-import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
-import "@openzeppelin/contracts/math/SafeMath.sol";
+pragma solidity 0.8.9;
+
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "../HandlerBase.sol";
 import "./ICurveHandler.sol";
 
 contract HCurve is HandlerBase {
     using SafeERC20 for IERC20;
-    using SafeMath for uint256;
 
     function getContractName() public pure override returns (string memory) {
         return "HCurve";
@@ -196,7 +196,7 @@ contract HCurve is HandlerBase {
 
         if (tokenJ != ETH_ADDRESS) _updateToken(tokenJ);
 
-        return balance.sub(balanceBefore);
+        return balance - balanceBefore;
     }
 
     /// @notice Curve add liquidity
@@ -524,7 +524,7 @@ contract HCurve is HandlerBase {
         // Update post process
         _updateToken(address(pool));
 
-        return balance.sub(balanceBefore);
+        return balance - balanceBefore;
     }
 
     /// @notice Curve remove liquidity one coin
@@ -696,6 +696,6 @@ contract HCurve is HandlerBase {
         // Update post process
         if (tokenI != ETH_ADDRESS) _updateToken(tokenI);
 
-        return balance.sub(balanceBefore);
+        return balance - balanceBefore;
     }
 }

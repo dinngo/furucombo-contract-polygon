@@ -1,8 +1,8 @@
-pragma solidity ^0.6.0;
-pragma experimental ABIEncoderV2;
+// SPDX-License-Identifier: MIT
 
-import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
-import "@openzeppelin/contracts/math/SafeMath.sol";
+pragma solidity 0.8.9;
+
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 import "../../interface/IProxy.sol";
 import "../HandlerBase.sol";
@@ -14,14 +14,13 @@ import "./libraries/DataTypes.sol";
 
 contract HAaveProtocolV2 is HandlerBase, IFlashLoanReceiver {
     using SafeERC20 for IERC20;
-    using SafeMath for uint256;
 
     // prettier-ignore
     address public constant PROVIDER = 0xd05e3E715d945B59290df0ae8eF85c1BdB684744;
     // prettier-ignore
-    address payable public constant WMATIC = 0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270;
+    address public constant WMATIC = 0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270;
     // prettier-ignore
-    address payable public constant ETHER = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
+    address public constant ETHER = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
     uint16 public constant REFERRAL_CODE = 56;
 
     function getContractName() public pure override returns (string memory) {
@@ -168,7 +167,7 @@ contract HAaveProtocolV2 is HandlerBase, IFlashLoanReceiver {
         address pool =
             ILendingPoolAddressesProviderV2(PROVIDER).getLendingPool();
         for (uint256 i = 0; i < assets.length; i++) {
-            uint256 amountOwing = amounts[i].add(premiums[i]);
+            uint256 amountOwing = amounts[i] + premiums[i];
             IERC20(assets[i]).safeApprove(pool, amountOwing);
         }
         return true;
