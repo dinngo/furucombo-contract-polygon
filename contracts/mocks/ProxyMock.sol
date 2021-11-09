@@ -27,7 +27,7 @@ contract ProxyMock is Proxy, GasProfiler {
         return result;
     }
 
-    function _preProcess() internal override isCubeCounterZero {
+    function _preProcess() internal override {
         // Set the sender.
         _setSender();
     }

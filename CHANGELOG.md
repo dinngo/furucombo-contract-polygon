@@ -13,6 +13,7 @@ All notable changes to this project will be documented in this file.
 - Migrate developing environment from Truffle to Hardhat.
 - Refine token provider for tests.
 - Replace if-revertMsg with requireMsg.
+- Remove cube counter.
 
 ### Fixed
 
