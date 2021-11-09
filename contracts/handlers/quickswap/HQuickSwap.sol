@@ -209,8 +209,7 @@ contract HQuickSwap is HandlerBase {
         uint256 amountOutMin,
         address[] calldata path
     ) external payable returns (uint256 amount) {
-        if (path.length < 2)
-            _revertMsg("swapExactETHForTokens", "invalid path");
+        _requireMsg(path.length >= 2, "swapExactETHForTokens", "invalid path");
         address tokenOut = path[path.length - 1];
 
         // Get uniswapV2 router
@@ -239,14 +238,13 @@ contract HQuickSwap is HandlerBase {
         uint256 amountOut,
         address[] calldata path
     ) external payable returns (uint256 amount) {
-        if (path.length < 2)
-            _revertMsg("swapETHForExactTokens", "invalid path");
+        _requireMsg(path.length >= 2, "swapETHForExactTokens", "invalid path");
         address tokenOut = path[path.length - 1];
 
         // Get uniswapV2 router
         IUniswapV2Router02 router = IUniswapV2Router02(UNISWAPV2_ROUTER);
 
-        // if amount == uint256(-1) return balance of Proxy
+        // if amount == type(uint256).max return balance of Proxy
         value = _getBalance(address(0), value);
 
         try
@@ -272,8 +270,7 @@ contract HQuickSwap is HandlerBase {
         uint256 amountOutMin,
         address[] calldata path
     ) external payable returns (uint256 amount) {
-        if (path.length < 2)
-            _revertMsg("swapExactTokensForETH", "invalid path");
+        _requireMsg(path.length >= 2, "swapExactTokensForETH", "invalid path");
         address tokenIn = path[0];
         _notMaticToken(tokenIn);
 
@@ -306,15 +303,14 @@ contract HQuickSwap is HandlerBase {
         uint256 amountInMax,
         address[] calldata path
     ) external payable returns (uint256 amount) {
-        if (path.length < 2)
-            _revertMsg("swapTokensForExactETH", "invalid path");
+        _requireMsg(path.length >= 2, "swapTokensForExactETH", "invalid path");
         address tokenIn = path[0];
         _notMaticToken(tokenIn);
 
         // Get uniswapV2 router
         IUniswapV2Router02 router = IUniswapV2Router02(UNISWAPV2_ROUTER);
 
-        // if amount == uint256(-1) return balance of Proxy
+        // if amount == type(uint256).max return balance of Proxy
         amountInMax = _getBalance(tokenIn, amountInMax);
 
         // Approve token
@@ -342,8 +338,11 @@ contract HQuickSwap is HandlerBase {
         uint256 amountOutMin,
         address[] calldata path
     ) external payable returns (uint256 amount) {
-        if (path.length < 2)
-            _revertMsg("swapExactTokensForTokens", "invalid path");
+        _requireMsg(
+            path.length >= 2,
+            "swapExactTokensForTokens",
+            "invalid path"
+        );
         address tokenIn = path[0];
         address tokenOut = path[path.length - 1];
         _notMaticToken(tokenIn);
@@ -379,8 +378,11 @@ contract HQuickSwap is HandlerBase {
         uint256 amountInMax,
         address[] calldata path
     ) external payable returns (uint256 amount) {
-        if (path.length < 2)
-            _revertMsg("swapTokensForExactTokens", "invalid path");
+        _requireMsg(
+            path.length >= 2,
+            "swapTokensForExactTokens",
+            "invalid path"
+        );
         address tokenIn = path[0];
         address tokenOut = path[path.length - 1];
         _notMaticToken(tokenIn);
@@ -388,7 +390,7 @@ contract HQuickSwap is HandlerBase {
         // Get uniswapV2 router
         IUniswapV2Router02 router = IUniswapV2Router02(UNISWAPV2_ROUTER);
 
-        // if amount == uint256(-1) return balance of Proxy
+        // if amount == type(uint256).max return balance of Proxy
         amountInMax = _getBalance(tokenIn, amountInMax);
 
         // Approve token

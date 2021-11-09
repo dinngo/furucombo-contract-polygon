@@ -106,13 +106,17 @@ contract HAaveProtocolV2 is HandlerBase, IFlashLoanReceiver {
         bytes calldata params
     ) external payable {
         _notMaticToken(assets);
-        if (assets.length != amounts.length) {
-            _revertMsg("flashLoan", "assets and amounts do not match");
-        }
+        _requireMsg(
+            assets.length == amounts.length,
+            "flashLoan",
+            "assets and amounts do not match"
+        );
 
-        if (assets.length != modes.length) {
-            _revertMsg("flashLoan", "assets and modes do not match");
-        }
+        _requireMsg(
+            assets.length == modes.length,
+            "flashLoan",
+            "assets and modes do not match"
+        );
 
         address onBehalfOf = _getSender();
         address pool =
@@ -149,16 +153,18 @@ contract HAaveProtocolV2 is HandlerBase, IFlashLoanReceiver {
         bytes memory params
     ) external override returns (bool) {
         _notMaticToken(assets);
-        if (
-            msg.sender !=
-            ILendingPoolAddressesProviderV2(PROVIDER).getLendingPool()
-        ) {
-            _revertMsg("executeOperation", "invalid caller");
-        }
+        _requireMsg(
+            msg.sender ==
+                ILendingPoolAddressesProviderV2(PROVIDER).getLendingPool(),
+            "executeOperation",
+            "invalid caller"
+        );
 
-        if (initiator != address(this)) {
-            _revertMsg("executeOperation", "not initiated by the proxy");
-        }
+        _requireMsg(
+            initiator == address(this),
+            "executeOperation",
+            "not initiated by the proxy"
+        );
 
         (address[] memory tos, bytes32[] memory configs, bytes[] memory datas) =
             abi.decode(params, (address[], bytes32[], bytes[]));
@@ -276,8 +282,11 @@ contract HAaveProtocolV2 is HandlerBase, IFlashLoanReceiver {
             DataTypes.ReserveData memory data
         ) {
             aToken = data.aTokenAddress;
-            if (aToken == address(0))
-                _revertMsg("General", "aToken should not be zero address");
+            _requireMsg(
+                aToken != address(0),
+                "General",
+                "aToken should not be zero address"
+            );
         } catch Error(string memory reason) {
             _revertMsg("General", reason);
         } catch {

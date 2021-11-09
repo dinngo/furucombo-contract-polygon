@@ -190,9 +190,11 @@ contract HCurve is HandlerBase {
         returns (uint256)
     {
         uint256 balance = _getBalance(tokenJ, type(uint256).max);
-        if (balance <= balanceBefore) {
-            _revertMsg("_exchangeAfter", "after <= before");
-        }
+        _requireMsg(
+            balance > balanceBefore,
+            "_exchangeAfter",
+            "after <= before"
+        );
 
         if (tokenJ != ETH_ADDRESS) _updateToken(tokenJ);
 
@@ -517,9 +519,11 @@ contract HCurve is HandlerBase {
         returns (uint256)
     {
         uint256 balance = IERC20(pool).balanceOf(address(this));
-        if (balance <= balanceBefore) {
-            _revertMsg("_addLiquidityAfter", "after <= before");
-        }
+        _requireMsg(
+            balance > balanceBefore,
+            "_addLiquidityAfter",
+            "after <= before"
+        );
 
         // Update post process
         _updateToken(address(pool));
@@ -689,9 +693,11 @@ contract HCurve is HandlerBase {
         // call transferFrom(). So set approval to 0 here.
         IERC20(pool).safeApprove(handler, 0);
         uint256 balance = _getBalance(tokenI, type(uint256).max);
-        if (balance <= balanceBefore) {
-            _revertMsg("_removeLiquidityOneCoinAfter", "after <= before");
-        }
+        _requireMsg(
+            balance > balanceBefore,
+            "_removeLiquidityOneCoinAfter",
+            "after <= before"
+        );
 
         // Update post process
         if (tokenI != ETH_ADDRESS) _updateToken(tokenI);

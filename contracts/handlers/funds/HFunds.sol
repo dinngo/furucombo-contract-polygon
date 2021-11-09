@@ -40,8 +40,11 @@ contract HFunds is HandlerBase {
         payable
         returns (uint256[] memory)
     {
-        if (tokens.length != amounts.length)
-            _revertMsg("inject", "token and amount does not match");
+        _requireMsg(
+            tokens.length == amounts.length,
+            "inject",
+            "token and amount does not match"
+        );
         address sender = _getSender();
         for (uint256 i = 0; i < tokens.length; i++) {
             _notMaticToken(tokens[i]);
@@ -103,9 +106,11 @@ contract HFunds is HandlerBase {
         address[] calldata tokens,
         uint256[] calldata amounts
     ) external payable {
-        if (tokens.length != amounts.length) {
-            _revertMsg("checkSlippage", "token and amount do not match");
-        }
+        _requireMsg(
+            tokens.length == amounts.length,
+            "checkSlippage",
+            "token and amount do not match"
+        );
 
         for (uint256 i = 0; i < tokens.length; i++) {
             // token can't be matic token
