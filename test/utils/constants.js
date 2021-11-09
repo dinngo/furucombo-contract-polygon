@@ -1,7 +1,7 @@
 const ether = require('@openzeppelin/test-helpers/src/ether');
 
 module.exports = {
-  NATIVE_TOKEN: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+  NATIVE_TOKEN_ADDRESS: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
 
   MATIC_TOKEN: '0x0000000000000000000000000000000000001010',
 

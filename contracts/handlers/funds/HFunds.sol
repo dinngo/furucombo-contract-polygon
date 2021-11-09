@@ -9,9 +9,6 @@ import "../HandlerBase.sol";
 contract HFunds is HandlerBase {
     using SafeERC20 for IERC20;
 
-    // prettier-ignore
-    address public constant ETH_ADDRESS = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
-
     function getContractName() public pure override returns (string memory) {
         return "HFunds";
     }
@@ -26,7 +23,7 @@ contract HFunds is HandlerBase {
             address token = tokens[i];
             _notMaticToken(token);
 
-            if (token != address(0) && token != ETH_ADDRESS) {
+            if (token != address(0) && token != NATIVE_TOKEN_ADDRESS) {
                 // Update involved token
                 _updateToken(token);
             }
@@ -72,7 +69,9 @@ contract HFunds is HandlerBase {
             uint256 amount = _getBalance(tokens[i], amounts[i]);
             if (amount > 0) {
                 // ETH case
-                if (tokens[i] == address(0) || tokens[i] == ETH_ADDRESS) {
+                if (
+                    tokens[i] == address(0) || tokens[i] == NATIVE_TOKEN_ADDRESS
+                ) {
                     receiver.transfer(amount);
                 } else {
                     IERC20(tokens[i]).safeTransfer(receiver, amount);
