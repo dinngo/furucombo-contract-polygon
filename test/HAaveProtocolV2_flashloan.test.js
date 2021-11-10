@@ -22,7 +22,12 @@ const {
   AWMATIC_V2_DEBT_VARIABLE,
   AAVE_RATEMODE,
 } = require('./utils/constants');
-const { evmRevert, evmSnapshot, tokenProviderQuick } = require('./utils/utils');
+const {
+  evmRevert,
+  evmSnapshot,
+  tokenProviderQuick,
+  expectEqWithinBps,
+} = require('./utils/utils');
 
 const Registry = artifacts.require('Registry');
 const Proxy = artifacts.require('ProxyMock');
@@ -144,8 +149,10 @@ contract('AaveV2 flashloan', function([_, user, someone]) {
         0,
         { from: this.tokenBProvider }
       );
-      expect(await this.aTokenB.balanceOf.call(user)).to.be.bignumber.eq(
-        depositAmount
+      expectEqWithinBps(
+        await this.aTokenB.balanceOf.call(user),
+        depositAmount,
+        10
       );
     });
 
@@ -174,7 +181,9 @@ contract('AaveV2 flashloan', function([_, user, someone]) {
 
       const fee = _getFlashloanFee(value);
       expect(await balanceProxy.get()).to.be.bignumber.zero;
-      expect(await this.tokenA.balanceOf.call(this.proxy.address)).to.be.bignumber.zero;
+      expect(
+        await this.tokenA.balanceOf.call(this.proxy.address)
+      ).to.be.bignumber.zero;
       expect(await this.tokenA.balanceOf.call(user)).to.be.bignumber.eq(
         tokenAUser.add(value).sub(fee)
       );
@@ -265,7 +274,9 @@ contract('AaveV2 flashloan', function([_, user, someone]) {
       });
 
       expect(await balanceProxy.get()).to.be.bignumber.zero;
-      expect(await this.tokenA.balanceOf.call(this.proxy.address)).to.be.bignumber.zero;
+      expect(
+        await this.tokenA.balanceOf.call(this.proxy.address)
+      ).to.be.bignumber.zero;
       expect(await this.tokenA.balanceOf.call(user)).to.be.bignumber.eq(
         tokenAUser.add(value).add(value)
       );
@@ -301,8 +312,12 @@ contract('AaveV2 flashloan', function([_, user, someone]) {
       });
 
       expect(await balanceProxy.get()).to.be.bignumber.zero;
-      expect(await this.tokenA.balanceOf.call(this.proxy.address)).to.be.bignumber.zero;
-      expect(await this.tokenB.balanceOf.call(this.proxy.address)).to.be.bignumber.zero;
+      expect(
+        await this.tokenA.balanceOf.call(this.proxy.address)
+      ).to.be.bignumber.zero;
+      expect(
+        await this.tokenB.balanceOf.call(this.proxy.address)
+      ).to.be.bignumber.zero;
 
       const fee = _getFlashloanFee(value);
       expect(await this.tokenA.balanceOf.call(user)).to.be.bignumber.eq(
@@ -510,8 +525,12 @@ contract('AaveV2 flashloan', function([_, user, someone]) {
       });
 
       expect(await balanceProxy.get()).to.be.bignumber.zero;
-      expect(await this.tokenA.balanceOf.call(this.proxy.address)).to.be.bignumber.zero;
-      expect(await this.tokenB.balanceOf.call(this.proxy.address)).to.be.bignumber.zero;
+      expect(
+        await this.tokenA.balanceOf.call(this.proxy.address)
+      ).to.be.bignumber.zero;
+      expect(
+        await this.tokenB.balanceOf.call(this.proxy.address)
+      ).to.be.bignumber.zero;
 
       const fee = value
         .mul(new BN('9'))
@@ -573,8 +592,12 @@ contract('AaveV2 flashloan', function([_, user, someone]) {
       });
 
       expect(await balanceProxy.get()).to.be.bignumber.zero;
-      expect(await this.tokenA.balanceOf.call(this.proxy.address)).to.be.bignumber.zero;
-      expect(await this.tokenB.balanceOf.call(this.proxy.address)).to.be.bignumber.zero;
+      expect(
+        await this.tokenA.balanceOf.call(this.proxy.address)
+      ).to.be.bignumber.zero;
+      expect(
+        await this.tokenB.balanceOf.call(this.proxy.address)
+      ).to.be.bignumber.zero;
 
       const fee = value
         .mul(new BN('9'))
@@ -651,8 +674,12 @@ contract('AaveV2 flashloan', function([_, user, someone]) {
       });
 
       expect(await balanceProxy.get()).to.be.bignumber.zero;
-      expect(await this.tokenA.balanceOf.call(this.proxy.address)).to.be.bignumber.zero;
-      expect(await this.tokenB.balanceOf.call(this.proxy.address)).to.be.bignumber.zero;
+      expect(
+        await this.tokenA.balanceOf.call(this.proxy.address)
+      ).to.be.bignumber.zero;
+      expect(
+        await this.tokenB.balanceOf.call(this.proxy.address)
+      ).to.be.bignumber.zero;
 
       const fee = _getFlashloanFee(value);
       expect(await this.tokenA.balanceOf.call(user)).to.be.bignumber.eq(
