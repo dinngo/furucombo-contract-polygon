@@ -90,9 +90,15 @@ contract('Curve Crypto', function([_, user]) {
 
         // Check proxy
         expect(await balanceProxy.get()).to.be.bignumber.zero;
-        expect(await token0.balanceOf.call(this.proxy.address)).to.be.bignumber.zero;
-        expect(await token1.balanceOf.call(this.proxy.address)).to.be.bignumber.zero;
-        expect(await token2.balanceOf.call(this.proxy.address)).to.be.bignumber.zero;
+        expect(
+          await token0.balanceOf.call(this.proxy.address)
+        ).to.be.bignumber.zero;
+        expect(
+          await token1.balanceOf.call(this.proxy.address)
+        ).to.be.bignumber.zero;
+        expect(
+          await token2.balanceOf.call(this.proxy.address)
+        ).to.be.bignumber.zero;
 
         profileGas(receipt);
       });
@@ -207,10 +213,18 @@ contract('Curve Crypto', function([_, user]) {
 
         // Check proxy
         expect(await balanceProxy.get()).to.be.bignumber.zero;
-        expect(await token0.balanceOf.call(this.proxy.address)).to.be.bignumber.zero;
-        expect(await token1.balanceOf.call(this.proxy.address)).to.be.bignumber.zero;
-        expect(await token2.balanceOf.call(this.proxy.address)).to.be.bignumber.zero;
-        expect(await poolToken.balanceOf.call(this.proxy.address)).to.be.bignumber.zero;
+        expect(
+          await token0.balanceOf.call(this.proxy.address)
+        ).to.be.bignumber.zero;
+        expect(
+          await token1.balanceOf.call(this.proxy.address)
+        ).to.be.bignumber.zero;
+        expect(
+          await token2.balanceOf.call(this.proxy.address)
+        ).to.be.bignumber.zero;
+        expect(
+          await poolToken.balanceOf.call(this.proxy.address)
+        ).to.be.bignumber.zero;
 
         profileGas(receipt);
       });
