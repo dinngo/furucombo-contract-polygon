@@ -95,7 +95,9 @@ contract('Furucombo', function([_, user, someone]) {
       });
 
       // Verify
-      expect(await this.token.balanceOf.call(this.proxy.address)).to.be.bignumber.zero;
+      expect(
+        await this.token.balanceOf.call(this.proxy.address)
+      ).to.be.bignumber.zero;
       expect(await balanceProxy.get()).to.be.bignumber.zero;
       expect(await this.token.balanceOf.call(user)).to.be.bignumber.zero;
       expect(await balanceUser.delta()).to.be.bignumber.eq(
@@ -137,7 +139,9 @@ contract('Furucombo', function([_, user, someone]) {
       });
 
       // Verify
-      expect(await this.token.balanceOf.call(this.proxy.address)).to.be.bignumber.zero;
+      expect(
+        await this.token.balanceOf.call(this.proxy.address)
+      ).to.be.bignumber.zero;
       expect(await balanceProxy.get()).to.be.bignumber.zero;
       expect(await this.token.balanceOf.call(user)).to.be.bignumber.zero;
       expect(await balanceUser.delta()).to.be.bignumber.eq(
@@ -251,7 +255,9 @@ contract('Furucombo', function([_, user, someone]) {
       const tokenUserAfter = await this.token.balanceOf.call(user);
 
       // Verify
-      expect(await this.token.balanceOf.call(this.proxy.address)).to.be.bignumber.zero;
+      expect(
+        await this.token.balanceOf.call(this.proxy.address)
+      ).to.be.bignumber.zero;
       expect(await balanceProxy.get()).to.be.bignumber.zero;
       expect(tokenUserAfter.sub(tokenUserBefore)).to.be.bignumber.eq(
         unstakeAmount
@@ -295,7 +301,9 @@ contract('Furucombo', function([_, user, someone]) {
       const tokenUserAfter = await this.token.balanceOf.call(user);
 
       // Verify
-      expect(await this.token.balanceOf.call(this.proxy.address)).to.be.bignumber.zero;
+      expect(
+        await this.token.balanceOf.call(this.proxy.address)
+      ).to.be.bignumber.zero;
       expect(await balanceProxy.get()).to.be.bignumber.zero;
       expect(tokenUserAfter.sub(tokenUserBefore)).to.be.bignumber.eq(
         unstakeAmount
