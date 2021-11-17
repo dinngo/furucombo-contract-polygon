@@ -36,6 +36,7 @@ contract HOneInchV3 is HandlerBase {
             } catch {
                 _revertMsg("swap");
             }
+            _tokenApproveZero(address(desc.srcToken), _ONEINCH_SPENDER);
         } else {
             try
                 IAggregationRouterV3(_ONEINCH_SPENDER).swap{value: desc.amount}(
@@ -74,6 +75,7 @@ contract HOneInchV3 is HandlerBase {
             // ERC20 token need to approve before unoswap
             _tokenApprove(address(srcToken), _ONEINCH_SPENDER, amount);
             returnAmount = _unoswapCall(0, data);
+            _tokenApproveZero(address(srcToken), _ONEINCH_SPENDER);
         } else {
             returnAmount = _unoswapCall(amount, data);
         }
