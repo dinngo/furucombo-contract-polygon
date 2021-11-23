@@ -280,9 +280,11 @@ contract('AaveV2 flashloan', function([_, user, someone]) {
       expect(await this.tokenA.balanceOf.call(user)).to.be.bignumber.eq(
         tokenAUser.add(value).add(value)
       );
-      expect(
-        await this.variableDebtTokenA.balanceOf.call(user)
-      ).to.be.bignumber.eq(value);
+      expectEqWithinBps(
+        await this.variableDebtTokenA.balanceOf.call(user),
+        value,
+        10
+      );
       expect(await balanceUser.delta()).to.be.bignumber.eq(
         ether('0').sub(new BN(receipt.receipt.gasUsed))
       );
