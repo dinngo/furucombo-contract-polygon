@@ -2,6 +2,7 @@ const ether = require('@openzeppelin/test-helpers/src/ether');
 
 module.exports = {
   NATIVE_TOKEN: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+  NATIVE_TOKEN_DECIMAL: 18,
 
   MATIC_TOKEN: '0x0000000000000000000000000000000000001010',
 
@@ -71,6 +72,10 @@ module.exports = {
   /* SUSHI */
   SUSHI_TOKEN: '0x0b3F868E0BE5597D5DB7fEB59E1CADBb0fdDa50a',
   SUSHI_SYMBOL: 'SUSHI',
+
+  /* COMBO */
+  COMBO_TOKEN: '0x6DdB31002abC64e1479Fc439692F7eA061e78165',
+  COMBO_SYMBOL: 'COMBO',
 
   /* AAVE Interest Rate Mode */
   AAVE_RATEMODE: { NODEBT: 0, STABLE: 1, VARIABLE: 2 },

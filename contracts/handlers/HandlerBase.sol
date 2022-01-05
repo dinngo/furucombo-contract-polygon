@@ -113,6 +113,14 @@ abstract contract HandlerBase is Storage, Config {
         }
     }
 
+    function _tokenApproveZero(address token, address spender) internal {
+        if (IERC20Usdt(token).allowance(address(this), spender) > 0) {
+            try IERC20Usdt(token).approve(spender, 0) {} catch {
+                IERC20Usdt(token).approve(spender, 1);
+            }
+        }
+    }
+
     // Do not support matic token (0x0000...1010)
     function _notMaticToken(address token) internal pure {
         require(token != MATIC_TOKEN, "Not support matic token");
@@ -122,5 +130,10 @@ abstract contract HandlerBase is Storage, Config {
         for (uint256 i = 0; i < tokens.length; i++) {
             require(tokens[i] != MATIC_TOKEN, "Not support matic token");
         }
+    }
+
+    function _isNotNativeToken(address token) internal pure returns (bool) {
+        return (token != address(0) &&
+            token != address(0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE));
     }
 }
