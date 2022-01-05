@@ -145,7 +145,7 @@ contract('ParaSwapV5', function([_, user, user2]) {
     await evmRevert(initialEvmId);
   });
 
-  describe('Ether to Token', function() {
+  describe('MATIC to Token', function() {
     const tokenAddress = DAI_TOKEN;
     const tokenDecimal = 18;
     const slippageInBps = 100; // 1%
@@ -215,7 +215,7 @@ contract('ParaSwapV5', function([_, user, user2]) {
           await this.token.balanceOf.call(this.proxy.address)
         ).to.be.bignumber.zero;
 
-        // verify ether balance
+        // verify MATIC balance
         expect(await proxyBalance.get()).to.be.bignumber.zero;
         expect(await userBalance.delta()).to.be.bignumber.eq(
           ether('0')
@@ -224,7 +224,7 @@ contract('ParaSwapV5', function([_, user, user2]) {
         );
       });
 
-      it('msg.value greater than input ether amount', async function() {
+      it('msg.value greater than input MATIC amount', async function() {
         // Get price
         const amount = ether('0.1');
         const to = this.hParaSwap.address;
@@ -271,7 +271,7 @@ contract('ParaSwapV5', function([_, user, user2]) {
           await this.token.balanceOf.call(this.proxy.address)
         ).to.be.bignumber.zero;
 
-        // Verify ether balance
+        // Verify MATIC balance
         expect(await proxyBalance.get()).to.be.bignumber.zero;
         expect(await userBalance.delta()).to.be.bignumber.eq(
           ether('0')
@@ -418,7 +418,7 @@ contract('ParaSwapV5', function([_, user, user2]) {
         await this.token.balanceOf.call(this.proxy.address)
       ).to.be.bignumber.zero;
 
-      // verify ether balance
+      // verify MATIC balance
       expect(await proxyBalance.get()).to.be.bignumber.zero;
       expect(userBalanceDelta).to.be.bignumber.gt(
         mulPercent(expectReceivedAmount, 100 - slippageInBps / 100).sub(
@@ -465,7 +465,7 @@ contract('ParaSwapV5', function([_, user, user2]) {
         'ERC20: transfer amount exceeds balance'
       );
     });
-  }); //describe('token to ether') end
+  }); //describe('token to MATIC') end
 
   describe('token to token', function() {
     const token1Address = DAI_TOKEN;
@@ -545,8 +545,14 @@ contract('ParaSwapV5', function([_, user, user2]) {
     });
     beforeEach(async function() {
       userBalance = await tracker(user);
+
+      // send 20000 MATIC to user2 for pumping token price
+      await network.provider.send('hardhat_setBalance', [
+        user2,
+        '0x43C33C1937564800000',
+      ]);
     });
-    it('swap COMBO for ETH with positive slippage', async function() {
+    it.only('swap COMBO for MATIC with positive slippage', async function() {
       const comboAmount = ether('50000');
       const to = this.hParaSwap.address;
 
@@ -576,7 +582,7 @@ contract('ParaSwapV5', function([_, user, user2]) {
       ]);
 
       //----- Try to pump COMBO
-      const ethAmount = ether('9800');
+      const ethAmount = ether('13000');
       const ethToComboPriceData = await getPriceData(
         NATIVE_TOKEN,
         NATIVE_TOKEN_DECIMAL,
