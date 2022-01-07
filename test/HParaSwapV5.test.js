@@ -52,7 +52,8 @@ async function getPriceData(
   srcDecimals,
   destToken,
   destDecimals,
-  amount
+  amount,
+  route = ''
 ) {
   const priceReq = queryString.stringifyUrl({
     url: URL_PARASWAP_PRICE,
@@ -63,6 +64,7 @@ async function getPriceData(
       destDecimals: destDecimals,
       amount: amount,
       network: POLYGON_NETWORK_ID,
+      route: route,
     },
   });
 
@@ -346,7 +348,7 @@ contract('ParaSwapV5', function([_, user, user2]) {
             from: user,
             value: amount.sub(ether('0.05')),
           }),
-          'HParaSwapV5_paraswap: External call failed'
+          'HParaSwapV5_paraswap:'
         );
       });
     });
@@ -462,7 +464,7 @@ contract('ParaSwapV5', function([_, user, user2]) {
         this.proxy.execMock(to, callData, {
           from: user,
         }),
-        'ERC20: transfer amount exceeds balance'
+        'HParaSwapV5_paraswap'
       );
     });
   }); //describe('token to MATIC') end
@@ -552,7 +554,7 @@ contract('ParaSwapV5', function([_, user, user2]) {
         '0x43C33C1937564800000',
       ]);
     });
-    it.only('swap COMBO for MATIC with positive slippage', async function() {
+    it('swap COMBO for MATIC with positive slippage', async function() {
       const comboAmount = ether('50000');
       const to = this.hParaSwap.address;
 
@@ -562,7 +564,8 @@ contract('ParaSwapV5', function([_, user, user2]) {
         tokenDecimal,
         NATIVE_TOKEN,
         NATIVE_TOKEN_DECIMAL,
-        comboAmount
+        comboAmount,
+        tokenAddress + '-' + NATIVE_TOKEN
       );
 
       const expectReceivedEthAmount = comboToEthPriceData.priceRoute.destAmount;
@@ -588,7 +591,8 @@ contract('ParaSwapV5', function([_, user, user2]) {
         NATIVE_TOKEN_DECIMAL,
         tokenAddress,
         tokenDecimal,
-        ethAmount
+        ethAmount,
+        NATIVE_TOKEN + '-' + tokenAddress
       );
       const ethToComboTxData = await getTransactionData(
         ethToComboPriceData,
