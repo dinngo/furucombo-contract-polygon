@@ -313,7 +313,7 @@ contract('ParaSwapV5', function([_, user, user2]) {
             from: user,
             value: amount,
           }),
-          'HParaSwapV5_paraswap: Invalid output token amount'
+          'HParaSwapV5_swap: Invalid output token amount'
         );
       });
 
@@ -348,7 +348,7 @@ contract('ParaSwapV5', function([_, user, user2]) {
             from: user,
             value: amount.sub(ether('0.05')),
           }),
-          'HParaSwapV5_paraswap:'
+          'HParaSwapV5__paraswapCall:'
         );
       });
     });
@@ -359,6 +359,8 @@ contract('ParaSwapV5', function([_, user, user2]) {
     const tokenDecimal = 18;
     const slippageInBps = 100; // 1%
     let providerAddress;
+    let userBalance;
+    let proxyBalance;
     before(async function() {
       providerAddress = await tokenProviderQuick(tokenAddress);
       this.token = await IToken.at(tokenAddress);
@@ -366,11 +368,12 @@ contract('ParaSwapV5', function([_, user, user2]) {
 
     beforeEach(async function() {
       proxyBalance = await tracker(this.proxy.address);
+      userBalance = await tracker(user);
     });
 
     it('normal', async function() {
       // Get price
-      const amount = ether('5000');
+      const amount = ether('500');
       const to = this.hParaSwap.address;
 
       // Call Paraswap Price API
@@ -464,7 +467,7 @@ contract('ParaSwapV5', function([_, user, user2]) {
         this.proxy.execMock(to, callData, {
           from: user,
         }),
-        'HParaSwapV5_paraswap'
+        'HParaSwapV5__paraswapCall'
       );
     });
   }); //describe('token to MATIC') end
@@ -542,6 +545,7 @@ contract('ParaSwapV5', function([_, user, user2]) {
     const tokenAddress = COMBO_TOKEN;
     const tokenDecimal = 18;
     const slippageInBps = 5000; // 50%
+    let userBalance;
     before(async function() {
       this.token = await IToken.at(tokenAddress);
     });
