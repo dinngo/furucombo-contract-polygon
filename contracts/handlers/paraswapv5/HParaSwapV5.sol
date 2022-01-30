@@ -6,7 +6,6 @@ pragma experimental ABIEncoderV2;
 import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "../HandlerBase.sol";
-import "./IAugustusSwapper.sol";
 
 contract HParaSwapV5 is HandlerBase {
     using SafeMath for uint256;
@@ -29,6 +28,9 @@ contract HParaSwapV5 is HandlerBase {
         address destToken,
         bytes calldata data
     ) external payable returns (uint256) {
+        _notMaticToken(srcToken);
+        _notMaticToken(destToken);
+
         uint256 destTokenBalanceBefore =
             _getBalance(destToken, type(uint256).max);
 
