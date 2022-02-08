@@ -43,7 +43,6 @@ const URL_PARASWAP_TRANSACTION =
   '?' +
   IGNORE_CHECKS_PARAM;
 
-const COMBO_PROVIDER = '0x58e2959Bc214bCa9d0ae2D12C652EBfd0FFc16Ac';
 const sleep = delay => new Promise(resolve => setTimeout(resolve, delay));
 
 async function getPriceData(
@@ -125,13 +124,6 @@ contract('ParaSwapV5', function([_, user, user2]) {
       utils.asciiToHex('ParaSwapV5')
     );
     this.proxy = await Proxy.new(this.registry.address);
-
-    await network.provider.request({
-      method: 'hardhat_impersonateAccount',
-      params: [COMBO_PROVIDER],
-    });
-
-    await impersonateAndInjectEther(COMBO_PROVIDER);
   });
 
   beforeEach(async function() {
@@ -536,99 +528,4 @@ contract('ParaSwapV5', function([_, user, user2]) {
       ).to.be.bignumber.zero;
     });
   }); // describe('token to token') end
-
-  describe('positive slippage', function() {
-    const tokenAddress = COMBO_TOKEN;
-    const tokenDecimal = 18;
-    const slippageInBps = 5000; // 50%
-    let userBalance;
-    before(async function() {
-      this.token = await IToken.at(tokenAddress);
-    });
-    beforeEach(async function() {
-      userBalance = await tracker(user);
-
-      // send 20000 MATIC to user2 for pumping token price
-      await network.provider.send('hardhat_setBalance', [
-        user2,
-        '0x43C33C1937564800000',
-      ]);
-    });
-    it('swap COMBO for MATIC with positive slippage', async function() {
-      const comboAmount = ether('50000');
-      const to = this.hParaSwap.address;
-
-      // Call Paraswap price API
-      const comboToEthPriceData = await getPriceData(
-        tokenAddress,
-        tokenDecimal,
-        NATIVE_TOKEN,
-        NATIVE_TOKEN_DECIMAL,
-        comboAmount,
-        tokenAddress + '-' + NATIVE_TOKEN
-      );
-
-      const expectReceivedEthAmount = comboToEthPriceData.priceRoute.destAmount;
-
-      // Call Paraswap transaction API
-      const comboToEthTxData = await getTransactionData(
-        comboToEthPriceData,
-        slippageInBps
-      );
-
-      // Prepare handler data
-      const comboToEthCallData = getCallData(HParaSwapV5, 'swap', [
-        tokenAddress,
-        comboAmount,
-        NATIVE_TOKEN,
-        comboToEthTxData.data,
-      ]);
-
-      //----- Try to pump COMBO
-      const ethAmount = ether('13000');
-      const ethToComboPriceData = await getPriceData(
-        NATIVE_TOKEN,
-        NATIVE_TOKEN_DECIMAL,
-        tokenAddress,
-        tokenDecimal,
-        ethAmount,
-        NATIVE_TOKEN + '-' + tokenAddress
-      );
-      const ethToComboTxData = await getTransactionData(
-        ethToComboPriceData,
-        slippageInBps
-      );
-      const ethToComboCallData = getCallData(HParaSwapV5, 'swap', [
-        NATIVE_TOKEN,
-        ethAmount,
-        tokenAddress,
-        ethToComboTxData.data,
-      ]);
-      await this.proxy.execMock(to, ethToComboCallData, {
-        from: user2,
-        value: ethAmount,
-      });
-      //-----
-
-      // Transfer token to proxy
-      await this.token.transfer(this.proxy.address, comboAmount, {
-        from: COMBO_PROVIDER,
-      });
-
-      const receipt = await this.proxy.execMock(to, comboToEthCallData, {
-        from: user,
-      });
-
-      const handlerReturn = utils.toBN(
-        getHandlerReturn(receipt, ['uint256'])[0]
-      );
-
-      // Should have positive slippage
-      const userBalanceDelta = await userBalance.delta();
-      expect(handlerReturn).to.be.bignumber.gt(expectReceivedEthAmount);
-      expect(userBalanceDelta).to.be.bignumber.gt(expectReceivedEthAmount);
-
-      // TODO:verify partner fee.
-    });
-  });
 });
