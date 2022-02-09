@@ -3,8 +3,7 @@ const utils = ethers.utils;
 // beta parameter
 const registryOwner = '0x64585922a9703d9EdE7d353a6522eb2970f75066';
 const registryAddress = '0x5E56d6c6F763d6B1f21723a11be98533E168C3c9';
-const fakeKey =
-  'd74d952106fcdc7fe598eea01a3e9f5a081d928cea7869e9921e69abc5a7dd44';
+
 module.exports = async ({ getNamedAccounts, deployments }) => {
   const { deploy } = deployments;
   const { deployer } = await getNamedAccounts();
@@ -38,7 +37,7 @@ async function betaDeployment(hParaSwapV5) {
   console.log('beta deployment...');
 
   const provider = ethers.provider;
-  const signer = new ethers.Wallet(fakeKey, provider);
+  const [signer] = await ethers.getSigners();
 
   // register to Registry
   const iface = new utils.Interface([
