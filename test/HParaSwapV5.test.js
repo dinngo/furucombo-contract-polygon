@@ -11,7 +11,6 @@ const { expect, assert } = require('chai');
 const {
   DAI_TOKEN,
   USDC_TOKEN,
-  COMBO_TOKEN,
   NATIVE_TOKEN,
   NATIVE_TOKEN_DECIMAL,
 } = require('./utils/constants');
@@ -22,7 +21,6 @@ const {
   getHandlerReturn,
   getCallData,
   tokenProviderQuick,
-  impersonateAndInjectEther,
 } = require('./utils/utils');
 const fetch = require('node-fetch');
 const queryString = require('query-string');
@@ -51,7 +49,8 @@ async function getPriceData(
   destToken,
   destDecimals,
   amount,
-  route = ''
+  route = '',
+  excludeDirectContractMethods = ''
 ) {
   const priceReq = queryString.stringifyUrl({
     url: URL_PARASWAP_PRICE,
@@ -63,6 +62,7 @@ async function getPriceData(
       amount: amount,
       network: POLYGON_NETWORK_ID,
       route: route,
+      excludeDirectContractMethods: excludeDirectContractMethods,
     },
   });
 
@@ -341,7 +341,7 @@ contract('ParaSwapV5', function([_, user, user2]) {
         );
       });
     });
-  }); // describe('ether to token') end
+  }); // describe('MATIC to token') end
 
   describe('token to Matic', function() {
     const tokenAddress = DAI_TOKEN;
