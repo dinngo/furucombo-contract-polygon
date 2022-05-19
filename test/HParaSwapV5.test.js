@@ -172,7 +172,7 @@ contract('ParaSwapV5', function([_, user, user2]) {
 
       beforeEach(async function() {
         userBalance = await tracker(user);
-        proxyBalance = await tracker(this.proxy.address);
+        proxyBalance = await tracker(this.onchainProxy.address);
         userTokenBalance = await this.token.balanceOf.call(user);
       });
 
@@ -226,7 +226,7 @@ contract('ParaSwapV5', function([_, user, user2]) {
 
           // Proxy should not have remaining token
           expect(
-            await this.token.balanceOf.call(this.proxy.address)
+            await this.token.balanceOf.call(this.onchainProxy.address)
           ).to.be.bignumber.zero;
 
           // Verify MATIC balance
@@ -286,7 +286,7 @@ contract('ParaSwapV5', function([_, user, user2]) {
 
           // Proxy should not have remaining token
           expect(
-            await this.token.balanceOf.call(this.proxy.address)
+            await this.token.balanceOf.call(this.onchainProxy.address)
           ).to.be.bignumber.zero;
 
           // Verify MATIC balance
@@ -383,7 +383,7 @@ contract('ParaSwapV5', function([_, user, user2]) {
       });
 
       beforeEach(async function() {
-        proxyBalance = await tracker(this.proxy.address);
+        proxyBalance = await tracker(this.onchainProxy.address);
         userBalance = await tracker(user);
       });
 
@@ -433,7 +433,7 @@ contract('ParaSwapV5', function([_, user, user2]) {
 
         // Proxy should not have remaining token
         expect(
-          await this.token.balanceOf.call(this.proxy.address)
+          await this.token.balanceOf.call(this.onchainProxy.address)
         ).to.be.bignumber.zero;
 
         expect(await proxyBalance.get()).to.be.bignumber.zero;
@@ -545,7 +545,7 @@ contract('ParaSwapV5', function([_, user, user2]) {
 
         // Proxy should not have remaining token
         expect(
-          await this.token2.balanceOf.call(this.proxy.address)
+          await this.token2.balanceOf.call(this.onchainProxy.address)
         ).to.be.bignumber.zero;
       });
     }); // describe('token to token') end
