@@ -4,9 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [unreleased]
 
+## [1.10.0] - 2022-02-14
+
 ### Added
 
 - Add event to log the handler execution.
+- Support ParaSwapV5.
 
 ### Changed
 

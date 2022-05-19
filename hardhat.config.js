@@ -6,6 +6,18 @@ require('hardhat-deploy-ethers');
 require('@nomiclabs/hardhat-web3');
 require('@nomiclabs/hardhat-truffle5');
 
+const fs = require('fs');
+let key_beta;
+
+try {
+  key_beta = fs
+    .readFileSync('.secret_beta')
+    .toString()
+    .trim();
+} catch (err) {
+  console.log('No available .secret_beta');
+}
+
 /**
  * @type import('hardhat/config').HardhatUserConfig
  */
@@ -30,6 +42,11 @@ module.exports = {
   },
   defaultNetwork: 'hardhat',
   networks: {
+    beta: {
+      accounts: key_beta ? [key_beta] : [],
+      chainId: 137,
+      url: 'https://polygon-beta.furucombo.app/',
+    },
     hardhat: {
       accounts: {
         mnemonic:
