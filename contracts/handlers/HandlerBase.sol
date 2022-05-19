@@ -139,4 +139,8 @@ abstract contract HandlerBase is Storage, Config {
             require(tokens[i] != MATIC_TOKEN, "Not support matic token");
         }
     }
+
+    function _isNotNativeToken(address token) internal pure returns (bool) {
+        return (token != address(0) && token != NATIVE_TOKEN_ADDRESS);
+    }
 }

@@ -12,8 +12,6 @@ contract HParaSwapV5 is HandlerBase {
     address public constant AUGUSTUS_SWAPPER = 0xDEF171Fe48CF0115B1d80b88dc8eAB59176FEe57;
     // prettier-ignore
     address public constant TOKEN_TRANSFER_PROXY = 0x216B4B4Ba9F3e719726886d34a177484278Bfcae;
-    // prettier-ignore
-    address private constant NATIVE_TOKEN = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
 
     function getContractName() public pure override returns (string memory) {
         return "HParaSwapV5";
@@ -72,9 +70,5 @@ contract HParaSwapV5 is HandlerBase {
                 _revertMsg("_paraswapCall", abi.decode(returnData, (string)));
             }
         }
-    }
-
-    function _isNotNativeToken(address token) internal pure returns (bool) {
-        return (token != address(0) && token != NATIVE_TOKEN);
     }
 }
