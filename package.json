@@ -8,6 +8,7 @@
   },
   "scripts": {
     "build": "scripts/build.sh",
+    "check": "scripts/check.sh",
     "compile": "npx hardhat compile",
     "test": "scripts/test.sh",
     "lint:solhint": "solhint \"contracts/**/*.sol\"",
@@ -52,7 +53,7 @@
     "web3-provider-engine": "^15.0.12"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "3.3.0",
+    "@openzeppelin/contracts": "4.3.2",
     "pify": "^5.0.0"
   },
   "husky": {

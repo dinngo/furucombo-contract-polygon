@@ -22,7 +22,12 @@ const {
   AWMATIC_V2_DEBT_VARIABLE,
   AAVE_RATEMODE,
 } = require('./utils/constants');
-const { evmRevert, evmSnapshot, tokenProviderQuick } = require('./utils/utils');
+const {
+  evmRevert,
+  evmSnapshot,
+  tokenProviderQuick,
+  expectEqWithinBps,
+} = require('./utils/utils');
 
 const Registry = artifacts.require('Registry');
 const Proxy = artifacts.require('ProxyMock');
@@ -144,8 +149,10 @@ contract('AaveV2 flashloan', function([_, user, someone]) {
         0,
         { from: this.tokenBProvider }
       );
-      expect(await this.aTokenB.balanceOf.call(user)).to.be.bignumber.eq(
-        depositAmount
+      expectEqWithinBps(
+        await this.aTokenB.balanceOf.call(user),
+        depositAmount,
+        10
       );
     });
 
@@ -273,9 +280,11 @@ contract('AaveV2 flashloan', function([_, user, someone]) {
       expect(await this.tokenA.balanceOf.call(user)).to.be.bignumber.eq(
         tokenAUser.add(value).add(value)
       );
-      expect(
-        await this.variableDebtTokenA.balanceOf.call(user)
-      ).to.be.bignumber.eq(value);
+      expectEqWithinBps(
+        await this.variableDebtTokenA.balanceOf.call(user),
+        value,
+        10
+      );
       expect(await balanceUser.delta()).to.be.bignumber.eq(
         ether('0').sub(new BN(receipt.receipt.gasUsed))
       );

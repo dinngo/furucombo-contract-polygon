@@ -15,10 +15,19 @@ All notable changes to this project will be documented in this file.
 
 - Migrate developing environment from Truffle to Hardhat.
 - Refine token provider for tests.
+- Replace if-revertMsg with requireMsg.
+- Move cube counter to \_execs() local memory.
+- Upgrade solidity version to 0.8.9
+- Replace all uint256(-1) with type(uint256).max
+- Unify 0xEeee...eE naming to NATIVE_TOKEN_ADDRESS.
+- Replace safeApprove with \_tokenApprove.
+- Set token allowance to zero after each \_tokenApprove.
+- Peek first and second element from stack at once in \_setPostProcess() to avoid too many push/pop.
 
 ### Fixed
 
 - Fix bignumber zero checks.
+- Warning free
 
 ## [1.9.0] - 2021-10-01
 

@@ -25,23 +25,15 @@ module.exports = {
   solidity: {
     compilers: [
       {
-        version: '0.6.12',
-      },
-      {
-        version: '0.8.6',
+        version: '0.8.9',
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 200,
+          },
+        },
       },
     ],
-    overrides: {
-      'contracts/handlers/maker/dapphub/DSAuth.sol': {
-        version: '0.6.12',
-      },
-      'contracts/handlers/maker/dapphub/DSGuard.sol': {
-        version: '0.6.12',
-      },
-      'contracts/handlers/maker/dapphub/DSGuardFactory.sol': {
-        version: '0.6.12',
-      },
-    },
   },
   namedAccounts: {
     deployer: {

@@ -1,8 +1,8 @@
-pragma solidity ^0.6.0;
-pragma experimental ABIEncoderV2;
+// SPDX-License-Identifier: MIT
 
-import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
-import "@openzeppelin/contracts/math/SafeMath.sol";
+pragma solidity 0.8.9;
+
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 import "../../interface/IProxy.sol";
 import "../HandlerBase.sol";
@@ -14,14 +14,11 @@ import "./libraries/DataTypes.sol";
 
 contract HAaveProtocolV2 is HandlerBase, IFlashLoanReceiver {
     using SafeERC20 for IERC20;
-    using SafeMath for uint256;
 
     // prettier-ignore
     address public constant PROVIDER = 0xd05e3E715d945B59290df0ae8eF85c1BdB684744;
     // prettier-ignore
-    address payable public constant WMATIC = 0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270;
-    // prettier-ignore
-    address payable public constant ETHER = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
+    address public constant WMATIC = 0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270;
     uint16 public constant REFERRAL_CODE = 56;
 
     function getContractName() public pure override returns (string memory) {
@@ -35,7 +32,7 @@ contract HAaveProtocolV2 is HandlerBase, IFlashLoanReceiver {
     }
 
     function depositETH(uint256 amount) external payable {
-        amount = _getBalance(ETHER, amount);
+        amount = _getBalance(NATIVE_TOKEN_ADDRESS, amount);
         IWMATIC(WMATIC).deposit{value: amount}();
         _deposit(WMATIC, amount);
 
@@ -107,13 +104,17 @@ contract HAaveProtocolV2 is HandlerBase, IFlashLoanReceiver {
         bytes calldata params
     ) external payable {
         _notMaticToken(assets);
-        if (assets.length != amounts.length) {
-            _revertMsg("flashLoan", "assets and amounts do not match");
-        }
+        _requireMsg(
+            assets.length == amounts.length,
+            "flashLoan",
+            "assets and amounts do not match"
+        );
 
-        if (assets.length != modes.length) {
-            _revertMsg("flashLoan", "assets and modes do not match");
-        }
+        _requireMsg(
+            assets.length == modes.length,
+            "flashLoan",
+            "assets and modes do not match"
+        );
 
         address onBehalfOf = _getSender();
         address pool =
@@ -137,7 +138,7 @@ contract HAaveProtocolV2 is HandlerBase, IFlashLoanReceiver {
 
         // approve lending pool zero
         for (uint256 i = 0; i < assets.length; i++) {
-            IERC20(assets[i]).safeApprove(pool, 0);
+            _tokenApproveZero(assets[i], pool);
             if (modes[i] != 0) _updateToken(assets[i]);
         }
     }
@@ -150,16 +151,18 @@ contract HAaveProtocolV2 is HandlerBase, IFlashLoanReceiver {
         bytes memory params
     ) external override returns (bool) {
         _notMaticToken(assets);
-        if (
-            msg.sender !=
-            ILendingPoolAddressesProviderV2(PROVIDER).getLendingPool()
-        ) {
-            _revertMsg("executeOperation", "invalid caller");
-        }
+        _requireMsg(
+            msg.sender ==
+                ILendingPoolAddressesProviderV2(PROVIDER).getLendingPool(),
+            "executeOperation",
+            "invalid caller"
+        );
 
-        if (initiator != address(this)) {
-            _revertMsg("executeOperation", "not initiated by the proxy");
-        }
+        _requireMsg(
+            initiator == address(this),
+            "executeOperation",
+            "not initiated by the proxy"
+        );
 
         (address[] memory tos, bytes32[] memory configs, bytes[] memory datas) =
             abi.decode(params, (address[], bytes32[], bytes[]));
@@ -168,8 +171,8 @@ contract HAaveProtocolV2 is HandlerBase, IFlashLoanReceiver {
         address pool =
             ILendingPoolAddressesProviderV2(PROVIDER).getLendingPool();
         for (uint256 i = 0; i < assets.length; i++) {
-            uint256 amountOwing = amounts[i].add(premiums[i]);
-            IERC20(assets[i]).safeApprove(pool, amountOwing);
+            uint256 amountOwing = amounts[i] + premiums[i];
+            _tokenApprove(assets[i], pool, amountOwing);
         }
         return true;
     }
@@ -178,8 +181,7 @@ contract HAaveProtocolV2 is HandlerBase, IFlashLoanReceiver {
 
     function _deposit(address asset, uint256 amount) internal {
         (address pool, address aToken) = _getLendingPoolAndAToken(asset);
-        IERC20(asset).safeApprove(pool, amount);
-
+        _tokenApprove(asset, pool, amount);
         try
             ILendingPoolV2(pool).deposit(
                 asset,
@@ -192,8 +194,7 @@ contract HAaveProtocolV2 is HandlerBase, IFlashLoanReceiver {
         } catch {
             _revertMsg("deposit");
         }
-
-        IERC20(asset).safeApprove(pool, 0);
+        _tokenApproveZero(asset, pool);
         _updateToken(aToken);
     }
 
@@ -223,7 +224,7 @@ contract HAaveProtocolV2 is HandlerBase, IFlashLoanReceiver {
     ) internal returns (uint256 remainDebt) {
         address pool =
             ILendingPoolAddressesProviderV2(PROVIDER).getLendingPool();
-        IERC20(asset).safeApprove(pool, amount);
+        _tokenApprove(asset, pool, amount);
 
         try
             ILendingPoolV2(pool).repay(asset, amount, rateMode, onBehalfOf)
@@ -233,7 +234,7 @@ contract HAaveProtocolV2 is HandlerBase, IFlashLoanReceiver {
             _revertMsg("repay");
         }
 
-        IERC20(asset).safeApprove(pool, 0);
+        _tokenApproveZero(asset, pool);
 
         DataTypes.ReserveData memory reserve =
             ILendingPoolV2(pool).getReserveData(asset);
@@ -277,8 +278,11 @@ contract HAaveProtocolV2 is HandlerBase, IFlashLoanReceiver {
             DataTypes.ReserveData memory data
         ) {
             aToken = data.aTokenAddress;
-            if (aToken == address(0))
-                _revertMsg("General", "aToken should not be zero address");
+            _requireMsg(
+                aToken != address(0),
+                "General",
+                "aToken should not be zero address"
+            );
         } catch Error(string memory reason) {
             _revertMsg("General", reason);
         } catch {
