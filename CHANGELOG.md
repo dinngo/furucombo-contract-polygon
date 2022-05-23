@@ -4,17 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## [unreleased]
 
-## [1.10.0] - 2022-02-14
-
-### Added
-
-- Add event to log the handler execution.
-- Support ParaSwapV5.
-
 ### Changed
 
-- Migrate developing environment from Truffle to Hardhat.
-- Refine token provider for tests.
 - Replace if-revertMsg with requireMsg.
 - Move cube counter to \_execs() local memory.
 - Upgrade solidity version to 0.8.9
@@ -26,8 +17,23 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
-- Fix bignumber zero checks.
 - Warning free
+
+## [1.10.0] - 2022-02-14
+
+### Added
+
+- Add event to log the handler execution.
+- Support ParaSwapV5.
+
+### Changed
+
+- Migrate developing environment from Truffle to Hardhat.
+- Refine token provider for tests.
+
+### Fixed
+
+- Fix bignumber zero checks.
 
 ## [1.9.0] - 2021-10-01
 
