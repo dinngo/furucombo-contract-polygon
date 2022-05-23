@@ -31,9 +31,9 @@ hardhat_running() {
 }
 
 start_hardhat() {
-    echo "RPC_NODE:" $RPC_NODE
+    echo "POLYGON_MAINNET_NODE:" $POLYGON_MAINNET_NODE
 
-    npx hardhat node --fork $RPC_NODE --no-deploy >/dev/null &
+    npx hardhat node --fork $POLYGON_MAINNET_NODE --no-deploy >/dev/null &
 
     need_to_clean=1
 
