@@ -277,8 +277,10 @@ contract('AaveV2 flashloan', function([_, user, someone]) {
       expect(
         await this.tokenA.balanceOf.call(this.proxy.address)
       ).to.be.bignumber.zero;
-      expect(await this.tokenA.balanceOf.call(user)).to.be.bignumber.eq(
-        tokenAUser.add(value).add(value)
+      expectEqWithinBps(
+        await this.tokenA.balanceOf.call(user),
+        tokenAUser.add(value).add(value),
+        10
       );
       expectEqWithinBps(
         await this.variableDebtTokenA.balanceOf.call(user),
