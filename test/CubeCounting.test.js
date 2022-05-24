@@ -43,7 +43,7 @@ contract('CubeCounting', function([_, user]) {
       utils.asciiToHex('HAaveProtocolV2')
     );
     this.provider = await IProviderV2.at(AAVEPROTOCOL_V2_PROVIDER);
-    const lendingPoolAddress = await this.provider.getLendingPool.call();
+    const lendingPoolAddress = await this.provider.getLendingPool();
     await this.registry.registerCaller(
       lendingPoolAddress,
       this.hAaveV2.address

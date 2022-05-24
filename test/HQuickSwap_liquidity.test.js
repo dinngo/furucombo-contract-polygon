@@ -70,10 +70,10 @@ contract('QuickSwap Liquidity', function([_, user]) {
     id = await evmSnapshot();
     balanceUser = await tracker(user);
     balanceProxy = await tracker(this.proxy.address);
-    tokenAUserAmount = await this.tokenA.balanceOf.call(user);
-    tokenBUserAmount = await this.tokenB.balanceOf.call(user);
-    uniTokenEthUserAmount = await this.lpTokenMatic.balanceOf.call(user);
-    this.lpTokenTokenUserAmount = await this.lpTokenToken.balanceOf.call(user);
+    tokenAUserAmount = await this.tokenA.balanceOf(user);
+    tokenBUserAmount = await this.tokenB.balanceOf(user);
+    uniTokenEthUserAmount = await this.lpTokenMatic.balanceOf(user);
+    this.lpTokenTokenUserAmount = await this.lpTokenToken.balanceOf(user);
 
     await this.tokenA.transfer(user, ether('1'), {
       from: tokenAProviderAddress,
@@ -89,7 +89,7 @@ contract('QuickSwap Liquidity', function([_, user]) {
 
   describe('Add MATIC', function() {
     beforeEach(async function() {
-      lpTokenUserAmount = await this.lpTokenMatic.balanceOf.call(user);
+      lpTokenUserAmount = await this.lpTokenMatic.balanceOf(user);
     });
 
     it('normal', async function() {
@@ -108,7 +108,7 @@ contract('QuickSwap Liquidity', function([_, user]) {
         minMaticAmount
       );
 
-      tokenAUserAmount = await this.tokenA.balanceOf.call(user);
+      tokenAUserAmount = await this.tokenA.balanceOf(user);
       await this.tokenA.transfer(this.proxy.address, tokenAmount, {
         from: user,
       });
@@ -128,8 +128,8 @@ contract('QuickSwap Liquidity', function([_, user]) {
         'uint256',
       ]);
 
-      const tokenAUserAmountEnd = await this.tokenA.balanceOf.call(user);
-      const lpTokenUserAmountEnd = await this.lpTokenMatic.balanceOf.call(user);
+      const tokenAUserAmountEnd = await this.tokenA.balanceOf(user);
+      const lpTokenUserAmountEnd = await this.lpTokenMatic.balanceOf(user);
       const userBalanceDelta = await balanceUser.delta();
 
       expect(utils.toBN(handlerReturn[0])).to.be.bignumber.eq(
@@ -155,19 +155,19 @@ contract('QuickSwap Liquidity', function([_, user]) {
       );
 
       // Verify spent token
-      expect(await this.tokenA.balanceOf.call(user)).to.be.bignumber.lte(
+      expect(await this.tokenA.balanceOf(user)).to.be.bignumber.lte(
         tokenAUserAmount.sub(minTokenAmount)
       );
 
       // Verify proxy token should be zero
       expect(
-        await this.tokenA.balanceOf.call(this.proxy.address)
+        await this.tokenA.balanceOf(this.proxy.address)
       ).to.be.bignumber.eq(ether('0'));
       expect(await balanceProxy.get()).to.be.bignumber.eq(ether('0'));
 
       // TODO: Find out the exact number of uniToken for testing
       // Verify spent matic
-      expect(await this.lpTokenMatic.balanceOf.call(user)).to.be.bignumber.gt(
+      expect(await this.lpTokenMatic.balanceOf(user)).to.be.bignumber.gt(
         uniTokenEthUserAmount
       );
 
@@ -191,7 +191,7 @@ contract('QuickSwap Liquidity', function([_, user]) {
         minMaticAmount
       );
 
-      tokenAUserAmount = await this.tokenA.balanceOf.call(user);
+      tokenAUserAmount = await this.tokenA.balanceOf(user);
       await this.tokenA.transfer(this.proxy.address, tokenAmount, {
         from: user,
       });
@@ -211,8 +211,8 @@ contract('QuickSwap Liquidity', function([_, user]) {
         'uint256',
       ]);
 
-      const tokenAUserAmountEnd = await this.tokenA.balanceOf.call(user);
-      const lpTokenUserAmountEnd = await this.lpTokenMatic.balanceOf.call(user);
+      const tokenAUserAmountEnd = await this.tokenA.balanceOf(user);
+      const lpTokenUserAmountEnd = await this.lpTokenMatic.balanceOf(user);
       const userBalanceDelta = await balanceUser.delta();
 
       expect(utils.toBN(handlerReturn[0])).to.be.bignumber.eq(
@@ -238,19 +238,19 @@ contract('QuickSwap Liquidity', function([_, user]) {
       );
 
       // Verify spent token
-      expect(await this.tokenA.balanceOf.call(user)).to.be.bignumber.lte(
+      expect(await this.tokenA.balanceOf(user)).to.be.bignumber.lte(
         tokenAUserAmount.sub(minTokenAmount)
       );
 
       // Verify proxy token should be zero
       expect(
-        await this.tokenA.balanceOf.call(this.proxy.address)
+        await this.tokenA.balanceOf(this.proxy.address)
       ).to.be.bignumber.eq(ether('0'));
       expect(await balanceProxy.get()).to.be.bignumber.eq(ether('0'));
 
       // TODO: Find out the exact number of uniToken for testing
       // Verify spent matic
-      expect(await this.lpTokenMatic.balanceOf.call(user)).to.be.bignumber.gt(
+      expect(await this.lpTokenMatic.balanceOf(user)).to.be.bignumber.gt(
         uniTokenEthUserAmount
       );
 
@@ -285,7 +285,7 @@ contract('QuickSwap Liquidity', function([_, user]) {
 
   describe('Add Token', function() {
     beforeEach(async function() {
-      lpTokenUserAmount = await this.lpTokenToken.balanceOf.call(user);
+      lpTokenUserAmount = await this.lpTokenToken.balanceOf(user);
     });
 
     it('normal', async function() {
@@ -305,8 +305,8 @@ contract('QuickSwap Liquidity', function([_, user]) {
         minTokenBAmount
       );
 
-      tokenAUserAmount = await this.tokenA.balanceOf.call(user);
-      tokenBUserAmount = await this.tokenB.balanceOf.call(user);
+      tokenAUserAmount = await this.tokenA.balanceOf(user);
+      tokenBUserAmount = await this.tokenB.balanceOf(user);
       // Send tokens to proxy
       await this.tokenA.transfer(this.proxy.address, tokenAAmount, {
         from: user,
@@ -331,9 +331,9 @@ contract('QuickSwap Liquidity', function([_, user]) {
         'uint256',
       ]);
 
-      const tokenAUserAmountEnd = await this.tokenA.balanceOf.call(user);
-      const tokenBUserAmountEnd = await this.tokenB.balanceOf.call(user);
-      const lpTokenUserAmountEnd = await this.lpTokenToken.balanceOf.call(user);
+      const tokenAUserAmountEnd = await this.tokenA.balanceOf(user);
+      const tokenBUserAmountEnd = await this.tokenB.balanceOf(user);
+      const lpTokenUserAmountEnd = await this.lpTokenToken.balanceOf(user);
 
       expect(utils.toBN(handlerReturn[0])).to.be.bignumber.eq(
         tokenAUserAmount.sub(tokenAUserAmountEnd)
@@ -346,25 +346,25 @@ contract('QuickSwap Liquidity', function([_, user]) {
       );
 
       // Verify user tokens
-      expect(await this.tokenA.balanceOf.call(user)).to.be.bignumber.lte(
+      expect(await this.tokenA.balanceOf(user)).to.be.bignumber.lte(
         tokenAUserAmount.sub(minTokenAAmount)
       );
-      expect(await this.tokenB.balanceOf.call(user)).to.be.bignumber.lte(
+      expect(await this.tokenB.balanceOf(user)).to.be.bignumber.lte(
         tokenBUserAmount.sub(minTokenBAmount)
       );
 
       // Verify proxy token should be zero
       expect(
-        await this.tokenA.balanceOf.call(this.proxy.address)
+        await this.tokenA.balanceOf(this.proxy.address)
       ).to.be.bignumber.eq(ether('0'));
       expect(
-        await this.tokenB.balanceOf.call(this.proxy.address)
+        await this.tokenB.balanceOf(this.proxy.address)
       ).to.be.bignumber.eq(ether('0'));
       expect(await balanceProxy.get()).to.be.bignumber.eq(ether('0'));
 
       // TODO: Find out the exact number of uniToken for testing
       // Verify spent ether
-      expect(await this.lpTokenToken.balanceOf.call(user)).to.be.bignumber.gt(
+      expect(await this.lpTokenToken.balanceOf(user)).to.be.bignumber.gt(
         this.lpTokenTokenUserAmount
       );
 
@@ -389,8 +389,8 @@ contract('QuickSwap Liquidity', function([_, user]) {
         minTokenBAmount
       );
 
-      tokenAUserAmount = await this.tokenA.balanceOf.call(user);
-      tokenBUserAmount = await this.tokenB.balanceOf.call(user);
+      tokenAUserAmount = await this.tokenA.balanceOf(user);
+      tokenBUserAmount = await this.tokenB.balanceOf(user);
       // Send tokens to proxy
       await this.tokenA.transfer(this.proxy.address, tokenAAmount, {
         from: user,
@@ -414,9 +414,9 @@ contract('QuickSwap Liquidity', function([_, user]) {
         'uint256',
       ]);
 
-      const tokenAUserAmountEnd = await this.tokenA.balanceOf.call(user);
-      const tokenBUserAmountEnd = await this.tokenB.balanceOf.call(user);
-      const lpTokenUserAmountEnd = await this.lpTokenToken.balanceOf.call(user);
+      const tokenAUserAmountEnd = await this.tokenA.balanceOf(user);
+      const tokenBUserAmountEnd = await this.tokenB.balanceOf(user);
+      const lpTokenUserAmountEnd = await this.lpTokenToken.balanceOf(user);
 
       expect(utils.toBN(handlerReturn[0])).to.be.bignumber.eq(
         tokenAUserAmount.sub(tokenAUserAmountEnd)
@@ -429,25 +429,25 @@ contract('QuickSwap Liquidity', function([_, user]) {
       );
 
       // Verify user tokens
-      expect(await this.tokenA.balanceOf.call(user)).to.be.bignumber.lte(
+      expect(await this.tokenA.balanceOf(user)).to.be.bignumber.lte(
         tokenAUserAmount.sub(minTokenAAmount)
       );
-      expect(await this.tokenB.balanceOf.call(user)).to.be.bignumber.lte(
+      expect(await this.tokenB.balanceOf(user)).to.be.bignumber.lte(
         tokenBUserAmount.sub(minTokenBAmount)
       );
 
       // Verify proxy token should be zero
       expect(
-        await this.tokenA.balanceOf.call(this.proxy.address)
+        await this.tokenA.balanceOf(this.proxy.address)
       ).to.be.bignumber.eq(ether('0'));
       expect(
-        await this.tokenB.balanceOf.call(this.proxy.address)
+        await this.tokenB.balanceOf(this.proxy.address)
       ).to.be.bignumber.eq(ether('0'));
       expect(await balanceProxy.get()).to.be.bignumber.eq(ether('0'));
 
       // TODO: Find out the exact number of uniToken for testing
       // Verify spent ether
-      expect(await this.lpTokenToken.balanceOf.call(user)).to.be.bignumber.gt(
+      expect(await this.lpTokenToken.balanceOf(user)).to.be.bignumber.gt(
         this.lpTokenTokenUserAmount
       );
 
@@ -527,8 +527,8 @@ contract('QuickSwap Liquidity', function([_, user]) {
       );
 
       // Get user tokenA/uniToken balance
-      tokenAUserAmount = await this.tokenA.balanceOf.call(user);
-      lpTokenUserAmount = await this.lpTokenMatic.balanceOf.call(user);
+      tokenAUserAmount = await this.tokenA.balanceOf(user);
+      lpTokenUserAmount = await this.lpTokenMatic.balanceOf(user);
     });
 
     it('normal', async function() {
@@ -568,7 +568,7 @@ contract('QuickSwap Liquidity', function([_, user]) {
 
       // Get handler return result
       const handlerReturn = getHandlerReturn(receipt, ['uint256', 'uint256']);
-      const tokenAUserAmountEnd = await this.tokenA.balanceOf.call(user);
+      const tokenAUserAmountEnd = await this.tokenA.balanceOf(user);
       const userBalanceDelta = await balanceUser.delta();
       expect(utils.toBN(handlerReturn[0])).to.be.bignumber.eq(
         tokenAUserAmountEnd.sub(tokenAUserAmount)
@@ -578,19 +578,19 @@ contract('QuickSwap Liquidity', function([_, user]) {
       );
 
       // Verify User Token
-      expect(await this.tokenA.balanceOf.call(user)).to.be.bignumber.eq(
+      expect(await this.tokenA.balanceOf(user)).to.be.bignumber.eq(
         tokenAUserAmount.add(result[0])
       );
-      expect(await this.lpTokenMatic.balanceOf.call(user)).to.be.bignumber.eq(
+      expect(await this.lpTokenMatic.balanceOf(user)).to.be.bignumber.eq(
         ether('0')
       );
 
       // Verify proxy token should be zero
       expect(
-        await this.lpTokenMatic.balanceOf.call(this.proxy.address)
+        await this.lpTokenMatic.balanceOf(this.proxy.address)
       ).to.be.bignumber.eq(ether('0'));
       expect(
-        await this.tokenA.balanceOf.call(this.proxy.address)
+        await this.tokenA.balanceOf(this.proxy.address)
       ).to.be.bignumber.eq(ether('0'));
       expect(await balanceProxy.get()).to.be.bignumber.eq(ether('0'));
 
@@ -640,7 +640,7 @@ contract('QuickSwap Liquidity', function([_, user]) {
 
       // Get handler return result
       const handlerReturn = getHandlerReturn(receipt, ['uint256', 'uint256']);
-      const tokenAUserAmountEnd = await this.tokenA.balanceOf.call(user);
+      const tokenAUserAmountEnd = await this.tokenA.balanceOf(user);
       const userBalanceDelta = await balanceUser.delta();
       expect(utils.toBN(handlerReturn[0])).to.be.bignumber.eq(
         tokenAUserAmountEnd.sub(tokenAUserAmount)
@@ -650,19 +650,19 @@ contract('QuickSwap Liquidity', function([_, user]) {
       );
 
       // Verify User Token
-      expect(await this.tokenA.balanceOf.call(user)).to.be.bignumber.eq(
+      expect(await this.tokenA.balanceOf(user)).to.be.bignumber.eq(
         tokenAUserAmount.add(result[0])
       );
-      expect(await this.lpTokenMatic.balanceOf.call(user)).to.be.bignumber.eq(
+      expect(await this.lpTokenMatic.balanceOf(user)).to.be.bignumber.eq(
         ether('0')
       );
 
       // Verify proxy token should be zero
       expect(
-        await this.lpTokenMatic.balanceOf.call(this.proxy.address)
+        await this.lpTokenMatic.balanceOf(this.proxy.address)
       ).to.be.bignumber.eq(ether('0'));
       expect(
-        await this.tokenA.balanceOf.call(this.proxy.address)
+        await this.tokenA.balanceOf(this.proxy.address)
       ).to.be.bignumber.eq(ether('0'));
       expect(await balanceProxy.get()).to.be.bignumber.eq(ether('0'));
 
@@ -725,9 +725,9 @@ contract('QuickSwap Liquidity', function([_, user]) {
           from: user,
         }
       );
-      tokenAUserAmount = await this.tokenA.balanceOf.call(user);
-      tokenBUserAmount = await this.tokenB.balanceOf.call(user);
-      lpTokenUserAmount = await this.lpTokenToken.balanceOf.call(user);
+      tokenAUserAmount = await this.tokenA.balanceOf(user);
+      tokenBUserAmount = await this.tokenB.balanceOf(user);
+      lpTokenUserAmount = await this.lpTokenToken.balanceOf(user);
     });
 
     it('normal', async function() {
@@ -768,8 +768,8 @@ contract('QuickSwap Liquidity', function([_, user]) {
 
       // Get handler return result
       const handlerReturn = getHandlerReturn(receipt, ['uint256', 'uint256']);
-      const tokenAUserAmountEnd = await this.tokenA.balanceOf.call(user);
-      const tokenBUserAmountEnd = await this.tokenB.balanceOf.call(user);
+      const tokenAUserAmountEnd = await this.tokenA.balanceOf(user);
+      const tokenBUserAmountEnd = await this.tokenB.balanceOf(user);
 
       expect(utils.toBN(handlerReturn[0])).to.be.bignumber.eq(
         tokenAUserAmountEnd.sub(tokenAUserAmount)
@@ -779,25 +779,25 @@ contract('QuickSwap Liquidity', function([_, user]) {
       );
 
       // Verify user token
-      expect(await this.tokenA.balanceOf.call(user)).to.be.bignumber.eq(
+      expect(await this.tokenA.balanceOf(user)).to.be.bignumber.eq(
         tokenAUserAmount.add(result[0])
       );
-      expect(await this.tokenB.balanceOf.call(user)).to.be.bignumber.eq(
+      expect(await this.tokenB.balanceOf(user)).to.be.bignumber.eq(
         tokenBUserAmount.add(result[1])
       );
-      expect(await this.lpTokenToken.balanceOf.call(user)).to.be.bignumber.eq(
+      expect(await this.lpTokenToken.balanceOf(user)).to.be.bignumber.eq(
         ether('0')
       );
 
       // Verify proxy token should be zero
       expect(
-        await this.lpTokenToken.balanceOf.call(this.proxy.address)
+        await this.lpTokenToken.balanceOf(this.proxy.address)
       ).to.be.bignumber.eq(ether('0'));
       expect(
-        await this.tokenA.balanceOf.call(this.proxy.address)
+        await this.tokenA.balanceOf(this.proxy.address)
       ).to.be.bignumber.eq(ether('0'));
       expect(
-        await this.tokenB.balanceOf.call(this.proxy.address)
+        await this.tokenB.balanceOf(this.proxy.address)
       ).to.be.bignumber.eq(ether('0'));
       expect(await balanceProxy.get()).to.be.bignumber.eq(ether('0'));
 
@@ -848,8 +848,8 @@ contract('QuickSwap Liquidity', function([_, user]) {
 
       // Get handler return result
       const handlerReturn = getHandlerReturn(receipt, ['uint256', 'uint256']);
-      const tokenAUserAmountEnd = await this.tokenA.balanceOf.call(user);
-      const tokenBUserAmountEnd = await this.tokenB.balanceOf.call(user);
+      const tokenAUserAmountEnd = await this.tokenA.balanceOf(user);
+      const tokenBUserAmountEnd = await this.tokenB.balanceOf(user);
 
       expect(utils.toBN(handlerReturn[0])).to.be.bignumber.eq(
         tokenAUserAmountEnd.sub(tokenAUserAmount)
@@ -859,25 +859,25 @@ contract('QuickSwap Liquidity', function([_, user]) {
       );
 
       // Verify user token
-      expect(await this.tokenA.balanceOf.call(user)).to.be.bignumber.eq(
+      expect(await this.tokenA.balanceOf(user)).to.be.bignumber.eq(
         tokenAUserAmount.add(result[0])
       );
-      expect(await this.tokenB.balanceOf.call(user)).to.be.bignumber.eq(
+      expect(await this.tokenB.balanceOf(user)).to.be.bignumber.eq(
         tokenBUserAmount.add(result[1])
       );
-      expect(await this.lpTokenToken.balanceOf.call(user)).to.be.bignumber.eq(
+      expect(await this.lpTokenToken.balanceOf(user)).to.be.bignumber.eq(
         ether('0')
       );
 
       // Verify proxy token should be zero
       expect(
-        await this.lpTokenToken.balanceOf.call(this.proxy.address)
+        await this.lpTokenToken.balanceOf(this.proxy.address)
       ).to.be.bignumber.eq(ether('0'));
       expect(
-        await this.tokenA.balanceOf.call(this.proxy.address)
+        await this.tokenA.balanceOf(this.proxy.address)
       ).to.be.bignumber.eq(ether('0'));
       expect(
-        await this.tokenB.balanceOf.call(this.proxy.address)
+        await this.tokenB.balanceOf(this.proxy.address)
       ).to.be.bignumber.eq(ether('0'));
       expect(await balanceProxy.get()).to.be.bignumber.eq(ether('0'));
 

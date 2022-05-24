@@ -173,7 +173,7 @@ contract('ParaSwapV5', function([_, user, user2]) {
       beforeEach(async function() {
         userBalance = await tracker(user);
         proxyBalance = await tracker(this.onchainProxy.address);
-        userTokenBalance = await this.token.balanceOf.call(user);
+        userTokenBalance = await this.token.balanceOf(user);
       });
 
       describe('Swap', function() {
@@ -215,7 +215,7 @@ contract('ParaSwapV5', function([_, user, user2]) {
             }
           );
 
-          const userTokenBalanceAfter = await this.token.balanceOf.call(user);
+          const userTokenBalanceAfter = await this.token.balanceOf(user);
 
           // Verify user token balance
           expectEqWithinBps(
@@ -226,7 +226,7 @@ contract('ParaSwapV5', function([_, user, user2]) {
 
           // Proxy should not have remaining token
           expect(
-            await this.token.balanceOf.call(this.onchainProxy.address)
+            await this.token.balanceOf(this.onchainProxy.address)
           ).to.be.bignumber.zero;
 
           // Verify MATIC balance
@@ -275,7 +275,7 @@ contract('ParaSwapV5', function([_, user, user2]) {
             }
           );
 
-          const userTokenBalanceAfter = await this.token.balanceOf.call(user);
+          const userTokenBalanceAfter = await this.token.balanceOf(user);
 
           // Verify user balance
           expectEqWithinBps(
@@ -286,7 +286,7 @@ contract('ParaSwapV5', function([_, user, user2]) {
 
           // Proxy should not have remaining token
           expect(
-            await this.token.balanceOf.call(this.onchainProxy.address)
+            await this.token.balanceOf(this.onchainProxy.address)
           ).to.be.bignumber.zero;
 
           // Verify MATIC balance
@@ -433,7 +433,7 @@ contract('ParaSwapV5', function([_, user, user2]) {
 
         // Proxy should not have remaining token
         expect(
-          await this.token.balanceOf.call(this.onchainProxy.address)
+          await this.token.balanceOf(this.onchainProxy.address)
         ).to.be.bignumber.zero;
 
         expect(await proxyBalance.get()).to.be.bignumber.zero;
@@ -534,7 +534,7 @@ contract('ParaSwapV5', function([_, user, user2]) {
           from: user,
         });
 
-        const userToken2Balance = await this.token2.balanceOf.call(user);
+        const userToken2Balance = await this.token2.balanceOf(user);
 
         // Verify user balance
         expectEqWithinBps(
@@ -545,7 +545,7 @@ contract('ParaSwapV5', function([_, user, user2]) {
 
         // Proxy should not have remaining token
         expect(
-          await this.token2.balanceOf.call(this.onchainProxy.address)
+          await this.token2.balanceOf(this.onchainProxy.address)
         ).to.be.bignumber.zero;
       });
     }); // describe('token to token') end
@@ -565,7 +565,7 @@ contract('ParaSwapV5', function([_, user, user2]) {
       beforeEach(async function() {
         userBalance = await tracker(user);
         proxyBalance = await tracker(this.proxy.address);
-        userTokenBalance = await this.token.balanceOf.call(user);
+        userTokenBalance = await this.token.balanceOf(user);
       });
 
       describe('Swap', function() {
@@ -606,7 +606,7 @@ contract('ParaSwapV5', function([_, user, user2]) {
             getHandlerReturn(receipt, ['uint256'])[0]
           );
 
-          const userTokenBalanceAfter = await this.token.balanceOf.call(user);
+          const userTokenBalanceAfter = await this.token.balanceOf(user);
 
           // Verify user token balance
           expect(handlerReturn).to.be.bignumber.eq(
@@ -620,7 +620,7 @@ contract('ParaSwapV5', function([_, user, user2]) {
 
           // Proxy should not have remaining token
           expect(
-            await this.token.balanceOf.call(this.proxy.address)
+            await this.token.balanceOf(this.proxy.address)
           ).to.be.bignumber.zero;
 
           // Verify MATIC balance
@@ -667,7 +667,7 @@ contract('ParaSwapV5', function([_, user, user2]) {
             getHandlerReturn(receipt, ['uint256'])[0]
           );
 
-          const userTokenBalanceAfter = await this.token.balanceOf.call(user);
+          const userTokenBalanceAfter = await this.token.balanceOf(user);
 
           // Verify user balance
           expect(handlerReturn).to.be.bignumber.eq(
@@ -676,7 +676,7 @@ contract('ParaSwapV5', function([_, user, user2]) {
 
           // Proxy should not have remaining token
           expect(
-            await this.token.balanceOf.call(this.proxy.address)
+            await this.token.balanceOf(this.proxy.address)
           ).to.be.bignumber.zero;
 
           // Verify MATIC balance
@@ -825,7 +825,7 @@ contract('ParaSwapV5', function([_, user, user2]) {
 
         // Proxy should not have remaining token
         expect(
-          await this.token.balanceOf.call(this.proxy.address)
+          await this.token.balanceOf(this.proxy.address)
         ).to.be.bignumber.zero;
 
         // Verify MATIC balance
@@ -931,7 +931,7 @@ contract('ParaSwapV5', function([_, user, user2]) {
           getHandlerReturn(receipt, ['uint256'])[0]
         );
 
-        const userToken2Balance = await this.token2.balanceOf.call(user);
+        const userToken2Balance = await this.token2.balanceOf(user);
 
         // Verify user balance
         expect(handlerReturn).to.be.bignumber.eq(userToken2Balance);
@@ -941,7 +941,7 @@ contract('ParaSwapV5', function([_, user, user2]) {
 
         // Proxy should not have remaining token
         expect(
-          await this.token2.balanceOf.call(this.proxy.address)
+          await this.token2.balanceOf(this.proxy.address)
         ).to.be.bignumber.zero;
       });
     }); // describe('token to token') end

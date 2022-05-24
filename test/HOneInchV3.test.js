@@ -96,7 +96,7 @@ contract('OneInchV3 Swap', function([_, user]) {
     beforeEach(async function() {
       balanceUser = await tracker(user);
       balanceProxy = await tracker(this.proxy.address);
-      tokenUser = await this.token.balanceOf.call(user);
+      tokenUser = await this.token.balanceOf(user);
     });
 
     describe('Swap', function() {
@@ -135,7 +135,7 @@ contract('OneInchV3 Swap', function([_, user]) {
         });
 
         // Verify return value
-        const tokenUserEnd = await this.token.balanceOf.call(user);
+        const tokenUserEnd = await this.token.balanceOf(user);
         const handlerReturn = utils.toBN(
           getHandlerReturn(receipt, ['uint256'])[0]
         );
@@ -147,7 +147,7 @@ contract('OneInchV3 Swap', function([_, user]) {
           tokenUser.add(mulPercent(quote, 100 - slippage - 1))
         );
         expect(
-          await this.token.balanceOf.call(this.proxy.address)
+          await this.token.balanceOf(this.proxy.address)
         ).to.be.bignumber.zero;
 
         // Verify ether balance
@@ -196,7 +196,7 @@ contract('OneInchV3 Swap', function([_, user]) {
         });
 
         // Verify return value
-        const tokenUserEnd = await this.token.balanceOf.call(user);
+        const tokenUserEnd = await this.token.balanceOf(user);
         const handlerReturn = utils.toBN(
           getHandlerReturn(receipt, ['uint256'])[0]
         );
@@ -208,7 +208,7 @@ contract('OneInchV3 Swap', function([_, user]) {
           tokenUser.add(mulPercent(quote, 100 - slippage - 1))
         );
         expect(
-          await this.token.balanceOf.call(this.proxy.address)
+          await this.token.balanceOf(this.proxy.address)
         ).to.be.bignumber.zero;
 
         // Verify ether balance
@@ -268,7 +268,7 @@ contract('OneInchV3 Swap', function([_, user]) {
         });
 
         // Verify return value
-        const tokenUserEnd = await this.token.balanceOf.call(user);
+        const tokenUserEnd = await this.token.balanceOf(user);
         const handlerReturn = utils.toBN(
           getHandlerReturn(receipt, ['uint256'])[0]
         );
@@ -280,7 +280,7 @@ contract('OneInchV3 Swap', function([_, user]) {
           tokenUser.add(mulPercent(quote, 100 - slippage - 1))
         );
         expect(
-          await this.token.balanceOf.call(this.proxy.address)
+          await this.token.balanceOf(this.proxy.address)
         ).to.be.bignumber.zero;
 
         // Verify ether balance
@@ -356,7 +356,7 @@ contract('OneInchV3 Swap', function([_, user]) {
     beforeEach(async function() {
       balanceUser = await tracker(user);
       balanceProxy = await tracker(this.proxy.address);
-      tokenUser = await this.token.balanceOf.call(user);
+      tokenUser = await this.token.balanceOf(user);
     });
 
     describe('Swap', function() {
@@ -410,11 +410,9 @@ contract('OneInchV3 Swap', function([_, user]) {
         );
 
         // Verify token balance
-        expect(await this.token.balanceOf.call(user)).to.be.bignumber.eq(
-          tokenUser
-        );
+        expect(await this.token.balanceOf(user)).to.be.bignumber.eq(tokenUser);
         expect(
-          await this.token.balanceOf.call(this.proxy.address)
+          await this.token.balanceOf(this.proxy.address)
         ).to.be.bignumber.zero;
 
         // Verify ether balance
@@ -490,11 +488,9 @@ contract('OneInchV3 Swap', function([_, user]) {
         );
 
         // Verify token balance
-        expect(await this.token.balanceOf.call(user)).to.be.bignumber.eq(
-          tokenUser
-        );
+        expect(await this.token.balanceOf(user)).to.be.bignumber.eq(tokenUser);
         expect(
-          await this.token.balanceOf.call(this.proxy.address)
+          await this.token.balanceOf(this.proxy.address)
         ).to.be.bignumber.zero;
 
         // Verify ether balance
@@ -534,10 +530,10 @@ contract('OneInchV3 Swap', function([_, user]) {
     beforeEach(async function() {
       balanceUser = await tracker(user);
       balanceProxy = await tracker(this.proxy.address);
-      token0User = await this.token0.balanceOf.call(user);
-      token1User = await this.token1.balanceOf.call(user);
-      wethUser = await this.weth.balanceOf.call(user);
-      wethProxy = await this.weth.balanceOf.call(this.proxy.address);
+      token0User = await this.token0.balanceOf(user);
+      token1User = await this.token1.balanceOf(user);
+      wethUser = await this.weth.balanceOf(user);
+      wethProxy = await this.weth.balanceOf(this.proxy.address);
     });
 
     describe('Swap', function() {
@@ -582,27 +578,27 @@ contract('OneInchV3 Swap', function([_, user]) {
         });
 
         // Verify return value
-        const token1UserEnd = await this.token1.balanceOf.call(user);
+        const token1UserEnd = await this.token1.balanceOf(user);
         const handlerReturn = utils.toBN(
           getHandlerReturn(receipt, ['uint256'])[0]
         );
         expect(handlerReturn).to.be.bignumber.eq(token1UserEnd.sub(token1User));
 
         // Verify token0 balance
-        expect(await this.token0.balanceOf.call(user)).to.be.bignumber.eq(
+        expect(await this.token0.balanceOf(user)).to.be.bignumber.eq(
           token0User
         );
         expect(
-          await this.token0.balanceOf.call(this.proxy.address)
+          await this.token0.balanceOf(this.proxy.address)
         ).to.be.bignumber.zero;
 
         // Verify token1 balance
-        expect(await this.token1.balanceOf.call(user)).to.be.bignumber.gte(
+        expect(await this.token1.balanceOf(user)).to.be.bignumber.gte(
           // sub 1 more percent to tolerate the slippage calculation difference with 1inch
           token1User.add(mulPercent(quote, 100 - slippage - 1))
         );
         expect(
-          await this.token1.balanceOf.call(this.proxy.address)
+          await this.token1.balanceOf(this.proxy.address)
         ).to.be.bignumber.zero;
 
         // Verify ether balance
@@ -666,27 +662,27 @@ contract('OneInchV3 Swap', function([_, user]) {
         });
 
         // Verify return value
-        const token1UserEnd = await this.token1.balanceOf.call(user);
+        const token1UserEnd = await this.token1.balanceOf(user);
         const handlerReturn = utils.toBN(
           getHandlerReturn(receipt, ['uint256'])[0]
         );
         expect(handlerReturn).to.be.bignumber.eq(token1UserEnd.sub(token1User));
 
         // Verify token0 balance
-        expect(await this.token0.balanceOf.call(user)).to.be.bignumber.eq(
+        expect(await this.token0.balanceOf(user)).to.be.bignumber.eq(
           token0User
         );
         expect(
-          await this.token0.balanceOf.call(this.proxy.address)
+          await this.token0.balanceOf(this.proxy.address)
         ).to.be.bignumber.zero;
 
         // Verify token1 balance
-        expect(await this.token1.balanceOf.call(user)).to.be.bignumber.gte(
+        expect(await this.token1.balanceOf(user)).to.be.bignumber.gte(
           // sub 1 more percent to tolerate the slippage calculation difference with 1inch
           token1User.add(mulPercent(quote, 100 - slippage - 1))
         );
         expect(
-          await this.token1.balanceOf.call(this.proxy.address)
+          await this.token1.balanceOf(this.proxy.address)
         ).to.be.bignumber.zero;
 
         // Verify ether balance
@@ -748,27 +744,27 @@ contract('OneInchV3 Swap', function([_, user]) {
         });
 
         // Verify return value
-        const wethUserEnd = await this.weth.balanceOf.call(user);
+        const wethUserEnd = await this.weth.balanceOf(user);
         const handlerReturn = utils.toBN(
           getHandlerReturn(receipt, ['uint256'])[0]
         );
         expect(handlerReturn).to.be.bignumber.eq(wethUserEnd.sub(wethUser));
 
         // Verify token0 balance
-        expect(await this.token0.balanceOf.call(user)).to.be.bignumber.eq(
+        expect(await this.token0.balanceOf(user)).to.be.bignumber.eq(
           token0User
         );
         expect(
-          await this.token0.balanceOf.call(this.proxy.address)
+          await this.token0.balanceOf(this.proxy.address)
         ).to.be.bignumber.zero;
 
         // Verify weth balance
-        expect(await this.weth.balanceOf.call(user)).to.be.bignumber.gte(
+        expect(await this.weth.balanceOf(user)).to.be.bignumber.gte(
           // sub 1 more percent to tolerate the slippage calculation difference with 1inch
           wethUser.add(mulPercent(quote, 100 - slippage - 1))
         );
         expect(
-          await this.weth.balanceOf.call(this.proxy.address)
+          await this.weth.balanceOf(this.proxy.address)
         ).to.be.bignumber.zero;
 
         // Verify ether balance
@@ -832,27 +828,27 @@ contract('OneInchV3 Swap', function([_, user]) {
         });
 
         // Verify return value
-        const wethUserEnd = await this.weth.balanceOf.call(user);
+        const wethUserEnd = await this.weth.balanceOf(user);
         const handlerReturn = utils.toBN(
           getHandlerReturn(receipt, ['uint256'])[0]
         );
         expect(handlerReturn).to.be.bignumber.eq(wethUserEnd.sub(wethUser));
 
         // Verify token0 balance
-        expect(await this.token0.balanceOf.call(user)).to.be.bignumber.eq(
+        expect(await this.token0.balanceOf(user)).to.be.bignumber.eq(
           token0User
         );
         expect(
-          await this.token0.balanceOf.call(this.proxy.address)
+          await this.token0.balanceOf(this.proxy.address)
         ).to.be.bignumber.zero;
 
         // Verify weth balance
-        expect(await this.weth.balanceOf.call(user)).to.be.bignumber.gte(
+        expect(await this.weth.balanceOf(user)).to.be.bignumber.gte(
           // sub 1 more percent to tolerate the slippage calculation difference with 1inch
           wethUser.add(mulPercent(quote, 100 - slippage - 1))
         );
         expect(
-          await this.weth.balanceOf.call(this.proxy.address)
+          await this.weth.balanceOf(this.proxy.address)
         ).to.be.bignumber.zero;
 
         // Verify ether balance

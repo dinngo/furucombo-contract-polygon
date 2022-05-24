@@ -64,7 +64,7 @@ contract('Aave V2', function([_, user, someone]) {
       utils.asciiToHex('AaveProtocolV2')
     );
     this.provider = await IProvider.at(AAVEPROTOCOL_V2_PROVIDER);
-    this.lendingPoolAddress = await this.provider.getLendingPool.call();
+    this.lendingPoolAddress = await this.provider.getLendingPool();
     this.lendingPool = await ILendingPool.at(this.lendingPoolAddress);
     this.token = await IToken.at(tokenAddress);
     this.aToken = await IAToken.at(aTokenAddress);
@@ -106,7 +106,7 @@ contract('Aave V2', function([_, user, someone]) {
       await this.token.approve(this.lendingPool.address, depositAmount, {
         from: providerAddress,
       });
-      expect(await this.aToken.balanceOf.call(user)).to.be.bignumber.zero;
+      expect(await this.aToken.balanceOf(user)).to.be.bignumber.zero;
       await this.lendingPool.deposit(
         this.token.address,
         depositAmount,
@@ -114,14 +114,14 @@ contract('Aave V2', function([_, user, someone]) {
         0,
         { from: providerAddress }
       );
-      expect(await this.aToken.balanceOf.call(user)).to.be.bignumber.eq(
+      expect(await this.aToken.balanceOf(user)).to.be.bignumber.eq(
         depositAmount
       );
 
-      borrowTokenUserBefore = await this.borrowToken.balanceOf.call(user);
-      borrowWMATICUserBefore = await this.wmatic.balanceOf.call(user);
-      debtTokenUserBefore = await this.debtToken.balanceOf.call(user);
-      debtWMATICUserBefore = await this.debtWMATIC.balanceOf.call(user);
+      borrowTokenUserBefore = await this.borrowToken.balanceOf(user);
+      borrowWMATICUserBefore = await this.wmatic.balanceOf(user);
+      debtTokenUserBefore = await this.debtToken.balanceOf(user);
+      debtWMATICUserBefore = await this.debtWMATIC.balanceOf(user);
     });
 
     it('borrow token', async function() {
@@ -141,15 +141,15 @@ contract('Aave V2', function([_, user, someone]) {
         from: user,
         value: ether('0.1'),
       });
-      const borrowTokenUserAfter = await this.borrowToken.balanceOf.call(user);
-      const debtTokenUserAfter = await this.debtToken.balanceOf.call(user);
+      const borrowTokenUserAfter = await this.borrowToken.balanceOf(user);
+      const debtTokenUserAfter = await this.debtToken.balanceOf(user);
       // Verify proxy balance
       expect(await balanceProxy.get()).to.be.bignumber.zero;
       expect(
-        await this.borrowToken.balanceOf.call(this.proxy.address)
+        await this.borrowToken.balanceOf(this.proxy.address)
       ).to.be.bignumber.zero;
       expect(
-        await this.debtToken.balanceOf.call(this.proxy.address)
+        await this.debtToken.balanceOf(this.proxy.address)
       ).to.be.bignumber.zero;
 
       // Verify user balance
@@ -190,15 +190,15 @@ contract('Aave V2', function([_, user, someone]) {
         from: user,
         value: ether('0.1'),
       });
-      const borrowWMATICUserAfter = await this.wmatic.balanceOf.call(user);
-      const debtWMATICUserAfter = await this.debtWMATIC.balanceOf.call(user);
+      const borrowWMATICUserAfter = await this.wmatic.balanceOf(user);
+      const debtWMATICUserAfter = await this.debtWMATIC.balanceOf(user);
       // Verify proxy balance
       expect(await balanceProxy.get()).to.be.bignumber.zero;
       expect(
-        await this.borrowToken.balanceOf.call(this.proxy.address)
+        await this.borrowToken.balanceOf(this.proxy.address)
       ).to.be.bignumber.zero;
       expect(
-        await this.debtToken.balanceOf.call(this.proxy.address)
+        await this.debtToken.balanceOf(this.proxy.address)
       ).to.be.bignumber.zero;
 
       // Verify user balance
@@ -239,11 +239,11 @@ contract('Aave V2', function([_, user, someone]) {
       });
 
       const balancerUserAfter = await balanceUser.get();
-      const debtWMATICUserAfter = await this.debtWMATIC.balanceOf.call(user);
+      const debtWMATICUserAfter = await this.debtWMATIC.balanceOf(user);
       // Verify proxy balance
       expect(await balanceProxy.get()).to.be.bignumber.zero;
       expect(
-        await this.debtToken.balanceOf.call(this.proxy.address)
+        await this.debtToken.balanceOf(this.proxy.address)
       ).to.be.bignumber.zero;
 
       // Verify user balance
@@ -398,7 +398,7 @@ contract('Aave V2', function([_, user, someone]) {
         from: providerAddress,
       });
 
-      expect(await this.aToken.balanceOf.call(user)).to.be.bignumber.zero;
+      expect(await this.aToken.balanceOf(user)).to.be.bignumber.zero;
       await this.lendingPool.deposit(
         this.token.address,
         depositAmount,
@@ -406,16 +406,12 @@ contract('Aave V2', function([_, user, someone]) {
         0,
         { from: providerAddress }
       );
-      expectEqWithinBps(
-        await this.aToken.balanceOf.call(user),
-        depositAmount,
-        10
-      );
+      expectEqWithinBps(await this.aToken.balanceOf(user), depositAmount, 10);
 
-      borrowTokenUserBefore = await this.borrowToken.balanceOf.call(user);
-      borrowWMATICUserBefore = await this.wmatic.balanceOf.call(user);
-      debtTokenUserBefore = await this.debtToken.balanceOf.call(user);
-      debtWMATICUserBefore = await this.debtWMATIC.balanceOf.call(user);
+      borrowTokenUserBefore = await this.borrowToken.balanceOf(user);
+      borrowWMATICUserBefore = await this.wmatic.balanceOf(user);
+      debtTokenUserBefore = await this.debtToken.balanceOf(user);
+      debtWMATICUserBefore = await this.debtWMATIC.balanceOf(user);
     });
 
     it('borrow token', async function() {
@@ -435,15 +431,15 @@ contract('Aave V2', function([_, user, someone]) {
         from: user,
         value: ether('0.1'),
       });
-      const borrowTokenUserAfter = await this.borrowToken.balanceOf.call(user);
-      const debtTokenUserAfter = await this.debtToken.balanceOf.call(user);
+      const borrowTokenUserAfter = await this.borrowToken.balanceOf(user);
+      const debtTokenUserAfter = await this.debtToken.balanceOf(user);
       // Verify proxy balance
       expect(await balanceProxy.get()).to.be.bignumber.zero;
       expect(
-        await this.borrowToken.balanceOf.call(this.proxy.address)
+        await this.borrowToken.balanceOf(this.proxy.address)
       ).to.be.bignumber.zero;
       expect(
-        await this.debtToken.balanceOf.call(this.proxy.address)
+        await this.debtToken.balanceOf(this.proxy.address)
       ).to.be.bignumber.zero;
 
       // Verify user balance
@@ -485,15 +481,15 @@ contract('Aave V2', function([_, user, someone]) {
         from: user,
         value: ether('0.1'),
       });
-      const borrowWMATICUserAfter = await this.wmatic.balanceOf.call(user);
-      const debtWMATICUserAfter = await this.debtWMATIC.balanceOf.call(user);
+      const borrowWMATICUserAfter = await this.wmatic.balanceOf(user);
+      const debtWMATICUserAfter = await this.debtWMATIC.balanceOf(user);
       // Verify proxy balance
       expect(await balanceProxy.get()).to.be.bignumber.zero;
       expect(
-        await this.borrowToken.balanceOf.call(this.proxy.address)
+        await this.borrowToken.balanceOf(this.proxy.address)
       ).to.be.bignumber.zero;
       expect(
-        await this.debtToken.balanceOf.call(this.proxy.address)
+        await this.debtToken.balanceOf(this.proxy.address)
       ).to.be.bignumber.zero;
 
       // Verify user balance
@@ -535,11 +531,11 @@ contract('Aave V2', function([_, user, someone]) {
       });
 
       const balancerUserAfter = await balanceUser.get();
-      const debtWMATICUserAfter = await this.debtWMATIC.balanceOf.call(user);
+      const debtWMATICUserAfter = await this.debtWMATIC.balanceOf(user);
       // Verify proxy balance
       expect(await balanceProxy.get()).to.be.bignumber.zero;
       expect(
-        await this.debtToken.balanceOf.call(this.proxy.address)
+        await this.debtToken.balanceOf(this.proxy.address)
       ).to.be.bignumber.zero;
 
       // Verify user balance

@@ -71,8 +71,8 @@ contract('Curve', function([_, user]) {
     });
 
     beforeEach(async function() {
-      token0User = await this.token0.balanceOf.call(user);
-      token1User = await this.token1.balanceOf.call(user);
+      token0User = await this.token0.balanceOf(user);
+      token1User = await this.token1.balanceOf(user);
     });
 
     describe('aave pool', function() {
@@ -103,24 +103,24 @@ contract('Curve', function([_, user]) {
         const handlerReturn = utils.toBN(
           getHandlerReturn(receipt, ['uint256'])[0]
         );
-        const token1UserEnd = await this.token1.balanceOf.call(user);
+        const token1UserEnd = await this.token1.balanceOf(user);
         expect(handlerReturn).to.be.bignumber.eq(token1UserEnd.sub(token1User));
 
         expect(
-          await this.token0.balanceOf.call(this.proxy.address)
+          await this.token0.balanceOf(this.proxy.address)
         ).to.be.bignumber.zero;
         expect(
-          await this.token1.balanceOf.call(this.proxy.address)
+          await this.token1.balanceOf(this.proxy.address)
         ).to.be.bignumber.zero;
-        expect(await this.token0.balanceOf.call(user)).to.be.bignumber.eq(
+        expect(await this.token0.balanceOf(user)).to.be.bignumber.eq(
           token0User
         );
         // get_dy_underlying flow is different from exchange_underlying,
         // so give 1*10^12 tolerance for USDT/DAI case.
-        expect(await this.token1.balanceOf.call(user)).to.be.bignumber.gte(
+        expect(await this.token1.balanceOf(user)).to.be.bignumber.gte(
           token1User.add(answer).sub(new BN('1000000000000'))
         );
-        expect(await this.token1.balanceOf.call(user)).to.be.bignumber.lte(
+        expect(await this.token1.balanceOf(user)).to.be.bignumber.lte(
           mulPercent(token1User.add(answer), new BN('101'))
         );
         profileGas(receipt);
@@ -153,24 +153,24 @@ contract('Curve', function([_, user]) {
         const handlerReturn = utils.toBN(
           getHandlerReturn(receipt, ['uint256'])[0]
         );
-        const token1UserEnd = await this.token1.balanceOf.call(user);
+        const token1UserEnd = await this.token1.balanceOf(user);
         expect(handlerReturn).to.be.bignumber.eq(token1UserEnd.sub(token1User));
 
         expect(
-          await this.token0.balanceOf.call(this.proxy.address)
+          await this.token0.balanceOf(this.proxy.address)
         ).to.be.bignumber.zero;
         expect(
-          await this.token1.balanceOf.call(this.proxy.address)
+          await this.token1.balanceOf(this.proxy.address)
         ).to.be.bignumber.zero;
-        expect(await this.token0.balanceOf.call(user)).to.be.bignumber.eq(
+        expect(await this.token0.balanceOf(user)).to.be.bignumber.eq(
           token0User
         );
         // get_dy_underlying flow is different from exchange_underlying,
         // so give 1*10^12 tolerance for USDT/DAI case.
-        expect(await this.token1.balanceOf.call(user)).to.be.bignumber.gte(
+        expect(await this.token1.balanceOf(user)).to.be.bignumber.gte(
           token1User.add(answer).sub(new BN('1000000000000'))
         );
-        expect(await this.token1.balanceOf.call(user)).to.be.bignumber.lte(
+        expect(await this.token1.balanceOf(user)).to.be.bignumber.lte(
           mulPercent(token1User.add(answer), new BN('101'))
         );
         profileGas(receipt);
@@ -223,9 +223,9 @@ contract('Curve', function([_, user]) {
       });
 
       beforeEach(async function() {
-        token0User = await this.token0.balanceOf.call(user);
-        token1User = await this.token1.balanceOf.call(user);
-        poolTokenUser = await this.poolToken.balanceOf.call(user);
+        token0User = await this.token0.balanceOf(user);
+        token1User = await this.token1.balanceOf(user);
+        poolTokenUser = await this.poolToken.balanceOf(user);
       });
 
       it('add DAI and USDT to pool by addLiquidityUnderlying', async function() {
@@ -270,27 +270,27 @@ contract('Curve', function([_, user]) {
         const handlerReturn = utils.toBN(
           getHandlerReturn(receipt, ['uint256'])[0]
         );
-        const poolTokenUserEnd = await this.poolToken.balanceOf.call(user);
+        const poolTokenUserEnd = await this.poolToken.balanceOf(user);
         expect(handlerReturn).to.be.bignumber.eq(
           poolTokenUserEnd.sub(poolTokenUser)
         );
 
         // Check proxy balance
         expect(
-          await this.token0.balanceOf.call(this.proxy.address)
+          await this.token0.balanceOf(this.proxy.address)
         ).to.be.bignumber.zero;
         expect(
-          await this.token1.balanceOf.call(this.proxy.address)
+          await this.token1.balanceOf(this.proxy.address)
         ).to.be.bignumber.zero;
         expect(
-          await this.poolToken.balanceOf.call(this.proxy.address)
+          await this.poolToken.balanceOf(this.proxy.address)
         ).to.be.bignumber.zero;
 
         // Check user balance
-        expect(await this.token0.balanceOf.call(user)).to.be.bignumber.eq(
+        expect(await this.token0.balanceOf(user)).to.be.bignumber.eq(
           token0User
         );
-        expect(await this.token1.balanceOf.call(user)).to.be.bignumber.eq(
+        expect(await this.token1.balanceOf(user)).to.be.bignumber.eq(
           token1User
         );
         // poolToken amount should be greater than answer * 0.999 which is
@@ -340,7 +340,7 @@ contract('Curve', function([_, user]) {
 
       it('remove from pool to USDT by removeLiquidityOneCoinUnderlying', async function() {
         const poolTokenUser = ether('0.1');
-        const token1UserBefore = await this.token1.balanceOf.call(user);
+        const token1UserBefore = await this.token1.balanceOf(user);
         const answer = await this.aaveSwap.methods[
           'calc_withdraw_one_coin(uint256,int128)'
         ](poolTokenUser, 2);
@@ -367,17 +367,17 @@ contract('Curve', function([_, user]) {
         const handlerReturn = utils.toBN(
           getHandlerReturn(receipt, ['uint256'])[0]
         );
-        const token1UserEnd = await this.token1.balanceOf.call(user);
+        const token1UserEnd = await this.token1.balanceOf(user);
         expect(handlerReturn).to.be.bignumber.eq(
           token1UserEnd.sub(token1UserBefore)
         );
 
         // Check proxy balance
         expect(
-          await this.token1.balanceOf.call(this.proxy.address)
+          await this.token1.balanceOf(this.proxy.address)
         ).to.be.bignumber.zero;
         expect(
-          await this.poolToken.balanceOf.call(this.proxy.address)
+          await this.poolToken.balanceOf(this.proxy.address)
         ).to.be.bignumber.zero;
 
         // Check user
