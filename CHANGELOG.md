@@ -14,6 +14,7 @@ All notable changes to this project will be documented in this file.
 - Replace safeApprove with \_tokenApprove.
 - Set token allowance to zero after each \_tokenApprove.
 - Peek first and second element from stack at once in \_setPostProcess() to avoid too many push/pop.
+- Remove Proxy event log.
 
 ### Fixed
 
