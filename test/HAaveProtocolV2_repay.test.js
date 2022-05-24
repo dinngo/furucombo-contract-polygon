@@ -59,7 +59,7 @@ contract('Aave V2', function([_, user]) {
       utils.asciiToHex('AaveProtocolV2')
     );
     this.provider = await IProvider.at(AAVEPROTOCOL_V2_PROVIDER);
-    this.lendingPoolAddress = await this.provider.getLendingPool.call();
+    this.lendingPoolAddress = await this.provider.getLendingPool();
     this.lendingPool = await ILendingPool.at(this.lendingPoolAddress);
     this.token = await IToken.at(tokenAddress);
     this.aToken = await IAToken.at(aTokenAddress);
@@ -105,7 +105,7 @@ contract('Aave V2', function([_, user]) {
         0,
         { from: providerAddress }
       );
-      depositAmount = await this.aToken.balanceOf.call(user);
+      depositAmount = await this.aToken.balanceOf(user);
 
       // Borrow
       await this.lendingPool.borrow(
@@ -117,10 +117,10 @@ contract('Aave V2', function([_, user]) {
         { from: user }
       );
 
-      expect(await this.borrowToken.balanceOf.call(user)).to.be.bignumber.eq(
+      expect(await this.borrowToken.balanceOf(user)).to.be.bignumber.eq(
         borrowAmount
       );
-      expect(await this.debtToken.balanceOf.call(user)).to.be.bignumber.eq(
+      expect(await this.debtToken.balanceOf(user)).to.be.bignumber.eq(
         borrowAmount
       );
     });
@@ -150,8 +150,8 @@ contract('Aave V2', function([_, user]) {
       const handlerReturn = utils.toBN(
         getHandlerReturn(receipt, ['uint256'])[0]
       );
-      const borrowTokenUserAfter = await this.borrowToken.balanceOf.call(user);
-      const debtTokenUserAfter = await this.debtToken.balanceOf.call(user);
+      const borrowTokenUserAfter = await this.borrowToken.balanceOf(user);
+      const debtTokenUserAfter = await this.debtToken.balanceOf(user);
       const interestMax = borrowAmount.mul(new BN(1)).div(new BN(10000));
 
       // Verify handler return
@@ -161,7 +161,7 @@ contract('Aave V2', function([_, user]) {
       );
       // Verify proxy balance
       expect(
-        await this.borrowToken.balanceOf.call(this.proxy.address)
+        await this.borrowToken.balanceOf(this.proxy.address)
       ).to.be.bignumber.zero;
       // Verify user balance
       // (borrow - repay) <= debtTokenUserAfter < (borrow + interestMax - repay)
@@ -187,7 +187,7 @@ contract('Aave V2', function([_, user]) {
       );
       await balanceUser.get();
 
-      const debtTokenUserBefore = await this.debtToken.balanceOf.call(user);
+      const debtTokenUserBefore = await this.debtToken.balanceOf(user);
       const receipt = await this.proxy.execMock(to, data, {
         from: user,
         value: value,
@@ -197,7 +197,7 @@ contract('Aave V2', function([_, user]) {
       const handlerReturn = utils.toBN(
         getHandlerReturn(receipt, ['uint256'])[0]
       );
-      const debtTokenUserAfter = await this.debtToken.balanceOf.call(user);
+      const debtTokenUserAfter = await this.debtToken.balanceOf(user);
       const interestMax = borrowAmount.mul(new BN(1)).div(new BN(10000));
 
       // Verify handler return
@@ -207,7 +207,7 @@ contract('Aave V2', function([_, user]) {
       );
       // Verify proxy balance
       expect(
-        await this.borrowToken.balanceOf.call(this.proxy.address)
+        await this.borrowToken.balanceOf(this.proxy.address)
       ).to.be.bignumber.zero;
       // Verify user balance
       // (borrow - repay) <= debtTokenUserAfter < (borrow + interestMax - repay)
@@ -252,15 +252,15 @@ contract('Aave V2', function([_, user]) {
       const handlerReturn = utils.toBN(
         getHandlerReturn(receipt, ['uint256'])[0]
       );
-      const borrowTokenUserAfter = await this.borrowToken.balanceOf.call(user);
-      const debtTokenUserAfter = await this.debtToken.balanceOf.call(user);
+      const borrowTokenUserAfter = await this.borrowToken.balanceOf(user);
+      const debtTokenUserAfter = await this.debtToken.balanceOf(user);
       const interestMax = borrowAmount.mul(new BN(1)).div(new BN(10000));
 
       // Verify handler return
       expect(handlerReturn).to.be.bignumber.zero;
       // Verify proxy balance
       expect(
-        await this.borrowToken.balanceOf.call(this.proxy.address)
+        await this.borrowToken.balanceOf(this.proxy.address)
       ).to.be.bignumber.zero;
       // Verify user balance
       expect(debtTokenUserAfter).to.be.bignumber.zero;
@@ -296,14 +296,14 @@ contract('Aave V2', function([_, user]) {
       const handlerReturn = utils.toBN(
         getHandlerReturn(receipt, ['uint256'])[0]
       );
-      const debtTokenUserAfter = await this.debtToken.balanceOf.call(user);
+      const debtTokenUserAfter = await this.debtToken.balanceOf(user);
       const interestMax = borrowAmount.mul(new BN(1)).div(new BN(10000));
 
       // Verify handler return
       expect(handlerReturn).to.be.bignumber.zero;
       // Verify proxy balance
       expect(
-        await this.borrowToken.balanceOf.call(this.proxy.address)
+        await this.borrowToken.balanceOf(this.proxy.address)
       ).to.be.bignumber.zero;
       // Verify user balance
       expect(debtTokenUserAfter).to.be.bignumber.zero;
@@ -412,7 +412,7 @@ contract('Aave V2', function([_, user]) {
         0,
         { from: providerAddress }
       );
-      depositAmount = await this.aToken.balanceOf.call(user);
+      depositAmount = await this.aToken.balanceOf(user);
 
       // Borrow
       await this.lendingPool.borrow(
@@ -424,11 +424,11 @@ contract('Aave V2', function([_, user]) {
         { from: user }
       );
 
-      expect(await this.borrowToken.balanceOf.call(user)).to.be.bignumber.eq(
+      expect(await this.borrowToken.balanceOf(user)).to.be.bignumber.eq(
         borrowAmount
       );
       expectEqWithinBps(
-        await this.debtToken.balanceOf.call(user),
+        await this.debtToken.balanceOf(user),
         borrowAmount,
         100
       );
@@ -450,7 +450,7 @@ contract('Aave V2', function([_, user]) {
       await this.proxy.updateTokenMock(this.borrowToken.address);
       await balanceUser.get();
 
-      const debtTokenUserBefore = await this.debtToken.balanceOf.call(user);
+      const debtTokenUserBefore = await this.debtToken.balanceOf(user);
       const receipt = await this.proxy.execMock(to, data, {
         from: user,
         value: ether('0.1'),
@@ -460,8 +460,8 @@ contract('Aave V2', function([_, user]) {
       const handlerReturn = utils.toBN(
         getHandlerReturn(receipt, ['uint256'])[0]
       );
-      const borrowTokenUserAfter = await this.borrowToken.balanceOf.call(user);
-      const debtTokenUserAfter = await this.debtToken.balanceOf.call(user);
+      const borrowTokenUserAfter = await this.borrowToken.balanceOf(user);
+      const debtTokenUserAfter = await this.debtToken.balanceOf(user);
       const interestMax = borrowAmount.mul(new BN(1)).div(new BN(10000));
 
       // Verify handler return
@@ -475,7 +475,7 @@ contract('Aave V2', function([_, user]) {
       );
       // Verify proxy balance
       expect(
-        await this.borrowToken.balanceOf.call(this.proxy.address)
+        await this.borrowToken.balanceOf(this.proxy.address)
       ).to.be.bignumber.zero;
       // Verify user balance
       // (borrow - repay) <= debtTokenUserAfter < (borrow + interestMax - repay)
@@ -500,7 +500,7 @@ contract('Aave V2', function([_, user]) {
         user
       );
       await balanceUser.get();
-      const debtTokenUserBefore = await this.debtToken.balanceOf.call(user);
+      const debtTokenUserBefore = await this.debtToken.balanceOf(user);
       const receipt = await this.proxy.execMock(to, data, {
         from: user,
         value: value,
@@ -510,7 +510,7 @@ contract('Aave V2', function([_, user]) {
       const handlerReturn = utils.toBN(
         getHandlerReturn(receipt, ['uint256'])[0]
       );
-      const debtTokenUserAfter = await this.debtToken.balanceOf.call(user);
+      const debtTokenUserAfter = await this.debtToken.balanceOf(user);
       const interestMax = borrowAmount.mul(new BN(1)).div(new BN(10000));
 
       // Verify handler return
@@ -524,7 +524,7 @@ contract('Aave V2', function([_, user]) {
       );
       // Verify proxy balance
       expect(
-        await this.borrowToken.balanceOf.call(this.proxy.address)
+        await this.borrowToken.balanceOf(this.proxy.address)
       ).to.be.bignumber.zero;
       // Verify user balance
       // (borrow - repay) <= debtTokenUserAfter < (borrow + interestMax - repay)
@@ -569,15 +569,15 @@ contract('Aave V2', function([_, user]) {
       const handlerReturn = utils.toBN(
         getHandlerReturn(receipt, ['uint256'])[0]
       );
-      const borrowTokenUserAfter = await this.borrowToken.balanceOf.call(user);
-      const debtTokenUserAfter = await this.debtToken.balanceOf.call(user);
+      const borrowTokenUserAfter = await this.borrowToken.balanceOf(user);
+      const debtTokenUserAfter = await this.debtToken.balanceOf(user);
       const interestMax = borrowAmount.mul(new BN(1)).div(new BN(10000));
 
       // Verify handler return
       expect(handlerReturn).to.be.bignumber.zero;
       // Verify proxy balance
       expect(
-        await this.borrowToken.balanceOf.call(this.proxy.address)
+        await this.borrowToken.balanceOf(this.proxy.address)
       ).to.be.bignumber.zero;
       // Verify user balance
       expect(debtTokenUserAfter).to.be.bignumber.zero;
@@ -613,14 +613,14 @@ contract('Aave V2', function([_, user]) {
       const handlerReturn = utils.toBN(
         getHandlerReturn(receipt, ['uint256'])[0]
       );
-      const debtTokenUserAfter = await this.debtToken.balanceOf.call(user);
+      const debtTokenUserAfter = await this.debtToken.balanceOf(user);
       const interestMax = borrowAmount.mul(new BN(1)).div(new BN(10000));
 
       // Verify handler return
       expect(handlerReturn).to.be.bignumber.zero;
       // Verify proxy balance
       expect(
-        await this.borrowToken.balanceOf.call(this.proxy.address)
+        await this.borrowToken.balanceOf(this.proxy.address)
       ).to.be.bignumber.zero;
       // Verify user balance
       expect(debtTokenUserAfter).to.be.bignumber.zero;

@@ -78,9 +78,9 @@ contract('Curve Crypto', function([_, user]) {
       beforeEach(async function() {
         balanceUser = await tracker(user);
         balanceProxy = await tracker(this.proxy.address);
-        token0User = await token0.balanceOf.call(user);
-        token1User = await token1.balanceOf.call(user);
-        token2User = await token2.balanceOf.call(user);
+        token0User = await token0.balanceOf(user);
+        token1User = await token1.balanceOf(user);
+        token2User = await token2.balanceOf(user);
       });
 
       afterEach(async function() {
@@ -90,15 +90,9 @@ contract('Curve Crypto', function([_, user]) {
 
         // Check proxy
         expect(await balanceProxy.get()).to.be.bignumber.zero;
-        expect(
-          await token0.balanceOf.call(this.proxy.address)
-        ).to.be.bignumber.zero;
-        expect(
-          await token1.balanceOf.call(this.proxy.address)
-        ).to.be.bignumber.zero;
-        expect(
-          await token2.balanceOf.call(this.proxy.address)
-        ).to.be.bignumber.zero;
+        expect(await token0.balanceOf(this.proxy.address)).to.be.bignumber.zero;
+        expect(await token1.balanceOf(this.proxy.address)).to.be.bignumber.zero;
+        expect(await token2.balanceOf(this.proxy.address)).to.be.bignumber.zero;
 
         profileGas(receipt);
       });
@@ -133,7 +127,7 @@ contract('Curve Crypto', function([_, user]) {
         expect(await balanceUser.delta()).to.be.bignumber.eq(
           ether('0').sub(new BN(receipt.receipt.gasUsed))
         );
-        expect(await token1.balanceOf.call(user)).to.be.bignumber.eq(
+        expect(await token1.balanceOf(user)).to.be.bignumber.eq(
           handlerReturn.add(token1User)
         );
       });
@@ -168,7 +162,7 @@ contract('Curve Crypto', function([_, user]) {
         expect(await balanceUser.delta()).to.be.bignumber.eq(
           ether('0').sub(new BN(receipt.receipt.gasUsed))
         );
-        expect(await token2.balanceOf.call(user)).to.be.bignumber.eq(
+        expect(await token2.balanceOf(user)).to.be.bignumber.eq(
           handlerReturn.add(token2User)
         );
       });
@@ -200,10 +194,10 @@ contract('Curve Crypto', function([_, user]) {
 
       beforeEach(async function() {
         balanceProxy = await tracker(this.proxy.address);
-        token0User = await token0.balanceOf.call(user);
-        token1User = await token1.balanceOf.call(user);
-        token2User = await token2.balanceOf.call(user);
-        poolTokenUser = await poolToken.balanceOf.call(user);
+        token0User = await token0.balanceOf(user);
+        token1User = await token1.balanceOf(user);
+        token2User = await token2.balanceOf(user);
+        poolTokenUser = await poolToken.balanceOf(user);
       });
 
       afterEach(async function() {
@@ -213,17 +207,11 @@ contract('Curve Crypto', function([_, user]) {
 
         // Check proxy
         expect(await balanceProxy.get()).to.be.bignumber.zero;
+        expect(await token0.balanceOf(this.proxy.address)).to.be.bignumber.zero;
+        expect(await token1.balanceOf(this.proxy.address)).to.be.bignumber.zero;
+        expect(await token2.balanceOf(this.proxy.address)).to.be.bignumber.zero;
         expect(
-          await token0.balanceOf.call(this.proxy.address)
-        ).to.be.bignumber.zero;
-        expect(
-          await token1.balanceOf.call(this.proxy.address)
-        ).to.be.bignumber.zero;
-        expect(
-          await token2.balanceOf.call(this.proxy.address)
-        ).to.be.bignumber.zero;
-        expect(
-          await poolToken.balanceOf.call(this.proxy.address)
+          await poolToken.balanceOf(this.proxy.address)
         ).to.be.bignumber.zero;
 
         profileGas(receipt);
@@ -295,16 +283,10 @@ contract('Curve Crypto', function([_, user]) {
             );
 
             // Check user
-            expect(await token0.balanceOf.call(user)).to.be.bignumber.eq(
-              token0User
-            );
-            expect(await token1.balanceOf.call(user)).to.be.bignumber.eq(
-              token1User
-            );
-            expect(await token2.balanceOf.call(user)).to.be.bignumber.eq(
-              token2User
-            );
-            expect(await poolToken.balanceOf.call(user)).to.be.bignumber.eq(
+            expect(await token0.balanceOf(user)).to.be.bignumber.eq(token0User);
+            expect(await token1.balanceOf(user)).to.be.bignumber.eq(token1User);
+            expect(await token2.balanceOf(user)).to.be.bignumber.eq(token2User);
+            expect(await poolToken.balanceOf(user)).to.be.bignumber.eq(
               handlerReturn.add(poolTokenUser)
             );
           }
@@ -348,7 +330,7 @@ contract('Curve Crypto', function([_, user]) {
             );
 
             // Check user
-            expect(await token0.balanceOf.call(user)).to.be.bignumber.eq(
+            expect(await token0.balanceOf(user)).to.be.bignumber.eq(
               handlerReturn.add(token0User)
             );
           }
@@ -381,7 +363,7 @@ contract('Curve Crypto', function([_, user]) {
         handlerReturn = utils.toBN(getHandlerReturn(receipt, ['uint256'])[0]);
 
         // Check user
-        expect(await token2.balanceOf.call(user)).to.be.bignumber.eq(
+        expect(await token2.balanceOf(user)).to.be.bignumber.eq(
           handlerReturn.add(token2User)
         );
       });

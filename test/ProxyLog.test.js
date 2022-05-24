@@ -45,9 +45,9 @@ contract('ProxyLog', function([_, deployer, user]) {
       );
       await this.fooFactory.createFoo();
       await this.fooFactory.createFoo();
-      this.foo0 = await Foo.at(await this.fooFactory.addressOf.call(0));
-      this.foo1 = await Foo.at(await this.fooFactory.addressOf.call(1));
-      this.foo2 = await Foo.at(await this.fooFactory.addressOf.call(2));
+      this.foo0 = await Foo.at(await this.fooFactory.addressOf(0));
+      this.foo1 = await Foo.at(await this.fooFactory.addressOf(1));
+      this.foo2 = await Foo.at(await this.fooFactory.addressOf(2));
       this.fooHandler = await FooHandler.new();
       await this.registry.register(
         this.fooHandler.address,
@@ -72,9 +72,9 @@ contract('ProxyLog', function([_, deployer, user]) {
       const selector = getFuncSig(FooHandler, 'bar');
       const receipt = await this.proxy.batchExec(tos, configs, datas);
       const result = [
-        await this.foo0.accounts.call(this.proxy.address),
-        await this.foo1.accounts.call(this.proxy.address),
-        await this.foo2.accounts.call(this.proxy.address),
+        await this.foo0.accounts(this.proxy.address),
+        await this.foo1.accounts(this.proxy.address),
+        await this.foo2.accounts(this.proxy.address),
       ];
       expect(result[0]).to.be.bignumber.eq(nums[0]);
       expect(result[1]).to.be.bignumber.eq(nums[1]);
@@ -139,7 +139,7 @@ contract('ProxyLog', function([_, deployer, user]) {
         value: ether('1'),
       });
 
-      expect(await this.foo.bValue.call()).eq(a);
+      expect(await this.foo.bValue()).eq(a);
       expectEvent(receipt, 'LogBegin', {
         handler: this.fooHandler.address,
         selector: utils.padRight(selector, 64),
@@ -178,7 +178,7 @@ contract('ProxyLog', function([_, deployer, user]) {
       // Pad the data by replacing the parameter part with r, which is the execution result of the first handler
       const paddedData = '0x' + datas[1].toString('hex', 0, 36) + r.slice(2);
 
-      expect(await this.foo.bValue.call()).eq(r);
+      expect(await this.foo.bValue()).eq(r);
       expectEvent(receipt, 'LogBegin', {
         handler: this.fooHandler.address,
         selector: utils.padRight(selectors[0], 64),
@@ -244,7 +244,7 @@ contract('ProxyLog', function([_, deployer, user]) {
         datas[1].toString('hex', 0, 36) +
         utils.padLeft(utils.toHex(n), 64).slice(2);
 
-      expect(await this.foo.nValue.call()).to.be.bignumber.eq(n);
+      expect(await this.foo.nValue()).to.be.bignumber.eq(n);
       expectEvent(receipt, 'LogBegin', {
         handler: this.fooHandler.address,
         selector: utils.padRight(selectors[0], 64),
@@ -299,7 +299,7 @@ contract('ProxyLog', function([_, deployer, user]) {
       // Pad the data by replacing the third parameter part with the execution result of first handler
       const paddedData = '0x' + datas[1].toString('hex', 0, 68) + r.slice(2);
 
-      expect(await this.foo.bValue.call()).eq(r);
+      expect(await this.foo.bValue()).eq(r);
       expectEvent(receipt, 'LogBegin', {
         handler: this.fooHandler.address,
         selector: utils.padRight(selectors[0], 64),
@@ -350,7 +350,7 @@ contract('ProxyLog', function([_, deployer, user]) {
         datas[1].toString('hex', 0, 36) +
         utils.padLeft(utils.toHex(n), 64).slice(2);
 
-      expect(await this.foo.nValue.call()).to.be.bignumber.eq(n);
+      expect(await this.foo.nValue()).to.be.bignumber.eq(n);
       expectEvent(receipt, 'LogBegin', {
         handler: this.fooHandler.address,
         selector: utils.padRight(selectors[0], 64),

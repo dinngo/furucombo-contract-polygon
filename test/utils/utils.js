@@ -184,7 +184,7 @@ async function tokenProviderDyfn(
 async function _tokenProviderUniLike(token0, token1, factoryAddress) {
   const IUniswapV2Factory = artifacts.require('IUniswapV2Factory');
   const factory = await IUniswapV2Factory.at(factoryAddress);
-  const pair = await factory.getPair.call(token0, token1);
+  const pair = await factory.getPair(token0, token1);
   impersonateAndInjectEther(pair);
 
   return pair;

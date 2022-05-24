@@ -73,7 +73,7 @@ contract('QuickSwap Swap', function([_, user, someone]) {
     beforeEach(async function() {
       balanceUser = await tracker(user);
       balanceProxy = await tracker(this.proxy.address);
-      tokenUser = await this.token.balanceOf.call(user);
+      tokenUser = await this.token.balanceOf(user);
     });
 
     describe('Exact input', function() {
@@ -82,7 +82,7 @@ contract('QuickSwap Swap', function([_, user, someone]) {
         const to = this.hQuickSwap.address;
         const path = [WMATIC_TOKEN, tokenAddress];
 
-        const result = await this.router.getAmountsOut.call(value, path, {
+        const result = await this.router.getAmountsOut(value, path, {
           from: user,
         });
 
@@ -103,11 +103,11 @@ contract('QuickSwap Swap', function([_, user, someone]) {
         );
         expect(handlerReturn).to.be.bignumber.eq(result[result.length - 1]);
 
-        expect(await this.token.balanceOf.call(user)).to.be.bignumber.eq(
+        expect(await this.token.balanceOf(user)).to.be.bignumber.eq(
           tokenUser.add(result[result.length - 1])
         );
         expect(
-          await this.token.balanceOf.call(this.proxy.address)
+          await this.token.balanceOf(this.proxy.address)
         ).to.be.bignumber.eq(ether('0'));
         expect(await balanceProxy.delta()).to.be.bignumber.eq(ether('0'));
         expect(await balanceUser.delta()).to.be.bignumber.eq(
@@ -123,7 +123,7 @@ contract('QuickSwap Swap', function([_, user, someone]) {
         const to = this.hQuickSwap.address;
         const path = [WMATIC_TOKEN, tokenAddress];
 
-        const result = await this.router.getAmountsOut.call(value, path, {
+        const result = await this.router.getAmountsOut(value, path, {
           from: user,
         });
 
@@ -144,11 +144,11 @@ contract('QuickSwap Swap', function([_, user, someone]) {
         );
         expect(handlerReturn).to.be.bignumber.eq(result[result.length - 1]);
 
-        expect(await this.token.balanceOf.call(user)).to.be.bignumber.eq(
+        expect(await this.token.balanceOf(user)).to.be.bignumber.eq(
           tokenUser.add(result[result.length - 1])
         );
         expect(
-          await this.token.balanceOf.call(this.proxy.address)
+          await this.token.balanceOf(this.proxy.address)
         ).to.be.bignumber.eq(ether('0'));
         expect(await balanceProxy.delta()).to.be.bignumber.eq(ether('0'));
         expect(await balanceUser.delta()).to.be.bignumber.eq(
@@ -163,7 +163,7 @@ contract('QuickSwap Swap', function([_, user, someone]) {
         const value = ether('1');
         const to = this.hQuickSwap.address;
         const path = [WMATIC_TOKEN, tokenAddress];
-        const result = await this.router.getAmountsOut.call(value, path, {
+        const result = await this.router.getAmountsOut(value, path, {
           from: user,
         });
         const data = abi.simpleEncode(
@@ -177,11 +177,9 @@ contract('QuickSwap Swap', function([_, user, someone]) {
           this.proxy.execMock(to, data, { from: user, value: value }),
           'HQuickSwap_swapExactETHForTokens: UniswapV2Router: INSUFFICIENT_OUTPUT_AMOUNT'
         );
-        expect(await this.token.balanceOf.call(user)).to.be.bignumber.eq(
-          tokenUser
-        );
+        expect(await this.token.balanceOf(user)).to.be.bignumber.eq(tokenUser);
         expect(
-          await this.token.balanceOf.call(this.proxy.address)
+          await this.token.balanceOf(this.proxy.address)
         ).to.be.bignumber.eq(ether('0'));
         expect(await balanceProxy.delta()).to.be.bignumber.eq(ether('0'));
       });
@@ -225,7 +223,7 @@ contract('QuickSwap Swap', function([_, user, someone]) {
         const buyAmt = ether('0.001');
         const to = this.hQuickSwap.address;
         const path = [WMATIC_TOKEN, tokenAddress];
-        const result = await this.router.getAmountsIn.call(buyAmt, path, {
+        const result = await this.router.getAmountsIn(buyAmt, path, {
           from: user,
         });
         const data = abi.simpleEncode(
@@ -250,11 +248,11 @@ contract('QuickSwap Swap', function([_, user, someone]) {
             .sub(new BN(receipt.receipt.gasUsed))
         );
 
-        expect(await this.token.balanceOf.call(user)).to.be.bignumber.eq(
+        expect(await this.token.balanceOf(user)).to.be.bignumber.eq(
           tokenUser.add(buyAmt)
         );
         expect(
-          await this.token.balanceOf.call(this.proxy.address)
+          await this.token.balanceOf(this.proxy.address)
         ).to.be.bignumber.eq(ether('0'));
         expect(await balanceProxy.delta()).to.be.bignumber.eq(ether('0'));
         expect(userBalanceDelta).to.be.bignumber.eq(
@@ -270,7 +268,7 @@ contract('QuickSwap Swap', function([_, user, someone]) {
         const buyAmt = ether('0.001');
         const to = this.hQuickSwap.address;
         const path = [WMATIC_TOKEN, tokenAddress];
-        const result = await this.router.getAmountsIn.call(buyAmt, path, {
+        const result = await this.router.getAmountsIn(buyAmt, path, {
           from: user,
         });
         const data = abi.simpleEncode(
@@ -295,11 +293,11 @@ contract('QuickSwap Swap', function([_, user, someone]) {
             .sub(new BN(receipt.receipt.gasUsed))
         );
 
-        expect(await this.token.balanceOf.call(user)).to.be.bignumber.eq(
+        expect(await this.token.balanceOf(user)).to.be.bignumber.eq(
           tokenUser.add(buyAmt)
         );
         expect(
-          await this.token.balanceOf.call(this.proxy.address)
+          await this.token.balanceOf(this.proxy.address)
         ).to.be.bignumber.eq(ether('0'));
         expect(await balanceProxy.delta()).to.be.bignumber.eq(ether('0'));
         expect(userBalanceDelta).to.be.bignumber.eq(
@@ -314,7 +312,7 @@ contract('QuickSwap Swap', function([_, user, someone]) {
         const buyAmt = ether('0.1');
         const to = this.hQuickSwap.address;
         const path = [WMATIC_TOKEN, tokenAddress];
-        const result = await this.router.getAmountsIn.call(buyAmt, path, {
+        const result = await this.router.getAmountsIn(buyAmt, path, {
           from: user,
         });
         const value = result[0].sub(ether('0.01'));
@@ -400,7 +398,7 @@ contract('QuickSwap Swap', function([_, user, someone]) {
         const value = ether('1');
         const to = this.hQuickSwap.address;
         const path = [tokenAddress, WMATIC_TOKEN];
-        const result = await this.router.getAmountsOut.call(value, path, {
+        const result = await this.router.getAmountsOut(value, path, {
           from: someone,
         });
         const data = abi.simpleEncode(
@@ -426,11 +424,9 @@ contract('QuickSwap Swap', function([_, user, someone]) {
             .sub(new BN(receipt.receipt.gasUsed))
         );
 
-        expect(await this.token.balanceOf.call(user)).to.be.bignumber.eq(
-          tokenUser
-        );
+        expect(await this.token.balanceOf(user)).to.be.bignumber.eq(tokenUser);
         expect(
-          await this.token.balanceOf.call(this.proxy.address)
+          await this.token.balanceOf(this.proxy.address)
         ).to.be.bignumber.eq(ether('0'));
         expect(await balanceProxy.delta()).to.be.bignumber.eq(ether('0'));
         expect(userBalanceDelta).to.be.bignumber.eq(
@@ -445,7 +441,7 @@ contract('QuickSwap Swap', function([_, user, someone]) {
         const value = ether('1');
         const to = this.hQuickSwap.address;
         const path = [tokenAddress, WMATIC_TOKEN];
-        const result = await this.router.getAmountsOut.call(value, path, {
+        const result = await this.router.getAmountsOut(value, path, {
           from: someone,
         });
         const data = abi.simpleEncode(
@@ -471,11 +467,9 @@ contract('QuickSwap Swap', function([_, user, someone]) {
             .sub(new BN(receipt.receipt.gasUsed))
         );
 
-        expect(await this.token.balanceOf.call(user)).to.be.bignumber.eq(
-          tokenUser
-        );
+        expect(await this.token.balanceOf(user)).to.be.bignumber.eq(tokenUser);
         expect(
-          await this.token.balanceOf.call(this.proxy.address)
+          await this.token.balanceOf(this.proxy.address)
         ).to.be.bignumber.eq(ether('0'));
         expect(await balanceProxy.delta()).to.be.bignumber.eq(ether('0'));
         expect(userBalanceDelta).to.be.bignumber.eq(
@@ -494,7 +488,7 @@ contract('QuickSwap Swap', function([_, user, someone]) {
           from: providerAddress,
         });
         await this.proxy.updateTokenMock(this.token.address);
-        const result = await this.router.getAmountsOut.call(value, path, {
+        const result = await this.router.getAmountsOut(value, path, {
           from: someone,
         });
         const data = abi.simpleEncode(
@@ -552,7 +546,7 @@ contract('QuickSwap Swap', function([_, user, someone]) {
         const buyAmt = ether('1');
         const to = this.hQuickSwap.address;
         const path = [tokenAddress, WMATIC_TOKEN];
-        const result = await this.router.getAmountsIn.call(buyAmt, path, {
+        const result = await this.router.getAmountsIn(buyAmt, path, {
           from: someone,
         });
         const data = abi.simpleEncode(
@@ -573,11 +567,11 @@ contract('QuickSwap Swap', function([_, user, someone]) {
         );
         const userBalanceDelta = await balanceUser.delta();
         expect(handlerReturn).to.be.bignumber.eq(result[0]);
-        expect(await this.token.balanceOf.call(user)).to.be.bignumber.eq(
+        expect(await this.token.balanceOf(user)).to.be.bignumber.eq(
           tokenUser.add(value).sub(result[0])
         );
         expect(
-          await this.token.balanceOf.call(this.proxy.address)
+          await this.token.balanceOf(this.proxy.address)
         ).to.be.bignumber.eq(ether('0'));
         expect(await balanceProxy.delta()).to.be.bignumber.eq(ether('0'));
         expect(userBalanceDelta).to.be.bignumber.eq(
@@ -591,7 +585,7 @@ contract('QuickSwap Swap', function([_, user, someone]) {
         const buyAmt = ether('1');
         const to = this.hQuickSwap.address;
         const path = [tokenAddress, WMATIC_TOKEN];
-        const result = await this.router.getAmountsIn.call(buyAmt, path, {
+        const result = await this.router.getAmountsIn(buyAmt, path, {
           from: someone,
         });
         const data = abi.simpleEncode(
@@ -612,11 +606,11 @@ contract('QuickSwap Swap', function([_, user, someone]) {
         );
         const userBalanceDelta = await balanceUser.delta();
         expect(handlerReturn).to.be.bignumber.eq(result[0]);
-        expect(await this.token.balanceOf.call(user)).to.be.bignumber.eq(
+        expect(await this.token.balanceOf(user)).to.be.bignumber.eq(
           tokenUser.add(value).sub(result[0])
         );
         expect(
-          await this.token.balanceOf.call(this.proxy.address)
+          await this.token.balanceOf(this.proxy.address)
         ).to.be.bignumber.eq(ether('0'));
         expect(await balanceProxy.delta()).to.be.bignumber.eq(ether('0'));
         expect(userBalanceDelta).to.be.bignumber.eq(
@@ -702,8 +696,8 @@ contract('QuickSwap Swap', function([_, user, someone]) {
     });
 
     beforeEach(async function() {
-      token0User = await this.token0.balanceOf.call(user);
-      token1User = await this.token1.balanceOf.call(user);
+      token0User = await this.token0.balanceOf(user);
+      token1User = await this.token1.balanceOf(user);
     });
 
     describe('Exact input', function() {
@@ -711,7 +705,7 @@ contract('QuickSwap Swap', function([_, user, someone]) {
         const value = ether('1');
         const to = this.hQuickSwap.address;
         const path = [token0Address, WMATIC_TOKEN, token1Address];
-        const result = await this.router.getAmountsOut.call(value, path, {
+        const result = await this.router.getAmountsOut(value, path, {
           from: someone,
         });
         const data = abi.simpleEncode(
@@ -732,16 +726,16 @@ contract('QuickSwap Swap', function([_, user, someone]) {
           getHandlerReturn(receipt, ['uint256'])[0]
         );
         expect(handlerReturn).to.be.bignumber.eq(result[result.length - 1]);
-        expect(await this.token0.balanceOf.call(user)).to.be.bignumber.eq(
+        expect(await this.token0.balanceOf(user)).to.be.bignumber.eq(
           token0User
         );
         expect(
-          await this.token0.balanceOf.call(this.proxy.address)
+          await this.token0.balanceOf(this.proxy.address)
         ).to.be.bignumber.eq(ether('0'));
         expect(
-          await this.token1.balanceOf.call(this.proxy.address)
+          await this.token1.balanceOf(this.proxy.address)
         ).to.be.bignumber.eq(ether('0'));
-        expect(await this.token1.balanceOf.call(user)).to.be.bignumber.eq(
+        expect(await this.token1.balanceOf(user)).to.be.bignumber.eq(
           token1User.add(result[result.length - 1])
         );
         profileGas(receipt);
@@ -751,7 +745,7 @@ contract('QuickSwap Swap', function([_, user, someone]) {
         const value = ether('1');
         const to = this.hQuickSwap.address;
         const path = [token0Address, WMATIC_TOKEN, token1Address];
-        const result = await this.router.getAmountsOut.call(value, path, {
+        const result = await this.router.getAmountsOut(value, path, {
           from: someone,
         });
         const data = abi.simpleEncode(
@@ -772,16 +766,16 @@ contract('QuickSwap Swap', function([_, user, someone]) {
           getHandlerReturn(receipt, ['uint256'])[0]
         );
         expect(handlerReturn).to.be.bignumber.eq(result[result.length - 1]);
-        expect(await this.token0.balanceOf.call(user)).to.be.bignumber.eq(
+        expect(await this.token0.balanceOf(user)).to.be.bignumber.eq(
           token0User
         );
         expect(
-          await this.token0.balanceOf.call(this.proxy.address)
+          await this.token0.balanceOf(this.proxy.address)
         ).to.be.bignumber.eq(ether('0'));
         expect(
-          await this.token1.balanceOf.call(this.proxy.address)
+          await this.token1.balanceOf(this.proxy.address)
         ).to.be.bignumber.eq(ether('0'));
-        expect(await this.token1.balanceOf.call(user)).to.be.bignumber.eq(
+        expect(await this.token1.balanceOf(user)).to.be.bignumber.eq(
           token1User.add(result[result.length - 1])
         );
         profileGas(receipt);
@@ -798,7 +792,7 @@ contract('QuickSwap Swap', function([_, user, someone]) {
         await this.token0.transfer(someone, value, {
           from: providerAddress,
         });
-        const result = await this.router.getAmountsOut.call(value, path, {
+        const result = await this.router.getAmountsOut(value, path, {
           from: someone,
         });
         const data = abi.simpleEncode(
@@ -871,7 +865,7 @@ contract('QuickSwap Swap', function([_, user, someone]) {
         const buyAmt = decimal6('1');
         const to = this.hQuickSwap.address;
         const path = [token0Address, WMATIC_TOKEN, token1Address];
-        const result = await this.router.getAmountsIn.call(buyAmt, path, {
+        const result = await this.router.getAmountsIn(buyAmt, path, {
           from: someone,
         });
         const data = abi.simpleEncode(
@@ -896,16 +890,16 @@ contract('QuickSwap Swap', function([_, user, someone]) {
         );
         expect(handlerReturn).to.be.bignumber.eq(result[0]);
 
-        expect(await this.token0.balanceOf.call(user)).to.be.bignumber.eq(
+        expect(await this.token0.balanceOf(user)).to.be.bignumber.eq(
           token0User.add(value).sub(result[0])
         );
         expect(
-          await this.token0.balanceOf.call(this.proxy.address)
+          await this.token0.balanceOf(this.proxy.address)
         ).to.be.bignumber.eq(ether('0'));
         expect(
-          await this.token1.balanceOf.call(this.proxy.address)
+          await this.token1.balanceOf(this.proxy.address)
         ).to.be.bignumber.eq(ether('0'));
-        expect(await this.token1.balanceOf.call(user)).to.be.bignumber.eq(
+        expect(await this.token1.balanceOf(user)).to.be.bignumber.eq(
           token1User.add(buyAmt)
         );
         profileGas(receipt);
@@ -916,7 +910,7 @@ contract('QuickSwap Swap', function([_, user, someone]) {
         const buyAmt = decimal6('1');
         const to = this.hQuickSwap.address;
         const path = [token0Address, WMATIC_TOKEN, token1Address];
-        const result = await this.router.getAmountsIn.call(buyAmt, path, {
+        const result = await this.router.getAmountsIn(buyAmt, path, {
           from: someone,
         });
         const data = abi.simpleEncode(
@@ -941,16 +935,16 @@ contract('QuickSwap Swap', function([_, user, someone]) {
         );
         expect(handlerReturn).to.be.bignumber.eq(result[0]);
 
-        expect(await this.token0.balanceOf.call(user)).to.be.bignumber.eq(
+        expect(await this.token0.balanceOf(user)).to.be.bignumber.eq(
           token0User.add(value).sub(result[0])
         );
         expect(
-          await this.token0.balanceOf.call(this.proxy.address)
+          await this.token0.balanceOf(this.proxy.address)
         ).to.be.bignumber.eq(ether('0'));
         expect(
-          await this.token1.balanceOf.call(this.proxy.address)
+          await this.token1.balanceOf(this.proxy.address)
         ).to.be.bignumber.eq(ether('0'));
-        expect(await this.token1.balanceOf.call(user)).to.be.bignumber.eq(
+        expect(await this.token1.balanceOf(user)).to.be.bignumber.eq(
           token1User.add(buyAmt)
         );
         profileGas(receipt);
