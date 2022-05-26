@@ -90,7 +90,7 @@ function decimal6(amount) {
 }
 
 function mwei(num) {
-  return ethers.utils.parseUnits(num, 6);
+  return new BN(ethers.utils.parseUnits(num, 6).toString());
 }
 
 function getHandlerReturn(receipt, dataTypes) {
