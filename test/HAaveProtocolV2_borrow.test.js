@@ -248,7 +248,7 @@ contract('Aave V2', function([_, user, someone]) {
 
       // Verify user balance
       expect(balancerUserAfter.sub(balancerUserBefore)).to.be.bignumber.eq(
-        borrowAmount.sub(new BN(receipt.receipt.gasUsed))
+        borrowAmount)
       );
       //  borrowAmount <= (debtTokenUserAfter-debtTokenUserBefore) < borrowAmount + interestMax
       const interestMax = borrowAmount.mul(new BN(1)).div(new BN(10000));
@@ -540,7 +540,7 @@ contract('Aave V2', function([_, user, someone]) {
 
       // Verify user balance
       expect(balancerUserAfter.sub(balancerUserBefore)).to.be.bignumber.eq(
-        borrowAmount.sub(new BN(receipt.receipt.gasUsed))
+        borrowAmount
       );
 
       //  borrowAmount <= (debtTokenUserAfter-debtTokenUserBefore) < borrowAmount + interestMax

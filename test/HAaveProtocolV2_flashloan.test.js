@@ -183,9 +183,7 @@ contract('AaveV2 flashloan', function([_, user, someone]) {
       expect(await this.tokenA.balanceOf(user)).to.be.bignumber.eq(
         tokenAUser.add(value).sub(fee)
       );
-      expect(await balanceUser.delta()).to.be.bignumber.eq(
-        ether('0').sub(new BN(receipt.receipt.gasUsed))
-      );
+      expect(await balanceUser.delta()).to.be.bignumber.eq(ether('0'));
     });
 
     /** Stable Rate borrow is not available yet
@@ -228,7 +226,7 @@ contract('AaveV2 flashloan', function([_, user, someone]) {
         await this.stableDebtTokenA.balanceOf(user)
       ).to.be.bignumber.eq(value);
       expect(await balanceUser.delta()).to.be.bignumber.eq(
-        ether('0').sub(new BN(receipt.receipt.gasUsed))
+        ether('0')
       );
     });
     */
@@ -283,9 +281,7 @@ contract('AaveV2 flashloan', function([_, user, someone]) {
         value,
         10
       );
-      expect(await balanceUser.delta()).to.be.bignumber.eq(
-        ether('0').sub(new BN(receipt.receipt.gasUsed))
-      );
+      expect(await balanceUser.delta()).to.be.bignumber.eq(ether('0'));
     });
 
     it('multiple assets with no debt', async function() {
@@ -326,9 +322,7 @@ contract('AaveV2 flashloan', function([_, user, someone]) {
       expect(await this.tokenB.balanceOf(user)).to.be.bignumber.eq(
         tokenBUser.add(value).sub(fee)
       );
-      expect(await balanceUser.delta()).to.be.bignumber.eq(
-        ether('0').sub(new BN(receipt.receipt.gasUsed))
-      );
+      expect(await balanceUser.delta()).to.be.bignumber.eq(ether('0'));
     });
 
     it('should revert: assets and amount do not match', async function() {
@@ -543,9 +537,7 @@ contract('AaveV2 flashloan', function([_, user, someone]) {
       expect(await this.tokenB.balanceOf(user)).to.be.bignumber.eq(
         tokenBUser.add(value.add(value)).sub(fee)
       );
-      expect(await balanceUser.delta()).to.be.bignumber.eq(
-        ether('0').sub(new BN(receipt.receipt.gasUsed))
-      );
+      expect(await balanceUser.delta()).to.be.bignumber.eq(ether('0'));
     });
 
     it('nested', async function() {
@@ -610,9 +602,7 @@ contract('AaveV2 flashloan', function([_, user, someone]) {
       expect(await this.tokenB.balanceOf(user)).to.be.bignumber.eq(
         tokenBUser.add(value).sub(fee)
       );
-      expect(await balanceUser.delta()).to.be.bignumber.eq(
-        ether('0').sub(new BN(receipt.receipt.gasUsed))
-      );
+      expect(await balanceUser.delta()).to.be.bignumber.eq(ether('0'));
     });
   });
 
@@ -688,9 +678,7 @@ contract('AaveV2 flashloan', function([_, user, someone]) {
       expect(await this.tokenB.balanceOf(user)).to.be.bignumber.eq(
         tokenBUser.add(value.sub(depositValue).sub(fee))
       );
-      expect(await balanceUser.delta()).to.be.bignumber.eq(
-        ether('0').sub(new BN(receipt.receipt.gasUsed))
-      );
+      expect(await balanceUser.delta()).to.be.bignumber.eq(ether('0'));
     });
   });
 

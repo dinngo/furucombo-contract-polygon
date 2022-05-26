@@ -153,9 +153,7 @@ contract('OneInchV3 Swap', function([_, user]) {
         // Verify ether balance
         expect(await balanceProxy.get()).to.be.bignumber.zero;
         expect(await balanceUser.delta()).to.be.bignumber.eq(
-          ether('0')
-            .sub(value)
-            .sub(new BN(receipt.receipt.gasUsed))
+          ether('0').sub(value)
         );
 
         profileGas(receipt);
@@ -214,9 +212,7 @@ contract('OneInchV3 Swap', function([_, user]) {
         // Verify ether balance
         expect(await balanceProxy.get()).to.be.bignumber.zero;
         expect(await balanceUser.delta()).to.be.bignumber.eq(
-          ether('0')
-            .sub(value)
-            .sub(new BN(receipt.receipt.gasUsed))
+          ether('0').sub(value)
         );
 
         profileGas(receipt);
@@ -286,9 +282,7 @@ contract('OneInchV3 Swap', function([_, user]) {
         // Verify ether balance
         expect(await balanceProxy.get()).to.be.bignumber.zero;
         expect(await balanceUser.delta()).to.be.bignumber.eq(
-          ether('0')
-            .sub(value)
-            .sub(new BN(receipt.receipt.gasUsed))
+          ether('0').sub(value)
         );
 
         profileGas(receipt);
@@ -405,9 +399,7 @@ contract('OneInchV3 Swap', function([_, user]) {
         const handlerReturn = utils.toBN(
           getHandlerReturn(receipt, ['uint256'])[0]
         );
-        expect(handlerReturn).to.be.bignumber.eq(
-          balanceUserDelta.add(new BN(receipt.receipt.gasUsed))
-        );
+        expect(handlerReturn).to.be.bignumber.eq(balanceUserDelta);
 
         // Verify token balance
         expect(await this.token.balanceOf(user)).to.be.bignumber.eq(tokenUser);
@@ -421,7 +413,6 @@ contract('OneInchV3 Swap', function([_, user]) {
           ether('0')
             // sub 1 more percent to tolerate the slippage calculation difference with 1inch
             .add(mulPercent(quote, 100 - slippage - 1))
-            .sub(new BN(receipt.receipt.gasUsed))
         );
 
         profileGas(receipt);
@@ -483,9 +474,7 @@ contract('OneInchV3 Swap', function([_, user]) {
         const handlerReturn = utils.toBN(
           getHandlerReturn(receipt, ['uint256'])[0]
         );
-        expect(handlerReturn).to.be.bignumber.eq(
-          balanceUserDelta.add(new BN(receipt.receipt.gasUsed))
-        );
+        expect(handlerReturn).to.be.bignumber.eq(balanceUserDelta);
 
         // Verify token balance
         expect(await this.token.balanceOf(user)).to.be.bignumber.eq(tokenUser);
@@ -499,7 +488,6 @@ contract('OneInchV3 Swap', function([_, user]) {
           ether('0')
             // sub 1 more percent to tolerate the slippage calculation difference with 1inch
             .add(mulPercent(quote, 100 - slippage - 1))
-            .sub(new BN(receipt.receipt.gasUsed))
         );
 
         profileGas(receipt);
@@ -603,9 +591,7 @@ contract('OneInchV3 Swap', function([_, user]) {
 
         // Verify ether balance
         expect(await balanceProxy.get()).to.be.bignumber.zero;
-        expect(await balanceUser.delta()).to.be.bignumber.eq(
-          ether('0').sub(new BN(receipt.receipt.gasUsed))
-        );
+        expect(await balanceUser.delta()).to.be.bignumber.eq(ether('0'));
 
         profileGas(receipt);
       });
@@ -687,9 +673,7 @@ contract('OneInchV3 Swap', function([_, user]) {
 
         // Verify ether balance
         expect(await balanceProxy.get()).to.be.bignumber.zero;
-        expect(await balanceUser.delta()).to.be.bignumber.eq(
-          ether('0').sub(new BN(receipt.receipt.gasUsed))
-        );
+        expect(await balanceUser.delta()).to.be.bignumber.eq(ether('0'));
 
         profileGas(receipt);
       });
@@ -769,9 +753,7 @@ contract('OneInchV3 Swap', function([_, user]) {
 
         // Verify ether balance
         expect(await balanceProxy.get()).to.be.bignumber.zero;
-        expect(await balanceUser.delta()).to.be.bignumber.eq(
-          ether('0').sub(new BN(receipt.receipt.gasUsed))
-        );
+        expect(await balanceUser.delta()).to.be.bignumber.eq(ether('0'));
 
         profileGas(receipt);
       });
@@ -853,9 +835,7 @@ contract('OneInchV3 Swap', function([_, user]) {
 
         // Verify ether balance
         expect(await balanceProxy.get()).to.be.bignumber.zero;
-        expect(await balanceUser.delta()).to.be.bignumber.eq(
-          ether('0').sub(new BN(receipt.receipt.gasUsed))
-        );
+        expect(await balanceUser.delta()).to.be.bignumber.eq(ether('0'));
 
         profileGas(receipt);
       });

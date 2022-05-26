@@ -75,9 +75,7 @@ contract('Wmatic', function([_, user]) {
         tokenUserAmount.add(value)
       );
       expect(await balanceUser.delta()).to.be.bignumber.eq(
-        ether('0')
-          .sub(value)
-          .sub(new BN(receipt.receipt.gasUsed))
+        ether('0').sub(value)
       );
 
       profileGas(receipt);
@@ -121,9 +119,7 @@ contract('Wmatic', function([_, user]) {
       expect(await this.token.balanceOf(user)).to.be.bignumber.eq(
         tokenUserAmount
       );
-      expect(await balanceUser.delta()).to.be.bignumber.eq(
-        value.sub(new BN(receipt.receipt.gasUsed))
-      );
+      expect(await balanceUser.delta()).to.be.bignumber.eq(value);
 
       profileGas(receipt);
     });

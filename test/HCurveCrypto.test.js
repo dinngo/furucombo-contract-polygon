@@ -124,9 +124,7 @@ contract('Curve Crypto', function([_, user]) {
         handlerReturn = utils.toBN(getHandlerReturn(receipt, ['uint256'])[0]);
 
         // Check user
-        expect(await balanceUser.delta()).to.be.bignumber.eq(
-          ether('0').sub(new BN(receipt.receipt.gasUsed))
-        );
+        expect(await balanceUser.delta()).to.be.bignumber.eq(ether('0'));
         expect(await token1.balanceOf(user)).to.be.bignumber.eq(
           handlerReturn.add(token1User)
         );
@@ -159,9 +157,7 @@ contract('Curve Crypto', function([_, user]) {
         handlerReturn = utils.toBN(getHandlerReturn(receipt, ['uint256'])[0]);
 
         // Check user
-        expect(await balanceUser.delta()).to.be.bignumber.eq(
-          ether('0').sub(new BN(receipt.receipt.gasUsed))
-        );
+        expect(await balanceUser.delta()).to.be.bignumber.eq(ether('0'));
         expect(await token2.balanceOf(user)).to.be.bignumber.eq(
           handlerReturn.add(token2User)
         );
