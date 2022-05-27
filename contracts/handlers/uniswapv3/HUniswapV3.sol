@@ -150,7 +150,7 @@ contract HUniswapV3 is HandlerBase {
         uint256 amountIn,
         uint256 amountOutMinimum
     ) external payable returns (uint256 amountOut) {
-        // Get token in and token out
+        // Get tokenIn and tokenOut
         address tokenIn = _getFirstToken(path);
         address tokenOut = _getLastToken(path);
 

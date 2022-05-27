@@ -2,7 +2,6 @@ const { BN, ether, ZERO_ADDRESS } = require('@openzeppelin/test-helpers');
 const fetch = require('node-fetch');
 const { expect } = require('chai');
 const {
-  UNISWAPV3_FACTORY,
   QUICKSWAP_FACTORY,
   SUSHISWAP_FACTORY,
   DYFNSWAP_FACTORY,
@@ -153,19 +152,6 @@ async function maticProviderWmatic() {
   return WMATIC_TOKEN;
 }
 
-async function tokenProviderUniV3(
-  token0,
-  token1,
-  fee,
-  factoryAddress = UNISWAPV3_FACTORY
-) {
-  if (token0 === WETH_TOKEN) {
-    token1 = USDC_TOKEN;
-    fee = 500; // 0.05%
-  }
-  return _tokenProviderUniLikeV3(token0, token1, fee, factoryAddress);
-}
-
 async function tokenProviderQuick(
   token0 = USDC_TOKEN,
   token1 = WETH_TOKEN,
@@ -203,15 +189,6 @@ async function _tokenProviderUniLike(token0, token1, factoryAddress) {
   const IUniswapV2Factory = artifacts.require('IUniswapV2Factory');
   const factory = await IUniswapV2Factory.at(factoryAddress);
   const pair = await factory.getPair(token0, token1);
-  impersonateAndInjectEther(pair);
-
-  return pair;
-}
-
-async function _tokenProviderUniLikeV3(token0, token1, fee, factoryAddress) {
-  const IUniswapV3Factory = artifacts.require('IUniswapV3Factory');
-  const factory = await IUniswapV3Factory.at(factoryAddress);
-  const pair = await factory.getPool.call(token0, token1, fee);
   impersonateAndInjectEther(pair);
 
   return pair;
@@ -278,7 +255,6 @@ module.exports = {
   getFuncSig,
   expectEqWithinBps,
   maticProviderWmatic,
-  tokenProviderUniV3,
   tokenProviderQuick,
   tokenProviderSushi,
   tokenProviderDyfn,

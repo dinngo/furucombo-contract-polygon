@@ -25,7 +25,7 @@ const {
   profileGas,
   getHandlerReturn,
   getCallData,
-  tokenProviderUniV3,
+  tokenProviderSushi,
   mwei,
 } = require('./utils/utils');
 
@@ -39,8 +39,8 @@ const IQuoter = artifacts.require('IQuoter');
 contract('UniswapV3 Swap', function([_, user, someone]) {
   let id;
   const tokenAddress = DAI_TOKEN;
-  const token2Address = USDC_TOKEN;
-  const token3Address = WETH_TOKEN;
+  const tokenBAddress = USDC_TOKEN;
+  const tokenCAddress = WETH_TOKEN;
 
   const fee = 100; // 0.01%
   const fee2 = 500; // 0.05%
@@ -48,18 +48,15 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
   let balanceUser;
   let balanceProxy;
   let tokenUser;
-  let token2User;
-  let token3User;
+  let tokenBUser;
+  let tokenCUser;
   let tokenProvider;
-  let tokenProvider2;
+  let tokenProviderB;
 
   before(async function() {
-    tokenProvider = await tokenProviderUniV3(tokenAddress, token2Address, fee);
-    tokenProvider2 = await tokenProviderUniV3(
-      token3Address,
-      token2Address,
-      fee2
-    );
+    // Use pool from other swap to avoid lack of liquidity
+    tokenProvider = await tokenProviderSushi(tokenAddress, tokenBAddress);
+    tokenProviderB = await tokenProviderSushi(tokenCAddress, tokenBAddress);
 
     this.registry = await Registry.new();
     this.hUniswapV3 = await HUniswapV3.new();
@@ -71,8 +68,8 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
     this.quoter = await IQuoter.at(UNISWAPV3_QUOTER);
     this.proxy = await Proxy.new(this.registry.address);
     this.token = await IToken.at(tokenAddress);
-    this.token2 = await IToken.at(token2Address);
-    this.token3 = await IToken.at(token3Address);
+    this.tokenB = await IToken.at(tokenBAddress);
+    this.tokenC = await IToken.at(tokenCAddress);
 
     this.wmatic = await IToken.at(WMATIC_TOKEN);
   });
@@ -82,8 +79,9 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
     balanceUser = await tracker(user);
     balanceProxy = await tracker(this.proxy.address);
     tokenUser = await this.token.balanceOf.call(user);
-    token2User = await this.token2.balanceOf.call(user);
-    token3User = await this.token3.balanceOf.call(user);
+    tokenBUser = await this.tokenB.balanceOf.call(user);
+    tokenCUser = await this.tokenC.balanceOf.call(user);
+    wmaticUser = await this.wmatic.balanceOf.call(user);
   });
 
   afterEach(async function() {
@@ -99,7 +97,7 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
 
           // Set swap info
           const tokenIn = WMATIC_TOKEN;
-          const tokenOut = token2Address;
+          const tokenOut = tokenBAddress;
           const fee = new BN('500'); // 0.05%
           const amountIn = value;
           const amountOutMinimum = new BN('1');
@@ -141,8 +139,8 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
             result,
             user,
             value,
-            this.token2,
-            token2User,
+            this.tokenB,
+            tokenBUser,
             balanceProxy,
             balanceUser,
             receipt.receipt.gasUsed
@@ -154,7 +152,7 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
           const to = this.hUniswapV3.address;
           // Set swap info
           const tokenIn = WMATIC_TOKEN;
-          const tokenOut = token2Address;
+          const tokenOut = tokenBAddress;
           const fee = new BN('500'); // 0.05%;
           const amountIn = value;
           const amountOutMinimum = new BN('1');
@@ -196,8 +194,8 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
             result,
             user,
             value,
-            this.token2,
-            token2User,
+            this.tokenB,
+            tokenBUser,
             balanceProxy,
             balanceUser,
             receipt.receipt.gasUsed
@@ -209,7 +207,7 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
           const to = this.hUniswapV3.address;
 
           // Set swap info
-          const tokenOut = token2Address;
+          const tokenOut = tokenBAddress;
           const fee = new BN('3000');
           const amountIn = value;
           const amountOutMinimum = new BN('1');
@@ -237,7 +235,7 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
           const to = this.hUniswapV3.address;
 
           // Set swap info
-          const tokenOut = token2Address;
+          const tokenOut = tokenBAddress;
           const fee = new BN('500'); // 0.05%
           const amountIn = value;
           const amountOutMinimum = mwei('100');
@@ -268,7 +266,7 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
           const to = this.hUniswapV3.address;
 
           // Set swap info
-          const tokens = [WMATIC_TOKEN, token2Address, tokenAddress];
+          const tokens = [WMATIC_TOKEN, tokenBAddress, tokenAddress];
           const fees = [new BN('500') /* 0.05% */, new BN('500') /* 0.05% */];
           const amountIn = value;
           const amountOutMinimum = new BN('1');
@@ -314,7 +312,7 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
           const value = ether('1');
           const to = this.hUniswapV3.address;
           // Set swap info
-          const tokens = [WMATIC_TOKEN, token2Address, tokenAddress];
+          const tokens = [WMATIC_TOKEN, tokenBAddress, tokenAddress];
           const fees = [new BN('500') /* 0.05% */, new BN('500') /* 0.05% */];
           const amountIn = value;
           const amountOutMinimum = new BN('1');
@@ -360,7 +358,7 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
           const value = ether('1');
           const to = this.hUniswapV3.address;
           // Set swap info
-          const tokens = [WMATIC_TOKEN, token2Address, tokenAddress];
+          const tokens = [WMATIC_TOKEN, tokenBAddress, tokenAddress];
           const fees = [new BN('500') /* 0.05% */, new BN('500') /* 0.05% */];
           const amountIn = value;
           const amountOutMinimum = new BN('1');
@@ -386,7 +384,7 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
           const to = this.hUniswapV3.address;
 
           // Set swap info
-          const tokens = [WMATIC_TOKEN, token2Address, tokenAddress];
+          const tokens = [WMATIC_TOKEN, tokenBAddress, tokenAddress];
           const fees = [new BN('500') /* 0.05% */, new BN('500') /* 0.05% */];
           const amountIn = value;
           const amountOutMinimum = ether('100');
@@ -413,16 +411,16 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
           const to = this.hUniswapV3.address;
 
           // Set swap info
-          const tokens = [token3Address, token2Address, tokenAddress];
+          const tokens = [tokenCAddress, tokenBAddress, tokenAddress];
           const fees = [new BN('500') /* 0.05% */, new BN('500') /* 0.05% */];
           const amountIn = value;
           const amountOutMinimum = new BN('1');
           const path = encodePath(tokens, fees);
 
-          await this.token3.transfer(this.proxy.address, amountIn, {
-            from: tokenProvider2,
+          await this.tokenC.transfer(this.proxy.address, amountIn, {
+            from: tokenProviderB,
           });
-          await this.proxy.updateTokenMock(this.token3.address);
+          await this.proxy.updateTokenMock(this.tokenC.address);
 
           // Execution
           const data = getCallData(HUniswapV3, 'exactInputFromEther', [
@@ -450,7 +448,7 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
 
           // Set swap info
           const tokenIn = WMATIC_TOKEN;
-          const tokenOut = token2Address;
+          const tokenOut = tokenBAddress;
           const fee = new BN('500'); /* 0.05% */
           const amountOut = mwei('1');
           const amountInMaximum = value;
@@ -491,9 +489,9 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
             handlerReturn,
             result,
             user,
-            this.token2,
+            this.tokenB,
             amountOut,
-            token2User,
+            tokenBUser,
             balanceProxy,
             balanceUser,
             receipt.receipt.gasUsed
@@ -506,7 +504,7 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
 
           // Set swap info
           const tokenIn = WMATIC_TOKEN;
-          const tokenOut = token2Address;
+          const tokenOut = tokenBAddress;
           const fee = new BN('500'); /* 0.05% */
           const amountOut = mwei('1');
           const sqrtPriceLimitX96 = new BN('0');
@@ -546,12 +544,39 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
             handlerReturn,
             result,
             user,
-            this.token2,
+            this.tokenB,
             amountOut,
-            token2User,
+            tokenBUser,
             balanceProxy,
             balanceUser,
             receipt.receipt.gasUsed
+          );
+        });
+
+        it('should revert: insufficient Matic', async function() {
+          const value = ether('1');
+          const to = this.hUniswapV3.address;
+          // Set swap info
+          const tokenOut = tokenBAddress;
+          const fee = new BN('500'); /* 0.05% */
+          const amountOut = mwei('100000');
+          const amountInMaximum = value;
+          const sqrtPriceLimitX96 = new BN('0');
+
+          // Execution
+          const data = getCallData(HUniswapV3, 'exactOutputSingleFromEther', [
+            tokenOut,
+            fee,
+            amountOut,
+            amountInMaximum,
+            sqrtPriceLimitX96,
+          ]);
+
+          await expectRevert.unspecified(
+            this.proxy.execMock(to, data, {
+              from: user,
+              value: value.div(new BN('2')),
+            })
           );
         });
 
@@ -559,7 +584,7 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
           const value = ether('1');
           const to = this.hUniswapV3.address;
           // Set swap info
-          const tokenOut = token2Address;
+          const tokenOut = tokenBAddress;
           const fee = new BN('500'); /* 0.05% */
           const amountOut = mwei('100000');
           const amountInMaximum = value;
@@ -591,7 +616,7 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
 
           // Set swap info
           // Path is in reverse order
-          const tokens = [tokenAddress, token2Address, WMATIC_TOKEN];
+          const tokens = [tokenAddress, tokenBAddress, WMATIC_TOKEN];
           const fees = [new BN('500') /* 0.05% */, new BN('500') /* 0.05% */];
           const path = encodePath(tokens, fees);
           const amountOut = ether('100');
@@ -641,7 +666,7 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
           const to = this.hUniswapV3.address;
 
           // Set swap info
-          const tokens = [tokenAddress, token2Address, WMATIC_TOKEN];
+          const tokens = [tokenAddress, tokenBAddress, WMATIC_TOKEN];
           const fees = [new BN('500') /* 0.05% */, new BN('500') /* 0.05% */];
           const path = encodePath(tokens, fees);
           const amountOut = ether('100');
@@ -690,7 +715,7 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
           const to = this.hUniswapV3.address;
 
           // Set swap info
-          const tokens = [tokenAddress, token2Address, WMATIC_TOKEN];
+          const tokens = [tokenAddress, tokenBAddress, WMATIC_TOKEN];
           const fees = [new BN('500') /* 0.05% */, new BN('500') /* 0.05% */];
           const path = encodePath(tokens, fees);
           const amountOut = ether('200000');
@@ -711,6 +736,32 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
             '0_HUniswapV3_exactOutput: STF'
           );
         });
+
+        it('should revert: insufficient Matic', async function() {
+          const value = ether('1');
+          const to = this.hUniswapV3.address;
+
+          // Set swap info
+          const tokens = [tokenAddress, tokenBAddress, WMATIC_TOKEN];
+          const fees = [new BN('500') /* 0.05% */, new BN('500') /* 0.05% */];
+          const path = encodePath(tokens, fees);
+          const amountOut = ether('200000');
+          const amountInMaximum = value;
+
+          // Execution
+          const data = getCallData(HUniswapV3, 'exactOutputFromEther', [
+            path,
+            amountOut,
+            amountInMaximum,
+          ]);
+
+          await expectRevert.unspecified(
+            this.proxy.execMock(to, data, {
+              from: user,
+              value: value.div(new BN('2')),
+            })
+          );
+        });
       });
     });
   });
@@ -723,16 +774,16 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
           const to = this.hUniswapV3.address;
 
           // Set swap info
-          const tokenIn = token2Address;
+          const tokenIn = tokenBAddress;
           const tokenOut = WMATIC_TOKEN;
           const fee = new BN('500'); // 0.05%
           const amountIn = value;
           const amountOutMinimum = new BN('1');
           const sqrtPriceLimitX96 = new BN('0');
-          await this.token2.transfer(this.proxy.address, amountIn, {
-            from: tokenProvider2,
+          await this.tokenB.transfer(this.proxy.address, amountIn, {
+            from: tokenProviderB,
           });
-          await this.proxy.updateTokenMock(this.token2.address);
+          await this.proxy.updateTokenMock(this.tokenB.address);
 
           // Estimate result
           const result = await this.quoter.quoteExactInputSingle.call(
@@ -768,8 +819,8 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
             handlerReturn,
             result,
             user,
-            this.token2,
-            token2User,
+            this.tokenB,
+            tokenBUser,
             balanceProxy,
             balanceUser,
             receipt.receipt.gasUsed
@@ -781,14 +832,14 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
           const to = this.hUniswapV3.address;
 
           // Set swap info
-          const tokenIn = token2Address;
+          const tokenIn = tokenBAddress;
           const tokenOut = WMATIC_TOKEN;
           const fee = new BN('500'); // 0.05%
           const amountIn = value;
           const amountOutMinimum = new BN('1');
           const sqrtPriceLimitX96 = new BN('0');
-          await this.token2.transfer(this.proxy.address, amountIn, {
-            from: tokenProvider2,
+          await this.tokenB.transfer(this.proxy.address, amountIn, {
+            from: tokenProviderB,
           });
           await this.proxy.updateTokenMock(this.token.address);
 
@@ -827,8 +878,8 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
             handlerReturn,
             result,
             user,
-            this.token2,
-            token2User,
+            this.tokenB,
+            tokenBUser,
             balanceProxy,
             balanceUser,
             receipt.receipt.gasUsed
@@ -840,19 +891,19 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
           const to = this.hUniswapV3.address;
 
           // Set swap info
-          const tokenIn = token2Address;
+          const tokenIn = tokenBAddress;
           const fee = new BN('500'); // 0.05%
           const amountIn = value;
           const amountOutMinimum = ether('100');
           const sqrtPriceLimitX96 = new BN('0');
-          await this.token2.transfer(
+          await this.tokenB.transfer(
             this.proxy.address,
             amountIn.div(new BN('2')),
             {
-              from: tokenProvider2,
+              from: tokenProviderB,
             }
           );
-          await this.proxy.updateTokenMock(this.token2.address);
+          await this.proxy.updateTokenMock(this.tokenB.address);
 
           // Execution
           const data = getCallData(HUniswapV3, 'exactInputSingleToEther', [
@@ -877,15 +928,15 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
           const to = this.hUniswapV3.address;
 
           // Set swap info
-          const tokenIn = token2Address;
+          const tokenIn = tokenBAddress;
           const fee = new BN('500'); // 0.05%
           const amountIn = value;
           const amountOutMinimum = ether('100');
           const sqrtPriceLimitX96 = new BN('0');
-          await this.token2.transfer(this.proxy.address, amountIn, {
-            from: tokenProvider2,
+          await this.tokenB.transfer(this.proxy.address, amountIn, {
+            from: tokenProviderB,
           });
-          await this.proxy.updateTokenMock(this.token2.address);
+          await this.proxy.updateTokenMock(this.tokenB.address);
 
           // Execution
           const data = getCallData(HUniswapV3, 'exactInputSingleToEther', [
@@ -912,7 +963,7 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
           const to = this.hUniswapV3.address;
 
           // Set swap info
-          const tokens = [tokenAddress, token2Address, WMATIC_TOKEN];
+          const tokens = [tokenAddress, tokenBAddress, WMATIC_TOKEN];
           const fees = [new BN('500') /* 0.05% */, new BN('500') /* 0.05% */];
           const path = encodePath(tokens, fees);
           const amountIn = value;
@@ -962,7 +1013,7 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
           const to = this.hUniswapV3.address;
 
           // Set swap info
-          const tokens = [tokenAddress, token2Address, WMATIC_TOKEN];
+          const tokens = [tokenAddress, tokenBAddress, WMATIC_TOKEN];
           const fees = [new BN('500') /* 0.05% */, new BN('500') /* 0.05% */];
           const path = encodePath(tokens, fees);
           const amountIn = value;
@@ -1012,7 +1063,7 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
           const to = this.hUniswapV3.address;
 
           // Set swap info
-          const tokens = [tokenAddress, token2Address, WMATIC_TOKEN];
+          const tokens = [tokenAddress, tokenBAddress, WMATIC_TOKEN];
           const fees = [new BN('500') /* 0.05% */, new BN('500') /* 0.05% */];
           const path = encodePath(tokens, fees);
           const amountIn = value;
@@ -1047,7 +1098,7 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
           const to = this.hUniswapV3.address;
 
           // Set swap info
-          const tokens = [tokenAddress, token2Address, WMATIC_TOKEN];
+          const tokens = [tokenAddress, tokenBAddress, WMATIC_TOKEN];
           const fees = [new BN('500') /* 0.05% */, new BN('500') /* 0.05% */];
           const path = encodePath(tokens, fees);
           const amountIn = value;
@@ -1078,7 +1129,7 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
           const to = this.hUniswapV3.address;
 
           // Set swap info
-          const tokens = [tokenAddress, token2Address, token3Address];
+          const tokens = [tokenAddress, tokenBAddress, tokenCAddress];
           const fees = [new BN('500') /* 0.05% */, new BN('500') /* 0.05% */];
           const path = encodePath(tokens, fees);
           const amountIn = value;
@@ -1113,16 +1164,16 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
           const to = this.hUniswapV3.address;
 
           // Set swap info
-          const tokenIn = token2Address;
+          const tokenIn = tokenBAddress;
           const tokenOut = WMATIC_TOKEN;
           const fee = new BN('500'); // 0.05%
           const amountOut = ether('1');
           const amountInMaximum = mwei('3000');
           const sqrtPriceLimitX96 = new BN('0');
-          await this.token2.transfer(this.proxy.address, amountInMaximum, {
-            from: tokenProvider2,
+          await this.tokenB.transfer(this.proxy.address, amountInMaximum, {
+            from: tokenProviderB,
           });
-          await this.proxy.updateTokenMock(token2Address);
+          await this.proxy.updateTokenMock(tokenBAddress);
 
           // Estimate result
           const result = await this.quoter.quoteExactOutputSingle.call(
@@ -1159,8 +1210,8 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
             handlerReturn,
             result,
             user,
-            this.token2,
-            token2User,
+            this.tokenB,
+            tokenBUser,
             amountInMaximum,
             amountOut,
             balanceProxy,
@@ -1174,16 +1225,16 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
           const to = this.hUniswapV3.address;
 
           // Set swap info
-          const tokenIn = token2Address;
+          const tokenIn = tokenBAddress;
           const tokenOut = WMATIC_TOKEN;
           const fee = new BN('500'); // 0.05%
           const amountOut = ether('1');
           const amountInMaximum = mwei('3000');
           const sqrtPriceLimitX96 = new BN('0');
-          await this.token2.transfer(this.proxy.address, amountInMaximum, {
-            from: tokenProvider2,
+          await this.tokenB.transfer(this.proxy.address, amountInMaximum, {
+            from: tokenProviderB,
           });
-          await this.proxy.updateTokenMock(token2Address);
+          await this.proxy.updateTokenMock(tokenBAddress);
 
           // Estimate result
           const result = await this.quoter.quoteExactOutputSingle.call(
@@ -1220,8 +1271,8 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
             handlerReturn,
             result,
             user,
-            this.token2,
-            token2User,
+            this.tokenB,
+            tokenBUser,
             amountInMaximum,
             amountOut,
             balanceProxy,
@@ -1235,15 +1286,15 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
           const to = this.hUniswapV3.address;
 
           // Set swap info
-          const tokenIn = token2Address;
+          const tokenIn = tokenBAddress;
           const fee = new BN('500'); // 0.05%
           const amountOut = ether('10000');
           const amountInMaximum = mwei('3000');
           const sqrtPriceLimitX96 = new BN('0');
-          await this.token2.transfer(this.proxy.address, amountInMaximum, {
-            from: tokenProvider2,
+          await this.tokenB.transfer(this.proxy.address, amountInMaximum, {
+            from: tokenProviderB,
           });
-          await this.proxy.updateTokenMock(token2Address);
+          await this.proxy.updateTokenMock(tokenBAddress);
 
           // Execution
           const data = getCallData(HUniswapV3, 'exactOutputSingleToEther', [
@@ -1270,7 +1321,7 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
           const to = this.hUniswapV3.address;
 
           // Set swap info
-          const tokens = [WMATIC_TOKEN, token2Address, tokenAddress];
+          const tokens = [WMATIC_TOKEN, tokenBAddress, tokenAddress];
           const fees = [new BN('500') /* 0.05% */, new BN('500') /* 0.05% */];
           const path = encodePath(tokens, fees);
           const amountOut = ether('1');
@@ -1325,7 +1376,7 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
           const to = this.hUniswapV3.address;
 
           // Set swap info
-          const tokens = [WMATIC_TOKEN, token2Address, tokenAddress];
+          const tokens = [WMATIC_TOKEN, tokenBAddress, tokenAddress];
           const fees = [new BN('500') /* 0.05% */, new BN('500') /* 0.05% */];
           const path = encodePath(tokens, fees);
           const amountOut = ether('1');
@@ -1380,7 +1431,7 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
           const to = this.hUniswapV3.address;
 
           // Set swap info
-          const tokens = [WMATIC_TOKEN, token2Address, tokenAddress];
+          const tokens = [WMATIC_TOKEN, tokenBAddress, tokenAddress];
           const fees = [new BN('500') /* 0.05% */, new BN('500') /* 0.05% */];
           const path = encodePath(tokens, fees);
           const amountOut = ether('10000');
@@ -1411,7 +1462,7 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
           const to = this.hUniswapV3.address;
 
           // Set swap info
-          const tokens = [token3Address, token2Address, tokenAddress];
+          const tokens = [tokenCAddress, tokenBAddress, tokenAddress];
           const fees = [new BN('500') /* 0.05% */, new BN('500') /* 0.05% */];
           const path = encodePath(tokens, fees);
           const amountOut = ether('10000');
@@ -1448,16 +1499,16 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
           const to = this.hUniswapV3.address;
 
           // Set swap info
-          const tokenIn = token2Address;
-          const tokenOut = token3Address;
+          const tokenIn = tokenBAddress;
+          const tokenOut = tokenCAddress;
           const fee = new BN('500'); // 0.05%
           const amountIn = mwei('5000');
           const amountOutMinimum = new BN('1');
           const sqrtPriceLimitX96 = new BN('0');
-          await this.token2.transfer(this.proxy.address, amountIn, {
-            from: tokenProvider2,
+          await this.tokenB.transfer(this.proxy.address, amountIn, {
+            from: tokenProviderB,
           });
-          await this.proxy.updateTokenMock(this.token2.address);
+          await this.proxy.updateTokenMock(this.tokenB.address);
 
           // Estimate result
           const result = await this.quoter.quoteExactInputSingle.call(
@@ -1495,10 +1546,10 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
             handlerReturn,
             result,
             user,
-            this.token2,
-            token2User,
-            this.token3,
-            token3User,
+            this.tokenB,
+            tokenBUser,
+            this.tokenC,
+            tokenCUser,
             balanceUser,
             receipt.receipt.gasUsed
           );
@@ -1509,16 +1560,16 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
           const to = this.hUniswapV3.address;
 
           // Set swap info
-          const tokenIn = token2Address;
-          const tokenOut = token3Address;
+          const tokenIn = tokenBAddress;
+          const tokenOut = tokenCAddress;
           const fee = new BN('500'); // 0.05%
           const amountIn = mwei('5000');
           const amountOutMinimum = new BN('1');
           const sqrtPriceLimitX96 = new BN('0');
-          await this.token2.transfer(this.proxy.address, amountIn, {
-            from: tokenProvider2,
+          await this.tokenB.transfer(this.proxy.address, amountIn, {
+            from: tokenProviderB,
           });
-          await this.proxy.updateTokenMock(this.token2.address);
+          await this.proxy.updateTokenMock(this.tokenB.address);
 
           // Estimate result
           const result = await this.quoter.quoteExactInputSingle.call(
@@ -1558,8 +1609,8 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
             user,
             this.token,
             tokenUser,
-            this.token3,
-            token3User,
+            this.tokenC,
+            tokenCUser,
             balanceUser,
             receipt.receipt.gasUsed
           );
@@ -1570,20 +1621,20 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
           const to = this.hUniswapV3.address;
 
           // Set swap info
-          const tokenIn = token2Address;
-          const tokenOut = token3Address;
+          const tokenIn = tokenBAddress;
+          const tokenOut = tokenCAddress;
           const fee = new BN('500'); // 0.05%
           const amountIn = mwei('5000');
           const amountOutMinimum = new BN('1');
           const sqrtPriceLimitX96 = new BN('0');
-          await this.token2.transfer(
+          await this.tokenB.transfer(
             this.proxy.address,
             amountIn.div(new BN('2')),
             {
               from: tokenProvider,
             }
           );
-          await this.proxy.updateTokenMock(this.token2.address);
+          await this.proxy.updateTokenMock(this.tokenB.address);
 
           // Execution
           const data = getCallData(HUniswapV3, 'exactInputSingle', [
@@ -1609,16 +1660,16 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
           const to = this.hUniswapV3.address;
 
           // Set swap info
-          const tokenIn = token2Address;
-          const tokenOut = token3Address;
+          const tokenIn = tokenBAddress;
+          const tokenOut = tokenCAddress;
           const fee = new BN('500'); // 0.05%
           const amountIn = mwei('1');
           const amountOutMinimum = ether('1');
           const sqrtPriceLimitX96 = new BN('0');
-          await this.token2.transfer(this.proxy.address, amountIn, {
-            from: tokenProvider2,
+          await this.tokenB.transfer(this.proxy.address, amountIn, {
+            from: tokenProviderB,
           });
-          await this.proxy.updateTokenMock(this.token2.address);
+          await this.proxy.updateTokenMock(this.tokenB.address);
 
           // Execution
           const data = getCallData(HUniswapV3, 'exactInputSingle', [
@@ -1646,7 +1697,7 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
           const to = this.hUniswapV3.address;
 
           //   Set swap info
-          const tokens = [tokenAddress, token2Address, token3Address];
+          const tokens = [tokenAddress, tokenBAddress, tokenCAddress];
           const fees = [new BN('500') /* 0.05% */, new BN('500') /* 0.05% */];
           const path = encodePath(tokens, fees);
           const amountIn = value;
@@ -1685,8 +1736,8 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
             user,
             this.token,
             tokenUser,
-            this.token3,
-            token3User,
+            this.tokenC,
+            tokenCUser,
             balanceUser,
             receipt.receipt.gasUsed
           );
@@ -1697,7 +1748,7 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
           const to = this.hUniswapV3.address;
 
           //   Set swap info
-          const tokens = [tokenAddress, token2Address, token3Address];
+          const tokens = [tokenAddress, tokenBAddress, tokenCAddress];
           const fees = [new BN('500') /* 0.05% */, new BN('500') /* 0.05% */];
           const path = encodePath(tokens, fees);
           const amountIn = value;
@@ -1736,8 +1787,8 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
             user,
             this.token,
             tokenUser,
-            this.token3,
-            token3User,
+            this.tokenC,
+            tokenCUser,
             balanceUser,
             receipt.receipt.gasUsed
           );
@@ -1748,7 +1799,7 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
           const to = this.hUniswapV3.address;
 
           //   Set swap info
-          const tokens = [tokenAddress, token2Address, token3Address];
+          const tokens = [tokenAddress, tokenBAddress, tokenCAddress];
           const fees = [new BN(500) /* 0.05% */, new BN(500) /* 0.05% */];
           const path = encodePath(tokens, fees);
           const amountIn = value;
@@ -1784,7 +1835,7 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
           const to = this.hUniswapV3.address;
 
           // Set swap info
-          const tokens = [tokenAddress, token2Address, token3Address];
+          const tokens = [tokenAddress, tokenBAddress, tokenCAddress];
           const fees = [new BN(500) /* 0.05% */, new BN(500) /* 0.05% */];
           const path = encodePath(tokens, fees);
           const amountIn = value;
@@ -1820,16 +1871,16 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
           const to = this.hUniswapV3.address;
 
           // Set swap info
-          const tokenIn = token2Address;
-          const tokenOut = token3Address;
+          const tokenIn = tokenBAddress;
+          const tokenOut = tokenCAddress;
           const fee = new BN('500'); // 0.05%
           const amountOut = ether('1');
           const amountInMaximum = mwei('10000');
           const sqrtPriceLimitX96 = new BN('0');
-          await this.token2.transfer(this.proxy.address, amountInMaximum, {
-            from: tokenProvider2,
+          await this.tokenB.transfer(this.proxy.address, amountInMaximum, {
+            from: tokenProviderB,
           });
-          await this.proxy.updateTokenMock(token2Address);
+          await this.proxy.updateTokenMock(tokenBAddress);
 
           // Estimate result
           const result = await this.quoter.quoteExactOutputSingle.call(
@@ -1867,12 +1918,12 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
             handlerReturn,
             result,
             user,
-            this.token2,
+            this.tokenB,
             amountInMaximum,
-            token2User,
-            this.token3,
+            tokenBUser,
+            this.tokenC,
             amountOut,
-            token3User,
+            tokenCUser,
             balanceUser,
             receipt.receipt.gasUsed
           );
@@ -1883,16 +1934,16 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
           const to = this.hUniswapV3.address;
 
           // Set swap info
-          const tokenIn = token2Address;
-          const tokenOut = token3Address;
+          const tokenIn = tokenBAddress;
+          const tokenOut = tokenCAddress;
           const fee = new BN('500'); // 0.05%
           const amountOut = ether('1');
           const amountInMaximum = mwei('10000');
           const sqrtPriceLimitX96 = new BN('0');
-          await this.token2.transfer(this.proxy.address, amountInMaximum, {
-            from: tokenProvider2,
+          await this.tokenB.transfer(this.proxy.address, amountInMaximum, {
+            from: tokenProviderB,
           });
-          await this.proxy.updateTokenMock(token2Address);
+          await this.proxy.updateTokenMock(tokenBAddress);
 
           // Estimate result
           const result = await this.quoter.quoteExactOutputSingle.call(
@@ -1930,12 +1981,12 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
             handlerReturn,
             result,
             user,
-            this.token2,
+            this.tokenB,
             amountInMaximum,
-            token2User,
-            this.token3,
+            tokenBUser,
+            this.tokenC,
             amountOut,
-            token3User,
+            tokenCUser,
             balanceUser,
             receipt.receipt.gasUsed
           );
@@ -1946,17 +1997,17 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
           const to = this.hUniswapV3.address;
 
           // Set swap info
-          const tokenIn = token2Address;
-          const tokenOut = token3Address;
+          const tokenIn = tokenBAddress;
+          const tokenOut = tokenCAddress;
           const fee = new BN('500'); // 0.05%
           const amountOut = ether('100');
           const amountInMaximum = mwei('10000');
           const sqrtPriceLimitX96 = new BN('0');
-          await this.token2.transfer(
+          await this.tokenB.transfer(
             this.proxy.address,
             amountInMaximum.div(new BN('2')),
             {
-              from: tokenProvider2,
+              from: tokenProviderB,
             }
           );
           await this.proxy.updateTokenMock(tokenAddress);
@@ -1985,14 +2036,14 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
           const to = this.hUniswapV3.address;
 
           // Set swap info
-          const tokenIn = token2Address;
-          const tokenOut = token3Address;
+          const tokenIn = tokenBAddress;
+          const tokenOut = tokenCAddress;
           const fee = new BN('500'); // 0.05%
           const amountOut = ether('100');
           const amountInMaximum = mwei('10000');
           const sqrtPriceLimitX96 = new BN('0');
-          await this.token2.transfer(this.proxy.address, amountInMaximum, {
-            from: tokenProvider2,
+          await this.tokenB.transfer(this.proxy.address, amountInMaximum, {
+            from: tokenProviderB,
           });
           await this.proxy.updateTokenMock(tokenAddress);
 
@@ -2023,7 +2074,7 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
 
           // Set swap info
           // Path is in reverse order
-          const tokens = [token3Address, token2Address, tokenAddress];
+          const tokens = [tokenCAddress, tokenBAddress, tokenAddress];
           const fees = [new BN('500') /* 0.05% */, new BN('500') /* 0.05% */];
           const path = encodePath(tokens, fees);
           const amountOut = ether('1');
@@ -2067,9 +2118,9 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
             this.token,
             amountInMaximum,
             tokenUser,
-            this.token3,
+            this.tokenC,
             amountOut,
-            token3User,
+            tokenCUser,
             balanceUser,
             receipt.receipt.gasUsed
           );
@@ -2080,7 +2131,7 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
           const to = this.hUniswapV3.address;
 
           // Set swap info
-          const tokens = [token3Address, token2Address, tokenAddress];
+          const tokens = [tokenCAddress, tokenBAddress, tokenAddress];
           const fees = [new BN('500') /* 0.05% */, new BN('500') /* 0.05% */];
           const path = encodePath(tokens, fees);
           const amountOut = ether('1');
@@ -2123,9 +2174,9 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
             this.token,
             amountInMaximum,
             tokenUser,
-            this.token3,
+            this.tokenC,
             amountOut,
-            token3User,
+            tokenCUser,
             balanceUser,
             receipt.receipt.gasUsed
           );
@@ -2136,7 +2187,7 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
           const to = this.hUniswapV3.address;
 
           // Set swap info
-          const tokens = [token3Address, token2Address, tokenAddress];
+          const tokens = [tokenCAddress, tokenBAddress, tokenAddress];
           const fees = [new BN('500') /* 0.05% */, new BN('500') /* 0.05% */];
           const path = encodePath(tokens, fees);
           const amountOut = ether('100');
@@ -2171,7 +2222,7 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
           const to = this.hUniswapV3.address;
 
           // Set swap info
-          const tokens = [token3Address, token2Address, tokenAddress];
+          const tokens = [tokenCAddress, tokenBAddress, tokenAddress];
           const fees = [new BN('500') /* 0.05% */, new BN('500') /* 0.05% */];
           const path = encodePath(tokens, fees);
           const amountOut = ether('100');
