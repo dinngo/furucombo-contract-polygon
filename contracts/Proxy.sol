@@ -1,8 +1,10 @@
-pragma solidity ^0.6.0;
-pragma experimental ABIEncoderV2;
+// SPDX-License-Identifier: MIT
 
-import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
+pragma solidity 0.8.10;
+
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 import "./interface/IProxy.sol";
 import "./interface/IRegistry.sol";
 import "./Config.sol";
@@ -17,17 +19,8 @@ contract Proxy is IProxy, Storage, Config {
     using Address for address;
     using SafeERC20 for IERC20;
     using LibParam for bytes32;
-
-    event LogBegin(
-        address indexed handler,
-        bytes4 indexed selector,
-        bytes payload
-    );
-    event LogEnd(
-        address indexed handler,
-        bytes4 indexed selector,
-        bytes result
-    );
+    using LibStack for bytes32[];
+    using Strings for uint256;
 
     modifier isNotBanned() {
         require(registry.bannedAgents(address(this)) == 0, "Banned");
@@ -41,7 +34,7 @@ contract Proxy is IProxy, Storage, Config {
 
     IRegistry public immutable registry;
 
-    constructor(address _registry) public {
+    constructor(address _registry) {
         registry = IRegistry(_registry);
     }
 
@@ -57,7 +50,7 @@ contract Proxy is IProxy, Storage, Config {
         require(_isValidCaller(msg.sender), "Invalid caller");
 
         address target = address(bytes20(registry.callers(msg.sender)));
-        bytes memory result = _exec(target, msg.data);
+        bytes memory result = _exec(target, msg.data, type(uint256).max);
 
         // return result for aave v2 flashloan()
         uint256 size = result.length;
@@ -117,7 +110,8 @@ contract Proxy is IProxy, Storage, Config {
         bytes[] memory datas
     ) internal {
         bytes32[256] memory localStack;
-        uint256 index = 0;
+        uint256 index;
+        uint256 counter;
 
         require(
             tos.length == datas.length,
@@ -136,15 +130,10 @@ contract Proxy is IProxy, Storage, Config {
                 // If so, trim the exectution data base on the configuration and stack content
                 _trim(data, config, localStack, index);
             }
-            // Emit the execution log before call
-            bytes4 selector = _getSelector(data);
-            emit LogBegin(to, selector, data);
 
             // Check if the output will be referenced afterwards
-            bytes memory result = _exec(to, data);
-
-            // Emit the execution log after call
-            emit LogEnd(to, selector, result);
+            bytes memory result = _exec(to, data, counter);
+            counter++;
 
             if (config.isReferenced()) {
                 // If so, parse the output and place it into local stack
@@ -237,15 +226,17 @@ contract Proxy is IProxy, Storage, Config {
      * @notice The execution of a single cube.
      * @param _to The handler of cube.
      * @param _data The cube execution data.
+     * @param _counter The current counter of the cube.
      */
-    function _exec(address _to, bytes memory _data)
-        internal
-        returns (bytes memory result)
-    {
+    function _exec(
+        address _to,
+        bytes memory _data,
+        uint256 _counter
+    ) internal returns (bytes memory result) {
         require(_isValidHandler(_to), "Invalid handler");
-        _addCubeCounter();
+        bool success;
         assembly {
-            let succeeded := delegatecall(
+            success := delegatecall(
                 sub(gas(), 5000),
                 _to,
                 add(_data, 0x20),
@@ -262,11 +253,27 @@ contract Proxy is IProxy, Storage, Config {
             )
             mstore(result, size)
             returndatacopy(add(result, 0x20), 0, size)
+        }
 
-            switch iszero(succeeded)
-                case 1 {
-                    revert(add(result, 0x20), size)
-                }
+        if (!success) {
+            if (result.length < 68) revert("_exec");
+            assembly {
+                result := add(result, 0x04)
+            }
+
+            if (_counter == type(uint256).max) {
+                revert(abi.decode(result, (string))); // Don't prepend counter
+            } else {
+                revert(
+                    string(
+                        abi.encodePacked(
+                            _counter.toString(),
+                            "_",
+                            abi.decode(result, (string))
+                        )
+                    )
+                );
+            }
         }
     }
 
@@ -281,17 +288,17 @@ contract Proxy is IProxy, Storage, Config {
         if (stack.length == 0) {
             return;
         } else if (
-            stack.peek() == bytes32(bytes12(uint96(HandlerType.Custom)))
+            stack.peek() == bytes32(bytes12(uint96(HandlerType.Custom))) &&
+            bytes4(stack.peek(1)) != 0x00000000
         ) {
             stack.pop();
-            // Check if the handler is already set.
-            if (bytes4(stack.peek()) != 0x00000000) stack.setAddress(_to);
+            stack.setAddress(_to);
             stack.setHandlerType(HandlerType.Custom);
         }
     }
 
     /// @notice The pre-process phase.
-    function _preProcess() internal virtual isStackEmpty isCubeCounterZero {
+    function _preProcess() internal virtual isStackEmpty {
         // Set the sender.
         _setSender();
     }
@@ -307,11 +314,16 @@ contract Proxy is IProxy, Storage, Config {
             HandlerType handlerType = HandlerType(uint96(bytes12(top)));
             if (handlerType == HandlerType.Token) {
                 address addr = address(uint160(uint256(top)));
-                uint256 amount = IERC20(addr).balanceOf(address(this));
-                if (amount > 0) IERC20(addr).safeTransfer(msg.sender, amount);
+                uint256 tokenAmount = IERC20(addr).balanceOf(address(this));
+                if (tokenAmount > 0)
+                    IERC20(addr).safeTransfer(msg.sender, tokenAmount);
             } else if (handlerType == HandlerType.Custom) {
                 address addr = stack.getAddress();
-                _exec(addr, abi.encodeWithSelector(POSTPROCESS_SIG));
+                _exec(
+                    addr,
+                    abi.encodeWithSelector(POSTPROCESS_SIG),
+                    type(uint256).max
+                );
             } else {
                 revert("Invalid handler type");
             }
@@ -319,11 +331,10 @@ contract Proxy is IProxy, Storage, Config {
 
         // Balance should also be returned to user
         uint256 amount = address(this).balance;
-        if (amount > 0) msg.sender.transfer(amount);
+        if (amount > 0) payable(msg.sender).transfer(amount);
 
-        // Reset the msg.sender and cube counter
+        // Reset the msg.sender
         _resetSender();
-        _resetCubeCounter();
     }
 
     /// @notice Check if the handler is valid in registry.
@@ -334,18 +345,5 @@ contract Proxy is IProxy, Storage, Config {
     /// @notice Check if the caller is valid in registry.
     function _isValidCaller(address caller) internal view returns (bool) {
         return registry.isValidCaller(caller);
-    }
-
-    /// @notice Get payload function selector.
-    function _getSelector(bytes memory payload)
-        internal
-        pure
-        returns (bytes4 selector)
-    {
-        selector =
-            payload[0] |
-            (bytes4(payload[1]) >> 8) |
-            (bytes4(payload[2]) >> 16) |
-            (bytes4(payload[3]) >> 24);
     }
 }

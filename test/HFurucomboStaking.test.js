@@ -96,13 +96,11 @@ contract('Furucombo', function([_, user, someone]) {
 
       // Verify
       expect(
-        await this.token.balanceOf.call(this.proxy.address)
+        await this.token.balanceOf(this.proxy.address)
       ).to.be.bignumber.zero;
       expect(await balanceProxy.get()).to.be.bignumber.zero;
-      expect(await this.token.balanceOf.call(user)).to.be.bignumber.zero;
-      expect(await balanceUser.delta()).to.be.bignumber.eq(
-        ether('0').sub(new BN(receipt.receipt.gasUsed))
-      );
+      expect(await this.token.balanceOf(user)).to.be.bignumber.zero;
+      expect(await balanceUser.delta()).to.be.bignumber.eq(ether('0'));
       expect(await this.staking.balanceOf(user)).to.be.bignumber.eq(
         stakeAmount
       );
@@ -140,13 +138,11 @@ contract('Furucombo', function([_, user, someone]) {
 
       // Verify
       expect(
-        await this.token.balanceOf.call(this.proxy.address)
+        await this.token.balanceOf(this.proxy.address)
       ).to.be.bignumber.zero;
       expect(await balanceProxy.get()).to.be.bignumber.zero;
-      expect(await this.token.balanceOf.call(user)).to.be.bignumber.zero;
-      expect(await balanceUser.delta()).to.be.bignumber.eq(
-        ether('0').sub(new BN(receipt.receipt.gasUsed))
-      );
+      expect(await this.token.balanceOf(user)).to.be.bignumber.zero;
+      expect(await balanceUser.delta()).to.be.bignumber.eq(ether('0'));
       expect(await this.staking.balanceOf(user)).to.be.bignumber.eq(
         stakeAmount
       );
@@ -246,17 +242,17 @@ contract('Furucombo', function([_, user, someone]) {
       await this.staking.setApproval(this.proxy.address, true, {
         from: user,
       });
-      const tokenUserBefore = await this.token.balanceOf.call(user);
+      const tokenUserBefore = await this.token.balanceOf(user);
       await balanceUser.get();
       const receipt = await this.proxy.execMock(to, data, {
         from: user,
         value: ether('0.1'),
       });
-      const tokenUserAfter = await this.token.balanceOf.call(user);
+      const tokenUserAfter = await this.token.balanceOf(user);
 
       // Verify
       expect(
-        await this.token.balanceOf.call(this.proxy.address)
+        await this.token.balanceOf(this.proxy.address)
       ).to.be.bignumber.zero;
       expect(await balanceProxy.get()).to.be.bignumber.zero;
       expect(tokenUserAfter.sub(tokenUserBefore)).to.be.bignumber.eq(
@@ -265,9 +261,7 @@ contract('Furucombo', function([_, user, someone]) {
       expect(await this.staking.balanceOf(user)).to.be.bignumber.eq(
         stakeAmount.sub(unstakeAmount)
       );
-      expect(await balanceUser.delta()).to.be.bignumber.eq(
-        ether('0').sub(new BN(receipt.receipt.gasUsed))
-      );
+      expect(await balanceUser.delta()).to.be.bignumber.eq(ether('0'));
 
       // Verify event
       await expectEvent.inTransaction(receipt.tx, this.staking, 'Unstaked', {
@@ -292,26 +286,24 @@ contract('Furucombo', function([_, user, someone]) {
       await this.staking.setApproval(this.proxy.address, true, {
         from: user,
       });
-      const tokenUserBefore = await this.token.balanceOf.call(user);
+      const tokenUserBefore = await this.token.balanceOf(user);
       await balanceUser.get();
       const receipt = await this.proxy.execMock(to, data, {
         from: user,
         value: ether('0.1'),
       });
-      const tokenUserAfter = await this.token.balanceOf.call(user);
+      const tokenUserAfter = await this.token.balanceOf(user);
 
       // Verify
       expect(
-        await this.token.balanceOf.call(this.proxy.address)
+        await this.token.balanceOf(this.proxy.address)
       ).to.be.bignumber.zero;
       expect(await balanceProxy.get()).to.be.bignumber.zero;
       expect(tokenUserAfter.sub(tokenUserBefore)).to.be.bignumber.eq(
         unstakeAmount
       );
       expect(await this.staking.balanceOf(user)).to.be.bignumber.zero;
-      expect(await balanceUser.delta()).to.be.bignumber.eq(
-        ether('0').sub(new BN(receipt.receipt.gasUsed))
-      );
+      expect(await balanceUser.delta()).to.be.bignumber.eq(ether('0'));
 
       // Verify event
       await expectEvent.inTransaction(receipt.tx, this.staking, 'Unstaked', {
@@ -424,7 +416,7 @@ contract('Furucombo', function([_, user, someone]) {
       await this.merkleRedeem.seedAllocations(week, root, supply, {
         from: _,
       });
-      expect(await this.merkleRedeem.weekMerkleRoots.call(week)).eq(root);
+      expect(await this.merkleRedeem.weekMerkleRoots(week)).eq(root);
 
       // Update merkle root to merkleRedeem for staking contract
       await this.rewardToken.approve(this.stakingRedeem.address, supply, {
@@ -433,7 +425,7 @@ contract('Furucombo', function([_, user, someone]) {
       await this.stakingRedeem.seedAllocations(week, root, supply, {
         from: _,
       });
-      expect(await this.stakingRedeem.weekMerkleRoots.call(week)).eq(root);
+      expect(await this.stakingRedeem.weekMerkleRoots(week)).eq(root);
 
       // Send ether to claimUser
       await web3.eth.sendTransaction({
@@ -458,13 +450,13 @@ contract('Furucombo', function([_, user, someone]) {
       );
 
       // Execute proxy handler
-      const rewardUserBefore = await this.rewardToken.balanceOf.call(claimUser);
+      const rewardUserBefore = await this.rewardToken.balanceOf(claimUser);
       await balanceUser.get();
       const receipt = await this.proxy.execMock(to, data, {
         from: claimUser,
         value: ether('0.1'),
       });
-      const rewardUserAfter = await this.rewardToken.balanceOf.call(claimUser);
+      const rewardUserAfter = await this.rewardToken.balanceOf(claimUser);
 
       // Verify
       expect(rewardUserAfter.sub(rewardUserBefore)).to.be.bignumber.eq(
@@ -472,11 +464,9 @@ contract('Furucombo', function([_, user, someone]) {
       );
       expect(await balanceProxy.get()).to.be.bignumber.zero;
       expect(
-        await this.rewardToken.balanceOf.call(this.proxy.address)
+        await this.rewardToken.balanceOf(this.proxy.address)
       ).to.be.bignumber.zero;
-      expect(await balanceUser.delta()).to.be.bignumber.eq(
-        ether('0').sub(new BN(receipt.receipt.gasUsed))
-      );
+      expect(await balanceUser.delta()).to.be.bignumber.eq(ether('0'));
       profileGas(receipt);
     });
 
@@ -489,7 +479,7 @@ contract('Furucombo', function([_, user, someone]) {
       await this.stakingRedeem.seedAllocations(week2, root, supply, {
         from: _,
       });
-      expect(await this.stakingRedeem.weekMerkleRoots.call(week2)).eq(root);
+      expect(await this.stakingRedeem.weekMerkleRoots(week2)).eq(root);
 
       // setup handler data
       const claimAmount = ether(MR_CLAIM_AMOUNT);
@@ -511,13 +501,13 @@ contract('Furucombo', function([_, user, someone]) {
       );
 
       // Execute proxy handler
-      const rewardUserBefore = await this.rewardToken.balanceOf.call(claimUser);
+      const rewardUserBefore = await this.rewardToken.balanceOf(claimUser);
       await balanceUser.get();
       const receipt = await this.proxy.execMock(to, data, {
         from: claimUser,
         value: ether('0.1'),
       });
-      const rewardUserAfter = await this.rewardToken.balanceOf.call(claimUser);
+      const rewardUserAfter = await this.rewardToken.balanceOf(claimUser);
 
       // verify
       expect(rewardUserAfter.sub(rewardUserBefore)).to.be.bignumber.eq(
@@ -525,11 +515,9 @@ contract('Furucombo', function([_, user, someone]) {
       );
       expect(await balanceProxy.get()).to.be.bignumber.zero;
       expect(
-        await this.rewardToken.balanceOf.call(this.proxy.address)
+        await this.rewardToken.balanceOf(this.proxy.address)
       ).to.be.bignumber.zero;
-      expect(await balanceUser.delta()).to.be.bignumber.eq(
-        ether('0').sub(new BN(receipt.receipt.gasUsed))
-      );
+      expect(await balanceUser.delta()).to.be.bignumber.eq(ether('0'));
       profileGas(receipt);
     });
 
@@ -548,13 +536,13 @@ contract('Furucombo', function([_, user, someone]) {
       );
 
       // Execute proxy handler
-      const rewardUserBefore = await this.rewardToken.balanceOf.call(claimUser);
+      const rewardUserBefore = await this.rewardToken.balanceOf(claimUser);
       await balanceUser.get();
       const receipt = await this.proxy.execMock(to, data, {
         from: someone,
         value: ether('0.1'),
       });
-      const rewardUserAfter = await this.rewardToken.balanceOf.call(claimUser);
+      const rewardUserAfter = await this.rewardToken.balanceOf(claimUser);
 
       // verify
       expect(rewardUserAfter.sub(rewardUserBefore)).to.be.bignumber.eq(
@@ -562,7 +550,7 @@ contract('Furucombo', function([_, user, someone]) {
       );
       expect(await balanceProxy.get()).to.be.bignumber.zero;
       expect(
-        await this.rewardToken.balanceOf.call(this.proxy.address)
+        await this.rewardToken.balanceOf(this.proxy.address)
       ).to.be.bignumber.zero;
       expect(await balanceUser.delta()).to.be.bignumber.zero;
       profileGas(receipt);

@@ -19,7 +19,7 @@ const {
   DAI_TOKEN,
   LINK_TOKEN,
   USDT_TOKEN,
-  NATIVE_TOKEN,
+  NATIVE_TOKEN_ADDRESS,
 } = require('./utils/constants');
 const {
   evmRevert,
@@ -101,20 +101,16 @@ contract('Funds', function([_, user, someone]) {
       // Verify token0
       expect(handlerReturn[0]).to.be.bignumber.eq(value[0]);
       expect(
-        await this.token0.balanceOf.call(this.proxy.address)
+        await this.token0.balanceOf(this.proxy.address)
       ).to.be.bignumber.zero;
-      expect(await this.token0.balanceOf.call(user)).to.be.bignumber.eq(
-        value[0]
-      );
+      expect(await this.token0.balanceOf(user)).to.be.bignumber.eq(value[0]);
 
       // Verify token1
       expect(handlerReturn[1]).to.be.bignumber.eq(value[1]);
       expect(
-        await this.token1.balanceOf.call(this.proxy.address)
+        await this.token1.balanceOf(this.proxy.address)
       ).to.be.bignumber.zero;
-      expect(await this.token1.balanceOf.call(user)).to.be.bignumber.eq(
-        value[1]
-      );
+      expect(await this.token1.balanceOf(user)).to.be.bignumber.eq(value[1]);
 
       profileGas(receipt);
     });
@@ -142,25 +138,21 @@ contract('Funds', function([_, user, someone]) {
       // Verify token0
       expect(handlerReturn[0]).to.be.bignumber.eq(value[0]);
       expect(
-        await this.token0.balanceOf.call(this.proxy.address)
+        await this.token0.balanceOf(this.proxy.address)
       ).to.be.bignumber.zero;
-      expect(await this.token0.balanceOf.call(user)).to.be.bignumber.eq(
-        value[0]
-      );
+      expect(await this.token0.balanceOf(user)).to.be.bignumber.eq(value[0]);
 
       // Verify ether
       expect(handlerReturn[1]).to.be.bignumber.eq(value[1].add(msgValue)); // handlerReturn should include msg.value
       expect(await balanceProxy.get()).to.be.bignumber.zero;
       // user balance will not include msg.value because it is provided by user itself
-      expect(await balanceUser.delta()).to.be.bignumber.eq(
-        value[1].sub(new BN(receipt.receipt.gasUsed))
-      );
+      expect(await balanceUser.delta()).to.be.bignumber.eq(value[1]);
 
       profileGas(receipt);
     });
 
     it('native token - 0xEEEE', async function() {
-      const token = [this.token0.address, NATIVE_TOKEN];
+      const token = [this.token0.address, NATIVE_TOKEN_ADDRESS];
       const msgValue = ether('0.1');
       const value = [ether('200'), ether('1')];
       const to = this.hFunds.address;
@@ -182,19 +174,15 @@ contract('Funds', function([_, user, someone]) {
       // Verify token0
       expect(handlerReturn[0]).to.be.bignumber.eq(value[0]);
       expect(
-        await this.token0.balanceOf.call(this.proxy.address)
+        await this.token0.balanceOf(this.proxy.address)
       ).to.be.bignumber.zero;
-      expect(await this.token0.balanceOf.call(user)).to.be.bignumber.eq(
-        value[0]
-      );
+      expect(await this.token0.balanceOf(user)).to.be.bignumber.eq(value[0]);
 
       // Verify ether
       expect(handlerReturn[1]).to.be.bignumber.eq(value[1].add(msgValue)); // handlerReturn should include msg.value
       expect(await balanceProxy.get()).to.be.bignumber.zero;
       // user balance will not include msg.value because it is provided by user itself
-      expect(await balanceUser.delta()).to.be.bignumber.eq(
-        value[1].sub(new BN(receipt.receipt.gasUsed))
-      );
+      expect(await balanceUser.delta()).to.be.bignumber.eq(value[1]);
 
       profileGas(receipt);
     });
@@ -413,7 +401,7 @@ contract('Funds', function([_, user, someone]) {
           from: providerAddress,
         });
         await this.proxy.updateTokenMock(this.token.address);
-        const tokenSomeone = await this.token.balanceOf.call(someone);
+        const tokenSomeone = await this.token.balanceOf(someone);
         const receipt = await this.proxy.execMock(to, data, {
           from: user,
           value: ether('0.1'),
@@ -424,7 +412,7 @@ contract('Funds', function([_, user, someone]) {
           to: someone,
           value: value,
         });
-        const tokenSomeoneEnd = await this.token.balanceOf.call(someone);
+        const tokenSomeoneEnd = await this.token.balanceOf(someone);
         expect(tokenSomeoneEnd.sub(tokenSomeone)).to.be.bignumber.eq(value);
         profileGas(receipt);
       });
@@ -446,7 +434,7 @@ contract('Funds', function([_, user, someone]) {
         });
         await this.proxy.updateTokenMock(this.token.address);
 
-        const tokenSomeone = await this.usdt.balanceOf.call(someone);
+        const tokenSomeone = await this.usdt.balanceOf(someone);
         const receipt = await this.proxy.execMock(to, data, {
           from: user,
           value: ether('0.1'),
@@ -457,7 +445,7 @@ contract('Funds', function([_, user, someone]) {
           to: someone,
           value: value,
         });
-        const tokenSomeoneEnd = await this.usdt.balanceOf.call(someone);
+        const tokenSomeoneEnd = await this.usdt.balanceOf(someone);
         expect(tokenSomeoneEnd.sub(tokenSomeone)).to.be.bignumber.eq(value);
         profileGas(receipt);
       });
@@ -478,7 +466,7 @@ contract('Funds', function([_, user, someone]) {
           from: providerAddress,
         });
         await this.proxy.updateTokenMock(this.token.address);
-        const tokenSomeone = await this.token.balanceOf.call(someone);
+        const tokenSomeone = await this.token.balanceOf(someone);
         const receipt = await this.proxy.execMock(to, data, {
           from: user,
           value: ether('0.1'),
@@ -489,7 +477,7 @@ contract('Funds', function([_, user, someone]) {
           to: someone,
           value: value,
         });
-        const tokenSomeoneEnd = await this.token.balanceOf.call(someone);
+        const tokenSomeoneEnd = await this.token.balanceOf(someone);
         expect(tokenSomeoneEnd.sub(tokenSomeone)).to.be.bignumber.eq(value);
         profileGas(receipt);
       });
@@ -510,7 +498,7 @@ contract('Funds', function([_, user, someone]) {
           from: providerAddress,
         });
         await this.proxy.updateTokenMock(this.token.address);
-        const tokenSomeone = await this.token.balanceOf.call(someone);
+        const tokenSomeone = await this.token.balanceOf(someone);
         const receipt = await this.proxy.execMock(to, data, {
           from: user,
           value: ether('0.1'),
@@ -526,7 +514,7 @@ contract('Funds', function([_, user, someone]) {
             value: value,
           }
         );
-        const tokenSomeoneEnd = await this.token.balanceOf.call(someone);
+        const tokenSomeoneEnd = await this.token.balanceOf(someone);
         expect(tokenSomeoneEnd.sub(tokenSomeone)).to.be.bignumber.eq(value);
         profileGas(receipt);
       });
@@ -547,7 +535,7 @@ contract('Funds', function([_, user, someone]) {
           from: providerAddress,
         });
         await this.proxy.updateTokenMock(this.token.address);
-        const tokenSomeone = await this.token.balanceOf.call(someone);
+        const tokenSomeone = await this.token.balanceOf(someone);
         await expectRevert.unspecified(
           this.proxy.execMock(to, data, {
             from: user,
@@ -669,8 +657,8 @@ contract('Funds', function([_, user, someone]) {
         await this.proxy.updateTokenMock(this.token0.address);
         await this.proxy.updateTokenMock(this.token1.address);
 
-        const token0Someone = await this.token0.balanceOf.call(someone);
-        const token1Someone = await this.token1.balanceOf.call(someone);
+        const token0Someone = await this.token0.balanceOf(someone);
+        const token1Someone = await this.token1.balanceOf(someone);
         const receipt = await this.proxy.execMock(to, data, {
           from: user,
           value: ether('0.1'),
@@ -688,12 +676,12 @@ contract('Funds', function([_, user, someone]) {
           value: value[1],
         });
 
-        const token0SomeoneEnd = await this.token0.balanceOf.call(someone);
+        const token0SomeoneEnd = await this.token0.balanceOf(someone);
         expect(token0SomeoneEnd.sub(token0Someone)).to.be.bignumber.eq(
           value[0]
         );
 
-        const token1SomeoneEnd = await this.token1.balanceOf.call(someone);
+        const token1SomeoneEnd = await this.token1.balanceOf(someone);
         expect(token1SomeoneEnd.sub(token1Someone)).to.be.bignumber.eq(
           value[1]
         );
@@ -718,7 +706,7 @@ contract('Funds', function([_, user, someone]) {
 
         await this.proxy.updateTokenMock(this.token1.address);
 
-        const token1Someone = await this.token1.balanceOf.call(someone);
+        const token1Someone = await this.token1.balanceOf(someone);
         let balanceSomeone = await tracker(someone);
         const receipt = await this.proxy.execMock(to, data, {
           from: user,
@@ -733,7 +721,7 @@ contract('Funds', function([_, user, someone]) {
 
         expect(await balanceSomeone.delta()).to.be.bignumber.eq(value[0]);
 
-        const token1SomeoneEnd = await this.token1.balanceOf.call(someone);
+        const token1SomeoneEnd = await this.token1.balanceOf(someone);
         expect(token1SomeoneEnd.sub(token1Someone)).to.be.bignumber.eq(
           value[1]
         );
@@ -758,7 +746,7 @@ contract('Funds', function([_, user, someone]) {
 
         await this.proxy.updateTokenMock(this.token1.address);
 
-        const token1Someone = await this.token1.balanceOf.call(someone);
+        const token1Someone = await this.token1.balanceOf(someone);
         let balanceSomeone = await tracker(someone);
         const receipt = await this.proxy.execMock(to, data, {
           from: user,
@@ -773,7 +761,7 @@ contract('Funds', function([_, user, someone]) {
 
         expect(await balanceSomeone.delta()).to.be.bignumber.eq(value[0]);
 
-        const token1SomeoneEnd = await this.token1.balanceOf.call(someone);
+        const token1SomeoneEnd = await this.token1.balanceOf(someone);
         expect(token1SomeoneEnd.sub(token1Someone)).to.be.bignumber.eq(
           value[1]
         );
@@ -798,7 +786,7 @@ contract('Funds', function([_, user, someone]) {
 
         await this.proxy.updateTokenMock(this.token1.address);
 
-        const token1Someone = await this.token1.balanceOf.call(someone);
+        const token1Someone = await this.token1.balanceOf(someone);
         let balanceSomeone = await tracker(someone);
         const receipt = await this.proxy.execMock(to, data, {
           from: user,
@@ -817,7 +805,7 @@ contract('Funds', function([_, user, someone]) {
         );
 
         expect(await balanceSomeone.delta()).to.be.bignumber.eq(value[0]);
-        const token1SomeoneEnd = await this.token1.balanceOf.call(someone);
+        const token1SomeoneEnd = await this.token1.balanceOf(someone);
         expect(token1SomeoneEnd.sub(token1Someone)).to.be.bignumber.eq(
           value[1]
         );
@@ -842,7 +830,7 @@ contract('Funds', function([_, user, someone]) {
 
         await this.proxy.updateTokenMock(this.token1.address);
 
-        const token1Someone = await this.token1.balanceOf.call(someone);
+        const token1Someone = await this.token1.balanceOf(someone);
         let balanceSomeone = await tracker(someone);
 
         await expectRevert.unspecified(

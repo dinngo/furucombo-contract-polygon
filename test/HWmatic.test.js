@@ -46,7 +46,7 @@ contract('Wmatic', function([_, user]) {
 
   describe('deposit', function() {
     beforeEach(async function() {
-      tokenUserAmount = await this.token.balanceOf.call(user);
+      tokenUserAmount = await this.token.balanceOf(user);
       balanceProxy = await tracker(this.proxy.address);
       balanceUser = await tracker(user);
     });
@@ -66,18 +66,16 @@ contract('Wmatic', function([_, user]) {
 
       // Verify proxy balance should be zero
       expect(await balanceProxy.get()).to.be.bignumber.eq(ether('0'));
-      expect(
-        await this.token.balanceOf.call(this.proxy.address)
-      ).to.be.bignumber.eq(ether('0'));
+      expect(await this.token.balanceOf(this.proxy.address)).to.be.bignumber.eq(
+        ether('0')
+      );
 
       // Verify user balance
-      expect(await this.token.balanceOf.call(user)).to.be.bignumber.eq(
+      expect(await this.token.balanceOf(user)).to.be.bignumber.eq(
         tokenUserAmount.add(value)
       );
       expect(await balanceUser.delta()).to.be.bignumber.eq(
-        ether('0')
-          .sub(value)
-          .sub(new BN(receipt.receipt.gasUsed))
+        ether('0').sub(value)
       );
 
       profileGas(receipt);
@@ -87,7 +85,7 @@ contract('Wmatic', function([_, user]) {
   describe('withdraw', function() {
     beforeEach(async function() {
       this.token = await IToken.at(tokenAddress);
-      tokenUserAmount = await this.token.balanceOf.call(user);
+      tokenUserAmount = await this.token.balanceOf(user);
       balanceProxy = await tracker(this.proxy.address);
       balanceUser = await tracker(user);
     });
@@ -113,17 +111,15 @@ contract('Wmatic', function([_, user]) {
 
       // Verify proxy balance should be zero
       expect(await balanceProxy.get()).to.be.bignumber.eq(ether('0'));
-      expect(
-        await this.token.balanceOf.call(this.proxy.address)
-      ).to.be.bignumber.eq(ether('0'));
+      expect(await this.token.balanceOf(this.proxy.address)).to.be.bignumber.eq(
+        ether('0')
+      );
 
       // Verify user balance
-      expect(await this.token.balanceOf.call(user)).to.be.bignumber.eq(
+      expect(await this.token.balanceOf(user)).to.be.bignumber.eq(
         tokenUserAmount
       );
-      expect(await balanceUser.delta()).to.be.bignumber.eq(
-        value.sub(new BN(receipt.receipt.gasUsed))
-      );
+      expect(await balanceUser.delta()).to.be.bignumber.eq(value);
 
       profileGas(receipt);
     });

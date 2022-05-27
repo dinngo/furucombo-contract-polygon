@@ -1,14 +1,14 @@
-pragma solidity ^0.6.0;
+// SPDX-License-Identifier: MIT
 
-import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
-import "@openzeppelin/contracts/math/SafeMath.sol";
+pragma solidity 0.8.10;
+
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "../HandlerBase.sol";
 import "./IMinter.sol";
 import "./ILiquidityGauge.sol";
 
 contract HCurveDao is HandlerBase {
     using SafeERC20 for IERC20;
-    using SafeMath for uint256;
 
     function getContractName() public pure override returns (string memory) {
         return "HCurveDao";
@@ -19,7 +19,7 @@ contract HCurveDao is HandlerBase {
         address token = gauge.lp_token();
         address user = _getSender();
 
-        // if amount == uint256(-1) return balance of Proxy
+        // if amount == type(uint256).max return balance of Proxy
         _value = _getBalance(token, _value);
         _tokenApprove(token, gaugeAddress, _value);
 
@@ -28,5 +28,6 @@ contract HCurveDao is HandlerBase {
         } catch {
             _revertMsg("deposit");
         }
+        _tokenApproveZero(token, gaugeAddress);
     }
 }

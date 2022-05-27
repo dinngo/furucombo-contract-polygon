@@ -69,16 +69,16 @@ contract('Curve DAO', function([_, user]) {
         from: user,
       });
 
-      const depositUser = await this.gauge0.balanceOf.call(user);
+      const depositUser = await this.gauge0.balanceOf(user);
       const receipt = await this.proxy.execMock(to, data, {
         from: user,
         value: ether('0.1'),
       });
 
-      const depositUserEnd = await this.gauge0.balanceOf.call(user);
+      const depositUserEnd = await this.gauge0.balanceOf(user);
       expect(depositUserEnd.sub(depositUser)).to.be.bignumber.eq(gauge0Amount);
       expect(
-        await this.token0.balanceOf.call(this.proxy.address)
+        await this.token0.balanceOf(this.proxy.address)
       ).to.be.bignumber.eq(ether('0'));
       profileGas(receipt);
     });
@@ -97,16 +97,16 @@ contract('Curve DAO', function([_, user]) {
         from: user,
       });
 
-      const depositUser = await this.gauge0.balanceOf.call(user);
+      const depositUser = await this.gauge0.balanceOf(user);
       const receipt = await this.proxy.execMock(to, data, {
         from: user,
         value: ether('0.1'),
       });
 
-      const depositUserEnd = await this.gauge0.balanceOf.call(user);
+      const depositUserEnd = await this.gauge0.balanceOf(user);
       expect(depositUserEnd.sub(depositUser)).to.be.bignumber.eq(gauge0Amount);
       expect(
-        await this.token0.balanceOf.call(this.proxy.address)
+        await this.token0.balanceOf(this.proxy.address)
       ).to.be.bignumber.eq(ether('0'));
       profileGas(receipt);
     });

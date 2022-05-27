@@ -54,9 +54,9 @@ contract('Proxy', function([_, deployer, user]) {
       );
       await this.fooFactory.createFoo();
       await this.fooFactory.createFoo();
-      this.foo0 = await Foo.at(await this.fooFactory.addressOf.call(0));
-      this.foo1 = await Foo.at(await this.fooFactory.addressOf.call(1));
-      this.foo2 = await Foo.at(await this.fooFactory.addressOf.call(2));
+      this.foo0 = await Foo.at(await this.fooFactory.addressOf(0));
+      this.foo1 = await Foo.at(await this.fooFactory.addressOf(1));
+      this.foo2 = await Foo.at(await this.fooFactory.addressOf(2));
       this.fooHandler = await FooHandler.new();
       await this.registry.register(
         this.fooHandler.address,
@@ -73,7 +73,7 @@ contract('Proxy', function([_, deployer, user]) {
         num
       );
       await this.proxy.execMock(this.fooHandler.address, data);
-      const result = await this.foo0.accounts.call(this.proxy.address);
+      const result = await this.foo0.accounts(this.proxy.address);
       expect(result).to.be.bignumber.eq(num);
     });
 
@@ -228,9 +228,9 @@ contract('Proxy', function([_, deployer, user]) {
       ];
       await this.proxy.batchExec(to, config, data);
       const result = [
-        await this.foo0.accounts.call(this.proxy.address),
-        await this.foo1.accounts.call(this.proxy.address),
-        await this.foo2.accounts.call(this.proxy.address),
+        await this.foo0.accounts(this.proxy.address),
+        await this.foo1.accounts(this.proxy.address),
+        await this.foo2.accounts(this.proxy.address),
       ];
       expect(result[0]).to.be.bignumber.eq(num[0]);
       expect(result[1]).to.be.bignumber.eq(num[1]);
@@ -246,9 +246,9 @@ contract('Proxy', function([_, deployer, user]) {
       );
       await this.fooFactory.createFoo();
       await this.fooFactory.createFoo();
-      this.foo0 = await Foo2.at(await this.fooFactory.addressOf.call(0));
-      this.foo1 = await Foo2.at(await this.fooFactory.addressOf.call(1));
-      this.foo2 = await Foo2.at(await this.fooFactory.addressOf.call(2));
+      this.foo0 = await Foo2.at(await this.fooFactory.addressOf(0));
+      this.foo1 = await Foo2.at(await this.fooFactory.addressOf(1));
+      this.foo2 = await Foo2.at(await this.fooFactory.addressOf(2));
       this.fooHandler = await Foo2Handler.new();
       await this.registry.register(
         this.fooHandler.address,
@@ -271,9 +271,9 @@ contract('Proxy', function([_, deployer, user]) {
       );
       await this.proxy.execMock(to, data, { value: ether('1') });
       expect(await balanceProxy.delta()).to.be.bignumber.eq(ether('0'));
-      expect(
-        await this.foo0.balanceOf.call(this.proxy.address)
-      ).to.be.bignumber.eq(ether('0'));
+      expect(await this.foo0.balanceOf(this.proxy.address)).to.be.bignumber.eq(
+        ether('0')
+      );
     });
 
     it('multiple', async function() {
@@ -297,31 +297,29 @@ contract('Proxy', function([_, deployer, user]) {
 
       expect(await balanceProxy.delta()).to.be.bignumber.eq(ether('0'));
       expect(await balanceUser.delta()).to.be.bignumber.eq(
-        ether('0')
-          .sub(
-            value[0]
-              .add(value[1])
-              .add(value[2])
-              .div(new BN('2'))
-          )
-          .sub(new BN(receipt.receipt.gasUsed))
+        ether('0').sub(
+          value[0]
+            .add(value[1])
+            .add(value[2])
+            .div(new BN('2'))
+        )
       );
-      expect(
-        await this.foo0.balanceOf.call(this.proxy.address)
-      ).to.be.bignumber.eq(ether('0'));
-      expect(await this.foo0.balanceOf.call(user)).to.be.bignumber.eq(
+      expect(await this.foo0.balanceOf(this.proxy.address)).to.be.bignumber.eq(
+        ether('0')
+      );
+      expect(await this.foo0.balanceOf(user)).to.be.bignumber.eq(
         value[0].div(new BN('2'))
       );
-      expect(
-        await this.foo1.balanceOf.call(this.proxy.address)
-      ).to.be.bignumber.eq(ether('0'));
-      expect(await this.foo1.balanceOf.call(user)).to.be.bignumber.eq(
+      expect(await this.foo1.balanceOf(this.proxy.address)).to.be.bignumber.eq(
+        ether('0')
+      );
+      expect(await this.foo1.balanceOf(user)).to.be.bignumber.eq(
         value[1].div(new BN('2'))
       );
-      expect(
-        await this.foo2.balanceOf.call(this.proxy.address)
-      ).to.be.bignumber.eq(ether('0'));
-      expect(await this.foo2.balanceOf.call(user)).to.be.bignumber.eq(
+      expect(await this.foo2.balanceOf(this.proxy.address)).to.be.bignumber.eq(
+        ether('0')
+      );
+      expect(await this.foo2.balanceOf(user)).to.be.bignumber.eq(
         value[2].div(new BN('2'))
       );
     });
@@ -358,14 +356,14 @@ contract('Proxy', function([_, deployer, user]) {
       const to = this.fooHandler.address;
       const data = abi.simpleEncode('bar1(address)', this.foo.address);
       await this.proxy.execMock(to, data, { value: ether('1') });
-      expect(await this.foo.num.call()).to.be.bignumber.eq(new BN('1'));
+      expect(await this.foo.num()).to.be.bignumber.eq(new BN('1'));
     });
 
     it('post process 2', async function() {
       const to = this.fooHandler.address;
       const data = abi.simpleEncode('bar2(address)', this.foo.address);
       await this.proxy.execMock(to, data, { value: ether('1') });
-      expect(await this.foo.num.call()).to.be.bignumber.eq(new BN('2'));
+      expect(await this.foo.num()).to.be.bignumber.eq(new BN('2'));
     });
   });
 
@@ -395,7 +393,7 @@ contract('Proxy', function([_, deployer, user]) {
         value: ether('1'),
       });
 
-      expect(await this.foo.bValue.call()).eq(a);
+      expect(await this.foo.bValue()).eq(a);
     });
 
     it('replace parameter', async function() {
@@ -418,7 +416,7 @@ contract('Proxy', function([_, deployer, user]) {
         value: ether('1'),
       });
 
-      expect(await this.foo.bValue.call()).eq(r);
+      expect(await this.foo.bValue()).eq(r);
     });
 
     it('replace parameter with dynamic array return', async function() {
@@ -450,7 +448,7 @@ contract('Proxy', function([_, deployer, user]) {
         value: ether('1'),
       });
 
-      expect(await this.foo.nValue.call()).to.be.bignumber.eq(
+      expect(await this.foo.nValue()).to.be.bignumber.eq(
         secAmt.mul(ratio).div(ether('1'))
       );
     });
@@ -481,7 +479,7 @@ contract('Proxy', function([_, deployer, user]) {
         value: ether('1'),
       });
 
-      expect(await this.foo.bValue.call()).eq(r);
+      expect(await this.foo.bValue()).eq(r);
     });
 
     it('replace parameter by 50% of ref value', async function() {
@@ -502,7 +500,7 @@ contract('Proxy', function([_, deployer, user]) {
         value: ether('1'),
       });
 
-      expect(await this.foo.nValue.call()).to.be.bignumber.eq(
+      expect(await this.foo.nValue()).to.be.bignumber.eq(
         r.mul(a).div(ether('1'))
       );
     });

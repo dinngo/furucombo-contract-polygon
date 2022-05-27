@@ -7,7 +7,12 @@ const {
 const { tracker } = balance;
 const utils = web3.utils;
 const { expect } = require('chai');
-const { DAI_TOKEN, USDC_TOKEN, WETH_TOKEN } = require('./utils/constants');
+const {
+  DAI_TOKEN,
+  USDC_TOKEN,
+  WETH_TOKEN,
+  NATIVE_TOKEN_ADDRESS,
+} = require('./utils/constants');
 const {
   evmRevert,
   evmSnapshot,
@@ -91,7 +96,7 @@ contract('OneInchV3 Swap', function([_, user]) {
     beforeEach(async function() {
       balanceUser = await tracker(user);
       balanceProxy = await tracker(this.proxy.address);
-      tokenUser = await this.token.balanceOf.call(user);
+      tokenUser = await this.token.balanceOf(user);
     });
 
     describe('Swap', function() {
@@ -103,7 +108,7 @@ contract('OneInchV3 Swap', function([_, user]) {
         const swapReq = queryString.stringifyUrl({
           url: URL_1INCH_SWAP,
           query: {
-            fromTokenAddress: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+            fromTokenAddress: NATIVE_TOKEN_ADDRESS,
             toTokenAddress: tokenAddress,
             amount: value,
             slippage: slippage,
@@ -130,7 +135,7 @@ contract('OneInchV3 Swap', function([_, user]) {
         });
 
         // Verify return value
-        const tokenUserEnd = await this.token.balanceOf.call(user);
+        const tokenUserEnd = await this.token.balanceOf(user);
         const handlerReturn = utils.toBN(
           getHandlerReturn(receipt, ['uint256'])[0]
         );
@@ -142,15 +147,13 @@ contract('OneInchV3 Swap', function([_, user]) {
           tokenUser.add(mulPercent(quote, 100 - slippage - 1))
         );
         expect(
-          await this.token.balanceOf.call(this.proxy.address)
+          await this.token.balanceOf(this.proxy.address)
         ).to.be.bignumber.zero;
 
         // Verify ether balance
         expect(await balanceProxy.get()).to.be.bignumber.zero;
         expect(await balanceUser.delta()).to.be.bignumber.eq(
-          ether('0')
-            .sub(value)
-            .sub(new BN(receipt.receipt.gasUsed))
+          ether('0').sub(value)
         );
 
         profileGas(receipt);
@@ -164,7 +167,7 @@ contract('OneInchV3 Swap', function([_, user]) {
         const swapReq = queryString.stringifyUrl({
           url: URL_1INCH_SWAP,
           query: {
-            fromTokenAddress: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+            fromTokenAddress: NATIVE_TOKEN_ADDRESS,
             toTokenAddress: tokenAddress,
             amount: value,
             slippage: slippage,
@@ -191,7 +194,7 @@ contract('OneInchV3 Swap', function([_, user]) {
         });
 
         // Verify return value
-        const tokenUserEnd = await this.token.balanceOf.call(user);
+        const tokenUserEnd = await this.token.balanceOf(user);
         const handlerReturn = utils.toBN(
           getHandlerReturn(receipt, ['uint256'])[0]
         );
@@ -203,15 +206,13 @@ contract('OneInchV3 Swap', function([_, user]) {
           tokenUser.add(mulPercent(quote, 100 - slippage - 1))
         );
         expect(
-          await this.token.balanceOf.call(this.proxy.address)
+          await this.token.balanceOf(this.proxy.address)
         ).to.be.bignumber.zero;
 
         // Verify ether balance
         expect(await balanceProxy.get()).to.be.bignumber.zero;
         expect(await balanceUser.delta()).to.be.bignumber.eq(
-          ether('0')
-            .sub(value)
-            .sub(new BN(receipt.receipt.gasUsed))
+          ether('0').sub(value)
         );
 
         profileGas(receipt);
@@ -227,7 +228,7 @@ contract('OneInchV3 Swap', function([_, user]) {
         const swapReq = queryString.stringifyUrl({
           url: URL_1INCH_SWAP,
           query: {
-            fromTokenAddress: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+            fromTokenAddress: NATIVE_TOKEN_ADDRESS,
             toTokenAddress: tokenAddress,
             amount: value,
             slippage: slippage,
@@ -250,7 +251,7 @@ contract('OneInchV3 Swap', function([_, user]) {
 
         // Prepare handler data
         const data = getCallData(HOneInch, 'unoswap', [
-          '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+          NATIVE_TOKEN_ADDRESS,
           value,
           tokenAddress,
           swapData.tx.data,
@@ -263,7 +264,7 @@ contract('OneInchV3 Swap', function([_, user]) {
         });
 
         // Verify return value
-        const tokenUserEnd = await this.token.balanceOf.call(user);
+        const tokenUserEnd = await this.token.balanceOf(user);
         const handlerReturn = utils.toBN(
           getHandlerReturn(receipt, ['uint256'])[0]
         );
@@ -275,15 +276,13 @@ contract('OneInchV3 Swap', function([_, user]) {
           tokenUser.add(mulPercent(quote, 100 - slippage - 1))
         );
         expect(
-          await this.token.balanceOf.call(this.proxy.address)
+          await this.token.balanceOf(this.proxy.address)
         ).to.be.bignumber.zero;
 
         // Verify ether balance
         expect(await balanceProxy.get()).to.be.bignumber.zero;
         expect(await balanceUser.delta()).to.be.bignumber.eq(
-          ether('0')
-            .sub(value)
-            .sub(new BN(receipt.receipt.gasUsed))
+          ether('0').sub(value)
         );
 
         profileGas(receipt);
@@ -296,7 +295,7 @@ contract('OneInchV3 Swap', function([_, user]) {
         const swapReq = queryString.stringifyUrl({
           url: URL_1INCH_SWAP,
           query: {
-            fromTokenAddress: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+            fromTokenAddress: NATIVE_TOKEN_ADDRESS,
             toTokenAddress: tokenAddress,
             amount: value,
             slippage: slippage,
@@ -319,7 +318,7 @@ contract('OneInchV3 Swap', function([_, user]) {
 
         // Prepare handler data
         const data = getCallData(HOneInch, 'unoswap', [
-          '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+          NATIVE_TOKEN_ADDRESS,
           value.sub(new BN(1000)),
           tokenAddress,
           swapData.tx.data,
@@ -351,7 +350,7 @@ contract('OneInchV3 Swap', function([_, user]) {
     beforeEach(async function() {
       balanceUser = await tracker(user);
       balanceProxy = await tracker(this.proxy.address);
-      tokenUser = await this.token.balanceOf.call(user);
+      tokenUser = await this.token.balanceOf(user);
     });
 
     describe('Swap', function() {
@@ -364,7 +363,7 @@ contract('OneInchV3 Swap', function([_, user]) {
           url: URL_1INCH_SWAP,
           query: {
             fromTokenAddress: tokenAddress,
-            toTokenAddress: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+            toTokenAddress: NATIVE_TOKEN_ADDRESS,
             amount: value,
             slippage: slippage,
             disableEstimate: true,
@@ -400,16 +399,12 @@ contract('OneInchV3 Swap', function([_, user]) {
         const handlerReturn = utils.toBN(
           getHandlerReturn(receipt, ['uint256'])[0]
         );
-        expect(handlerReturn).to.be.bignumber.eq(
-          balanceUserDelta.add(new BN(receipt.receipt.gasUsed))
-        );
+        expect(handlerReturn).to.be.bignumber.eq(balanceUserDelta);
 
         // Verify token balance
-        expect(await this.token.balanceOf.call(user)).to.be.bignumber.eq(
-          tokenUser
-        );
+        expect(await this.token.balanceOf(user)).to.be.bignumber.eq(tokenUser);
         expect(
-          await this.token.balanceOf.call(this.proxy.address)
+          await this.token.balanceOf(this.proxy.address)
         ).to.be.bignumber.zero;
 
         // Verify ether balance
@@ -418,7 +413,6 @@ contract('OneInchV3 Swap', function([_, user]) {
           ether('0')
             // sub 1 more percent to tolerate the slippage calculation difference with 1inch
             .add(mulPercent(quote, 100 - slippage - 1))
-            .sub(new BN(receipt.receipt.gasUsed))
         );
 
         profileGas(receipt);
@@ -435,7 +429,7 @@ contract('OneInchV3 Swap', function([_, user]) {
           url: URL_1INCH_SWAP,
           query: {
             fromTokenAddress: tokenAddress,
-            toTokenAddress: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+            toTokenAddress: NATIVE_TOKEN_ADDRESS,
             amount: value,
             slippage: slippage,
             disableEstimate: true,
@@ -465,7 +459,7 @@ contract('OneInchV3 Swap', function([_, user]) {
         const data = getCallData(HOneInch, 'unoswap', [
           tokenAddress,
           value,
-          '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+          NATIVE_TOKEN_ADDRESS,
           swapData.tx.data,
         ]);
 
@@ -480,16 +474,12 @@ contract('OneInchV3 Swap', function([_, user]) {
         const handlerReturn = utils.toBN(
           getHandlerReturn(receipt, ['uint256'])[0]
         );
-        expect(handlerReturn).to.be.bignumber.eq(
-          balanceUserDelta.add(new BN(receipt.receipt.gasUsed))
-        );
+        expect(handlerReturn).to.be.bignumber.eq(balanceUserDelta);
 
         // Verify token balance
-        expect(await this.token.balanceOf.call(user)).to.be.bignumber.eq(
-          tokenUser
-        );
+        expect(await this.token.balanceOf(user)).to.be.bignumber.eq(tokenUser);
         expect(
-          await this.token.balanceOf.call(this.proxy.address)
+          await this.token.balanceOf(this.proxy.address)
         ).to.be.bignumber.zero;
 
         // Verify ether balance
@@ -498,7 +488,6 @@ contract('OneInchV3 Swap', function([_, user]) {
           ether('0')
             // sub 1 more percent to tolerate the slippage calculation difference with 1inch
             .add(mulPercent(quote, 100 - slippage - 1))
-            .sub(new BN(receipt.receipt.gasUsed))
         );
 
         profileGas(receipt);
@@ -529,10 +518,10 @@ contract('OneInchV3 Swap', function([_, user]) {
     beforeEach(async function() {
       balanceUser = await tracker(user);
       balanceProxy = await tracker(this.proxy.address);
-      token0User = await this.token0.balanceOf.call(user);
-      token1User = await this.token1.balanceOf.call(user);
-      wethUser = await this.weth.balanceOf.call(user);
-      wethProxy = await this.weth.balanceOf.call(this.proxy.address);
+      token0User = await this.token0.balanceOf(user);
+      token1User = await this.token1.balanceOf(user);
+      wethUser = await this.weth.balanceOf(user);
+      wethProxy = await this.weth.balanceOf(this.proxy.address);
     });
 
     describe('Swap', function() {
@@ -577,34 +566,32 @@ contract('OneInchV3 Swap', function([_, user]) {
         });
 
         // Verify return value
-        const token1UserEnd = await this.token1.balanceOf.call(user);
+        const token1UserEnd = await this.token1.balanceOf(user);
         const handlerReturn = utils.toBN(
           getHandlerReturn(receipt, ['uint256'])[0]
         );
         expect(handlerReturn).to.be.bignumber.eq(token1UserEnd.sub(token1User));
 
         // Verify token0 balance
-        expect(await this.token0.balanceOf.call(user)).to.be.bignumber.eq(
+        expect(await this.token0.balanceOf(user)).to.be.bignumber.eq(
           token0User
         );
         expect(
-          await this.token0.balanceOf.call(this.proxy.address)
+          await this.token0.balanceOf(this.proxy.address)
         ).to.be.bignumber.zero;
 
         // Verify token1 balance
-        expect(await this.token1.balanceOf.call(user)).to.be.bignumber.gte(
+        expect(await this.token1.balanceOf(user)).to.be.bignumber.gte(
           // sub 1 more percent to tolerate the slippage calculation difference with 1inch
           token1User.add(mulPercent(quote, 100 - slippage - 1))
         );
         expect(
-          await this.token1.balanceOf.call(this.proxy.address)
+          await this.token1.balanceOf(this.proxy.address)
         ).to.be.bignumber.zero;
 
         // Verify ether balance
         expect(await balanceProxy.get()).to.be.bignumber.zero;
-        expect(await balanceUser.delta()).to.be.bignumber.eq(
-          ether('0').sub(new BN(receipt.receipt.gasUsed))
-        );
+        expect(await balanceUser.delta()).to.be.bignumber.eq(ether('0'));
 
         profileGas(receipt);
       });
@@ -661,34 +648,32 @@ contract('OneInchV3 Swap', function([_, user]) {
         });
 
         // Verify return value
-        const token1UserEnd = await this.token1.balanceOf.call(user);
+        const token1UserEnd = await this.token1.balanceOf(user);
         const handlerReturn = utils.toBN(
           getHandlerReturn(receipt, ['uint256'])[0]
         );
         expect(handlerReturn).to.be.bignumber.eq(token1UserEnd.sub(token1User));
 
         // Verify token0 balance
-        expect(await this.token0.balanceOf.call(user)).to.be.bignumber.eq(
+        expect(await this.token0.balanceOf(user)).to.be.bignumber.eq(
           token0User
         );
         expect(
-          await this.token0.balanceOf.call(this.proxy.address)
+          await this.token0.balanceOf(this.proxy.address)
         ).to.be.bignumber.zero;
 
         // Verify token1 balance
-        expect(await this.token1.balanceOf.call(user)).to.be.bignumber.gte(
+        expect(await this.token1.balanceOf(user)).to.be.bignumber.gte(
           // sub 1 more percent to tolerate the slippage calculation difference with 1inch
           token1User.add(mulPercent(quote, 100 - slippage - 1))
         );
         expect(
-          await this.token1.balanceOf.call(this.proxy.address)
+          await this.token1.balanceOf(this.proxy.address)
         ).to.be.bignumber.zero;
 
         // Verify ether balance
         expect(await balanceProxy.get()).to.be.bignumber.zero;
-        expect(await balanceUser.delta()).to.be.bignumber.eq(
-          ether('0').sub(new BN(receipt.receipt.gasUsed))
-        );
+        expect(await balanceUser.delta()).to.be.bignumber.eq(ether('0'));
 
         profileGas(receipt);
       });
@@ -743,34 +728,32 @@ contract('OneInchV3 Swap', function([_, user]) {
         });
 
         // Verify return value
-        const wethUserEnd = await this.weth.balanceOf.call(user);
+        const wethUserEnd = await this.weth.balanceOf(user);
         const handlerReturn = utils.toBN(
           getHandlerReturn(receipt, ['uint256'])[0]
         );
         expect(handlerReturn).to.be.bignumber.eq(wethUserEnd.sub(wethUser));
 
         // Verify token0 balance
-        expect(await this.token0.balanceOf.call(user)).to.be.bignumber.eq(
+        expect(await this.token0.balanceOf(user)).to.be.bignumber.eq(
           token0User
         );
         expect(
-          await this.token0.balanceOf.call(this.proxy.address)
+          await this.token0.balanceOf(this.proxy.address)
         ).to.be.bignumber.zero;
 
         // Verify weth balance
-        expect(await this.weth.balanceOf.call(user)).to.be.bignumber.gte(
+        expect(await this.weth.balanceOf(user)).to.be.bignumber.gte(
           // sub 1 more percent to tolerate the slippage calculation difference with 1inch
           wethUser.add(mulPercent(quote, 100 - slippage - 1))
         );
         expect(
-          await this.weth.balanceOf.call(this.proxy.address)
+          await this.weth.balanceOf(this.proxy.address)
         ).to.be.bignumber.zero;
 
         // Verify ether balance
         expect(await balanceProxy.get()).to.be.bignumber.zero;
-        expect(await balanceUser.delta()).to.be.bignumber.eq(
-          ether('0').sub(new BN(receipt.receipt.gasUsed))
-        );
+        expect(await balanceUser.delta()).to.be.bignumber.eq(ether('0'));
 
         profileGas(receipt);
       });
@@ -827,34 +810,32 @@ contract('OneInchV3 Swap', function([_, user]) {
         });
 
         // Verify return value
-        const wethUserEnd = await this.weth.balanceOf.call(user);
+        const wethUserEnd = await this.weth.balanceOf(user);
         const handlerReturn = utils.toBN(
           getHandlerReturn(receipt, ['uint256'])[0]
         );
         expect(handlerReturn).to.be.bignumber.eq(wethUserEnd.sub(wethUser));
 
         // Verify token0 balance
-        expect(await this.token0.balanceOf.call(user)).to.be.bignumber.eq(
+        expect(await this.token0.balanceOf(user)).to.be.bignumber.eq(
           token0User
         );
         expect(
-          await this.token0.balanceOf.call(this.proxy.address)
+          await this.token0.balanceOf(this.proxy.address)
         ).to.be.bignumber.zero;
 
         // Verify weth balance
-        expect(await this.weth.balanceOf.call(user)).to.be.bignumber.gte(
+        expect(await this.weth.balanceOf(user)).to.be.bignumber.gte(
           // sub 1 more percent to tolerate the slippage calculation difference with 1inch
           wethUser.add(mulPercent(quote, 100 - slippage - 1))
         );
         expect(
-          await this.weth.balanceOf.call(this.proxy.address)
+          await this.weth.balanceOf(this.proxy.address)
         ).to.be.bignumber.zero;
 
         // Verify ether balance
         expect(await balanceProxy.get()).to.be.bignumber.zero;
-        expect(await balanceUser.delta()).to.be.bignumber.eq(
-          ether('0').sub(new BN(receipt.receipt.gasUsed))
-        );
+        expect(await balanceUser.delta()).to.be.bignumber.eq(ether('0'));
 
         profileGas(receipt);
       });
@@ -898,7 +879,7 @@ contract('OneInchV3 Swap', function([_, user]) {
         const data = getCallData(HOneInch, 'unoswap', [
           token0Address,
           value,
-          '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+          NATIVE_TOKEN_ADDRESS,
           swapData.tx.data,
         ]);
 
@@ -994,7 +975,7 @@ contract('OneInchV3 Swap', function([_, user]) {
 
         // Prepare handler data
         const data = getCallData(HOneInch, 'unoswap', [
-          '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+          NATIVE_TOKEN_ADDRESS,
           value,
           token1Address,
           swapData.tx.data,

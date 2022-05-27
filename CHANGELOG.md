@@ -4,6 +4,25 @@ All notable changes to this project will be documented in this file.
 
 ## [unreleased]
 
+## [1.11.0] - 2022-05-27
+
+### Changed
+
+- Set base fee and gas price to zero.
+- Replace if-revertMsg with requireMsg.
+- Move cube counter to \_execs() local memory.
+- Upgrade solidity version to 0.8.10
+- Replace all uint256(-1) with type(uint256).max
+- Unify 0xEeee...eE naming to NATIVE_TOKEN_ADDRESS.
+- Replace safeApprove with \_tokenApprove.
+- Set token allowance to zero after each \_tokenApprove.
+- Peek first and second element from stack at once in \_setPostProcess() to avoid too many push/pop.
+- Remove Proxy event log.
+
+### Fixed
+
+- Warning free
+
 ## [1.10.0] - 2022-02-14
 
 ### Added
