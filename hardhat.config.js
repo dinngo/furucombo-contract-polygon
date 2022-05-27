@@ -47,6 +47,7 @@ module.exports = {
       url: 'https://polygon-beta.furucombo.app/',
     },
     hardhat: {
+      chainId: 137, // hardhat sets 31337 as chainId rather than a forked chainId, so we set here.
       accounts: {
         mnemonic:
           'dice shove sheriff police boss indoor hospital vivid tenant method game matter',
