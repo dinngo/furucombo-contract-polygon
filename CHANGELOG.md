@@ -6,6 +6,10 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- Set base fee and gas price to zero.
+
+### Changed
+
 - Replace if-revertMsg with requireMsg.
 - Move cube counter to \_execs() local memory.
 - Upgrade solidity version to 0.8.9
