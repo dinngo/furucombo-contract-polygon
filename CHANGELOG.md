@@ -4,15 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ## [unreleased]
 
+## [1.11.0] - 2022-05-27
+
 ### Changed
 
 - Set base fee and gas price to zero.
-
-### Changed
-
 - Replace if-revertMsg with requireMsg.
 - Move cube counter to \_execs() local memory.
-- Upgrade solidity version to 0.8.9
+- Upgrade solidity version to 0.8.10
 - Replace all uint256(-1) with type(uint256).max
 - Unify 0xEeee...eE naming to NATIVE_TOKEN_ADDRESS.
 - Replace safeApprove with \_tokenApprove.
