@@ -88,6 +88,10 @@ function decimal6(amount) {
   return new BN(amount).mul(new BN('1000000'));
 }
 
+function mwei(num) {
+  return new BN(ethers.utils.parseUnits(num, 6).toString());
+}
+
 function getHandlerReturn(receipt, dataTypes) {
   var handlerResult;
   receipt.receipt.rawLogs.forEach(element => {
@@ -241,6 +245,7 @@ module.exports = {
   mulPercent,
   cUnit,
   decimal6,
+  mwei,
   getHandlerReturn,
   getAbi,
   errorCompare,
