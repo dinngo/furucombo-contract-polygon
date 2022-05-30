@@ -142,8 +142,7 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
             this.tokenB,
             tokenBUser,
             balanceProxy,
-            balanceUser,
-            receipt.receipt.gasUsed
+            balanceUser
           );
         });
 
@@ -197,8 +196,7 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
             this.tokenB,
             tokenBUser,
             balanceProxy,
-            balanceUser,
-            receipt.receipt.gasUsed
+            balanceUser
           );
         });
 
@@ -303,8 +301,7 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
             this.token,
             tokenUser,
             balanceProxy,
-            balanceUser,
-            receipt.receipt.gasUsed
+            balanceUser
           );
         });
 
@@ -349,8 +346,7 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
             this.token,
             tokenUser,
             balanceProxy,
-            balanceUser,
-            receipt.receipt.gasUsed
+            balanceUser
           );
         });
 
@@ -493,8 +489,7 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
             amountOut,
             tokenBUser,
             balanceProxy,
-            balanceUser,
-            receipt.receipt.gasUsed
+            balanceUser
           );
         });
 
@@ -548,8 +543,7 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
             amountOut,
             tokenBUser,
             balanceProxy,
-            balanceUser,
-            receipt.receipt.gasUsed
+            balanceUser
           );
         });
 
@@ -656,8 +650,7 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
             amountOut,
             tokenUser,
             balanceProxy,
-            balanceUser,
-            receipt.receipt.gasUsed
+            balanceUser
           );
         });
 
@@ -705,8 +698,7 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
             amountOut,
             tokenUser,
             balanceProxy,
-            balanceUser,
-            receipt.receipt.gasUsed
+            balanceUser
           );
         });
 
@@ -822,8 +814,7 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
             this.tokenB,
             tokenBUser,
             balanceProxy,
-            balanceUser,
-            receipt.receipt.gasUsed
+            balanceUser
           );
         });
 
@@ -881,8 +872,7 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
             this.tokenB,
             tokenBUser,
             balanceProxy,
-            balanceUser,
-            receipt.receipt.gasUsed
+            balanceUser
           );
         });
 
@@ -1003,8 +993,7 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
             this.token,
             tokenUser,
             balanceProxy,
-            balanceUser,
-            receipt.receipt.gasUsed
+            balanceUser
           );
         });
 
@@ -1053,8 +1042,7 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
             this.token,
             tokenUser,
             balanceProxy,
-            balanceUser,
-            receipt.receipt.gasUsed
+            balanceUser
           );
         });
 
@@ -1215,8 +1203,7 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
             amountInMaximum,
             amountOut,
             balanceProxy,
-            balanceUser,
-            receipt.receipt.gasUsed
+            balanceUser
           );
         });
 
@@ -1276,8 +1263,7 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
             amountInMaximum,
             amountOut,
             balanceProxy,
-            balanceUser,
-            receipt.receipt.gasUsed
+            balanceUser
           );
         });
 
@@ -1366,8 +1352,7 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
             amountInMaximum,
             amountOut,
             balanceProxy,
-            balanceUser,
-            receipt.receipt.gasUsed
+            balanceUser
           );
         });
 
@@ -1421,8 +1406,7 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
             amountInMaximum,
             amountOut,
             balanceProxy,
-            balanceUser,
-            receipt.receipt.gasUsed
+            balanceUser
           );
         });
 
@@ -1550,8 +1534,7 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
             tokenBUser,
             this.tokenC,
             tokenCUser,
-            balanceUser,
-            receipt.receipt.gasUsed
+            balanceUser
           );
         });
 
@@ -1611,8 +1594,7 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
             tokenUser,
             this.tokenC,
             tokenCUser,
-            balanceUser,
-            receipt.receipt.gasUsed
+            balanceUser
           );
         });
 
@@ -1738,8 +1720,7 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
             tokenUser,
             this.tokenC,
             tokenCUser,
-            balanceUser,
-            receipt.receipt.gasUsed
+            balanceUser
           );
         });
 
@@ -1789,8 +1770,7 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
             tokenUser,
             this.tokenC,
             tokenCUser,
-            balanceUser,
-            receipt.receipt.gasUsed
+            balanceUser
           );
         });
 
@@ -1924,8 +1904,7 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
             this.tokenC,
             amountOut,
             tokenCUser,
-            balanceUser,
-            receipt.receipt.gasUsed
+            balanceUser
           );
         });
 
@@ -1987,8 +1966,7 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
             this.tokenC,
             amountOut,
             tokenCUser,
-            balanceUser,
-            receipt.receipt.gasUsed
+            balanceUser
           );
         });
 
@@ -2121,8 +2099,7 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
             this.tokenC,
             amountOut,
             tokenCUser,
-            balanceUser,
-            receipt.receipt.gasUsed
+            balanceUser
           );
         });
 
@@ -2177,8 +2154,7 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
             this.tokenC,
             amountOut,
             tokenCUser,
-            balanceUser,
-            receipt.receipt.gasUsed
+            balanceUser
           );
         });
 
@@ -2279,8 +2255,7 @@ async function verifyExactInputFromEther(
   tokenOut,
   tokenOutBeforeBalance,
   nativeTokenProxyBalance,
-  nativeTokenUserBalance,
-  gasUsed
+  nativeTokenUserBalance
 ) {
   // Verify if the amount of tokenOut is the same as pre-quote amount
   expect(tokenOutAmt).to.be.bignumber.eq(tokenOutExpAmt);
@@ -2303,9 +2278,7 @@ async function verifyExactInputFromEther(
 
   // Verify if user's native token balance is correct
   expect(await nativeTokenUserBalance.delta()).to.be.bignumber.eq(
-    ether('0')
-      .sub(tokenInAmt)
-      .sub(new BN(gasUsed))
+    ether('0').sub(tokenInAmt)
   );
 }
 
@@ -2317,8 +2290,7 @@ async function verifyExactInputToEther(
   tokenIn,
   tokenInBeforeBalance,
   nativeTokenProxyBalance,
-  nativeTokenUserBalance,
-  gasUsed
+  nativeTokenUserBalance
 ) {
   // Verify if the amount of tokenOut is greater than 0
   expect(tokenOutAmt).to.be.bignumber.gt(new BN('0'));
@@ -2328,9 +2300,7 @@ async function verifyExactInputToEther(
 
   // Verify if native token amount is correct
   expect(await nativeTokenUserBalance.delta()).to.be.bignumber.eq(
-    ether('0')
-      .add(tokenOutAmt)
-      .sub(new BN(gasUsed))
+    ether('0').add(tokenOutAmt)
   );
 
   // Verify if tokenIn is spent
@@ -2356,8 +2326,7 @@ async function verifyExactOutputFromEther(
   tokenOutAmt,
   tokenOutBeforeBalance,
   nativeTokenProxyBalance,
-  nativeTokenUserBalance,
-  gasUsed
+  nativeTokenUserBalance
 ) {
   // Verify if the amount of tokenIn is the same as pre-quote amount
   expect(tokenInAmt).to.be.bignumber.eq(tokenInExpAmt);
@@ -2376,9 +2345,7 @@ async function verifyExactOutputFromEther(
 
   // Verify if user's native token balance is correct
   expect(await nativeTokenUserBalance.delta()).to.be.bignumber.eq(
-    ether('0')
-      .sub(tokenInExpAmt)
-      .sub(new BN(gasUsed))
+    ether('0').sub(tokenInExpAmt)
   );
 }
 
@@ -2392,8 +2359,7 @@ async function verifyExactOutputToEther(
   amountInMaximum,
   amountOut,
   nativeTokenProxyBalance,
-  nativeTokenUserBalance,
-  gasUsed
+  nativeTokenUserBalance
 ) {
   // Verify if the amount of tokenIn is the same as pre-quote amount
   expect(tokenInAmt).to.be.bignumber.eq(tokenInExpAmt);
@@ -2412,9 +2378,7 @@ async function verifyExactOutputToEther(
   expect(await nativeTokenProxyBalance.delta()).to.be.bignumber.eq(ether('0'));
 
   // Verify if user's native token balance is correct
-  expect(await nativeTokenUserBalance.delta()).to.be.bignumber.eq(
-    amountOut.sub(new BN(gasUsed))
-  );
+  expect(await nativeTokenUserBalance.delta()).to.be.bignumber.eq(amountOut);
 }
 
 async function verifyExactInput(
@@ -2426,8 +2390,7 @@ async function verifyExactInput(
   tokenInBeforeBalance,
   tokenOut,
   tokenOutBeforeBalance,
-  nativeTokenUserBalance,
-  gasUsed
+  nativeTokenUserBalance
 ) {
   // Verify if the amount of tokenOut is the same as pre-quote amount
   expect(tokenOutAmt).to.be.bignumber.eq(tokenOutExpAmt);
@@ -2456,9 +2419,7 @@ async function verifyExactInput(
   );
 
   // Verify if user's native token balance is correct
-  expect(await nativeTokenUserBalance.delta()).to.be.bignumber.eq(
-    ether('0').sub(new BN(gasUsed))
-  );
+  expect(await nativeTokenUserBalance.delta()).to.be.bignumber.eq(ether('0'));
 }
 
 async function verifyExactOutput(
@@ -2472,8 +2433,7 @@ async function verifyExactOutput(
   tokenOut,
   amountOut,
   tokenOutBeforeBalance,
-  nativeTokenUserBalance,
-  gasUsed
+  nativeTokenUserBalance
 ) {
   // Verify if the amount of tokenIn is the same as pre-quote amount
   expect(tokenInAmt).to.be.bignumber.eq(tokenInExpAmt);
@@ -2499,7 +2459,5 @@ async function verifyExactOutput(
   );
 
   // Verify if user's native token balance is correct
-  expect(await nativeTokenUserBalance.delta()).to.be.bignumber.eq(
-    ether('0').sub(new BN(gasUsed))
-  );
+  expect(await nativeTokenUserBalance.delta()).to.be.bignumber.eq(ether('0'));
 }
