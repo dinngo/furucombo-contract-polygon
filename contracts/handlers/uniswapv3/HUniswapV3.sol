@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 
 pragma solidity 0.8.10;
-pragma experimental ABIEncoderV2;
 
 import "../wmatic/IWMATIC.sol";
 import "../HandlerBase.sol";
@@ -60,6 +59,8 @@ contract HUniswapV3 is HandlerBase {
         uint256 amountOutMinimum,
         uint160 sqrtPriceLimitX96
     ) external payable returns (uint256 amountOut) {
+        _notMaticToken(tokenIn);
+
         // Set token out address as WMATIC
         address tokenOut = address(WMATIC);
 
@@ -95,6 +96,8 @@ contract HUniswapV3 is HandlerBase {
         uint256 amountOutMinimum,
         uint160 sqrtPriceLimitX96
     ) external payable returns (uint256 amountOut) {
+        _notMaticToken(tokenIn);
+
         // Get tokenIn balance
         amountIn = _getBalance(tokenIn, amountIn);
 
@@ -152,6 +155,7 @@ contract HUniswapV3 is HandlerBase {
     ) external payable returns (uint256 amountOut) {
         // Get tokenIn and tokenOut
         address tokenIn = _getFirstToken(path);
+        _notMaticToken(tokenIn);
         address tokenOut = _getLastToken(path);
 
         // Output token must be WMATIC
@@ -184,6 +188,7 @@ contract HUniswapV3 is HandlerBase {
     ) external payable returns (uint256 amountOut) {
         // Get tokenIn and tokenOut
         address tokenIn = _getFirstToken(path);
+        _notMaticToken(tokenIn);
         address tokenOut = _getLastToken(path);
 
         // Get tokenIn balance
@@ -240,6 +245,8 @@ contract HUniswapV3 is HandlerBase {
         uint256 amountInMaximum,
         uint160 sqrtPriceLimitX96
     ) external payable returns (uint256 amountIn) {
+        _notMaticToken(tokenIn);
+
         // Set tokenOut as WMATIC
         address tokenOut = address(WMATIC);
 
@@ -275,6 +282,8 @@ contract HUniswapV3 is HandlerBase {
         uint256 amountInMaximum,
         uint160 sqrtPriceLimitX96
     ) external payable returns (uint256 amountIn) {
+        _notMaticToken(tokenIn);
+
         // Get tokenIn balance
         amountInMaximum = _getBalance(tokenIn, amountInMaximum);
 
@@ -340,6 +349,7 @@ contract HUniswapV3 is HandlerBase {
     ) external payable returns (uint256 amountIn) {
         // Get tokenIn and tokenOut
         address tokenIn = _getLastToken(path);
+        _notMaticToken(tokenIn);
         address tokenOut = _getFirstToken(path);
 
         // Check tokenOut
@@ -372,6 +382,7 @@ contract HUniswapV3 is HandlerBase {
     ) external payable returns (uint256 amountIn) {
         // Get tokenIn and tokenOut
         address tokenIn = _getLastToken(path);
+        _notMaticToken(tokenIn);
         address tokenOut = _getFirstToken(path);
 
         // Get tokenIn balance
