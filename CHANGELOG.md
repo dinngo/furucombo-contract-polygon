@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## [unreleased]
 
+## [1.12.0]
+
 ### Added
 
 - Support UniswapV3.
