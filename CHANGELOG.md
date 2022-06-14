@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [unreleased]
 
+## [1.12.0]
+
+### Added
+
+- Support UniswapV3.
+
 ## [1.11.0] - 2022-05-27
 
 ### Changed
