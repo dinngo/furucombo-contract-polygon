@@ -579,7 +579,7 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
           // Set swap info
           const tokenOut = tokenBAddress;
           const fee = new BN('500'); /* 0.05% */
-          const amountOut = mwei('100000');
+          const amountOut = mwei('1000');
           const amountInMaximum = value;
           const sqrtPriceLimitX96 = new BN('0');
 
@@ -709,7 +709,7 @@ contract('UniswapV3 Swap', function([_, user, someone]) {
           const tokens = [tokenAddress, tokenBAddress, WMATIC_TOKEN];
           const fees = [new BN('500') /* 0.05% */, new BN('500') /* 0.05% */];
           const path = encodePath(tokens, fees);
-          const amountOut = ether('200000');
+          const amountOut = ether('2000');
           const amountInMaximum = value;
 
           // Execution
