@@ -1,5 +1,6 @@
 const { BN, ether, ZERO_ADDRESS } = require('@openzeppelin/test-helpers');
 const fetch = require('node-fetch');
+const sleep = delay => new Promise(resolve => setTimeout(resolve, delay));
 const { expect } = require('chai');
 const {
   QUICKSWAP_FACTORY,
@@ -237,6 +238,34 @@ async function impersonateAndInjectEther(address) {
   ]);
 }
 
+async function callExternalApi(
+  request,
+  method = 'get',
+  body = '',
+  retryTimes = 5
+) {
+  let resp;
+  let tryTimes = retryTimes;
+  while (tryTimes > 0) {
+    tryTimes--;
+    if (method === 'get') {
+      resp = await fetch(request);
+    } else {
+      resp = await fetch(request, {
+        method: method,
+        body: JSON.stringify(body),
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    if (resp.ok === true) {
+      return resp;
+    }
+    await sleep(500); // sleep 500ms.
+  }
+  return resp; // return error resp from external api to caller.
+}
+
 module.exports = {
   profileGas,
   evmSnapshot,
@@ -260,4 +289,5 @@ module.exports = {
   tokenProviderDyfn,
   tokenProviderCurveGauge,
   impersonateAndInjectEther,
+  callExternalApi,
 };

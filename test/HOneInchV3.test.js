@@ -22,8 +22,8 @@ const {
   getFuncSig,
   getCallData,
   tokenProviderDyfn,
+  callExternalApi,
 } = require('./utils/utils');
-const fetch = require('node-fetch');
 const queryString = require('query-string');
 
 const HOneInch = artifacts.require('HOneInchV3');
@@ -58,7 +58,7 @@ contract('OneInchV3 Swap', function([_, user]) {
 
   before(async function() {
     // ============= 1inch API Health Check =============
-    const healthCkeck = await fetch(URL_1INCH + 'healthcheck');
+    const healthCkeck = await callExternalApi(URL_1INCH + 'healthcheck');
     if (!healthCkeck.ok) {
       console.error(`=====> 1inch API not healthy now, skip the tests`);
       this.skip();
@@ -120,7 +120,7 @@ contract('OneInchV3 Swap', function([_, user]) {
         });
 
         // Call 1inch API
-        const swapResponse = await fetch(swapReq);
+        const swapResponse = await callExternalApi(swapReq);
         expect(swapResponse.ok, '1inch api response not ok').to.be.true;
         const swapData = await swapResponse.json();
         // Verify it's `swap` function call
@@ -179,7 +179,7 @@ contract('OneInchV3 Swap', function([_, user]) {
         });
 
         // Call 1inch API
-        const swapResponse = await fetch(swapReq);
+        const swapResponse = await callExternalApi(swapReq);
         expect(swapResponse.ok, '1inch api response not ok').to.be.true;
         const swapData = await swapResponse.json();
         // Verify it's `swap` function call
@@ -240,7 +240,7 @@ contract('OneInchV3 Swap', function([_, user]) {
         });
 
         // Call 1inch API
-        const swapResponse = await fetch(swapReq);
+        const swapResponse = await callExternalApi(swapReq);
         expect(swapResponse.ok, '1inch api response not ok').to.be.true;
         const swapData = await swapResponse.json();
         const quote = swapData.toTokenAmount;
@@ -307,7 +307,7 @@ contract('OneInchV3 Swap', function([_, user]) {
         });
 
         // Call 1inch API
-        const swapResponse = await fetch(swapReq);
+        const swapResponse = await callExternalApi(swapReq);
         expect(swapResponse.ok, '1inch api response not ok').to.be.true;
         const swapData = await swapResponse.json();
         const quote = swapData.toTokenAmount;
@@ -380,7 +380,7 @@ contract('OneInchV3 Swap', function([_, user]) {
         await this.proxy.updateTokenMock(this.token.address);
 
         // Call 1inch API
-        const swapResponse = await fetch(swapReq);
+        const swapResponse = await callExternalApi(swapReq);
         expect(swapResponse.ok, '1inch api response not ok').to.be.true;
         const swapData = await swapResponse.json();
         // Verify it's `swap` function call
@@ -446,7 +446,7 @@ contract('OneInchV3 Swap', function([_, user]) {
         await this.proxy.updateTokenMock(this.token.address);
 
         // Call 1inch API
-        const swapResponse = await fetch(swapReq);
+        const swapResponse = await callExternalApi(swapReq);
         expect(swapResponse.ok, '1inch api response not ok').to.be.true;
         const swapData = await swapResponse.json();
         const quote = swapData.toTokenAmount;
@@ -551,7 +551,7 @@ contract('OneInchV3 Swap', function([_, user]) {
         await this.proxy.updateTokenMock(this.token0.address);
 
         // Call 1inch API
-        const swapResponse = await fetch(swapReq);
+        const swapResponse = await callExternalApi(swapReq);
         expect(swapResponse.ok, '1inch api response not ok').to.be.true;
         const swapData = await swapResponse.json();
         // Verify it's `swap` function call
@@ -624,7 +624,7 @@ contract('OneInchV3 Swap', function([_, user]) {
         await this.proxy.updateTokenMock(this.token0.address);
 
         // Call 1inch API
-        const swapResponse = await fetch(swapReq);
+        const swapResponse = await callExternalApi(swapReq);
         expect(swapResponse.ok, '1inch api response not ok').to.be.true;
         const swapData = await swapResponse.json();
         const quote = swapData.toTokenAmount;
@@ -704,7 +704,7 @@ contract('OneInchV3 Swap', function([_, user]) {
         await this.proxy.updateTokenMock(this.token0.address);
 
         // Call 1inch API
-        const swapResponse = await fetch(swapReq);
+        const swapResponse = await callExternalApi(swapReq);
         expect(swapResponse.ok, '1inch api response not ok').to.be.true;
         const swapData = await swapResponse.json();
         const quote = swapData.toTokenAmount;
@@ -785,7 +785,7 @@ contract('OneInchV3 Swap', function([_, user]) {
         await this.proxy.updateTokenMock(this.token0.address);
 
         // Call 1inch API
-        const swapResponse = await fetch(swapReq);
+        const swapResponse = await callExternalApi(swapReq);
         expect(swapResponse.ok, '1inch api response not ok').to.be.true;
         const swapData = await swapResponse.json();
         const quote = swapData.toTokenAmount;
@@ -866,7 +866,7 @@ contract('OneInchV3 Swap', function([_, user]) {
         await this.proxy.updateTokenMock(this.token0.address);
 
         // Call 1inch API
-        const swapResponse = await fetch(swapReq);
+        const swapResponse = await callExternalApi(swapReq);
         expect(swapResponse.ok, '1inch api response not ok').to.be.true;
         const swapData = await swapResponse.json();
         const quote = swapData.toTokenAmount;
@@ -915,7 +915,7 @@ contract('OneInchV3 Swap', function([_, user]) {
         await this.proxy.updateTokenMock(this.token0.address);
 
         // Call 1inch API
-        const swapResponse = await fetch(swapReq);
+        const swapResponse = await callExternalApi(swapReq);
         expect(swapResponse.ok, '1inch api response not ok').to.be.true;
         const swapData = await swapResponse.json();
         const quote = swapData.toTokenAmount;
@@ -964,7 +964,7 @@ contract('OneInchV3 Swap', function([_, user]) {
         await this.proxy.updateTokenMock(this.token0.address);
 
         // Call 1inch API
-        const swapResponse = await fetch(swapReq);
+        const swapResponse = await callExternalApi(swapReq);
         expect(swapResponse.ok, '1inch api response not ok').to.be.true;
         const swapData = await swapResponse.json();
         const quote = swapData.toTokenAmount;
@@ -1012,7 +1012,7 @@ contract('OneInchV3 Swap', function([_, user]) {
         await this.proxy.updateTokenMock(this.token0.address);
 
         // Call 1inch API
-        const swapResponse = await fetch(swapReq);
+        const swapResponse = await callExternalApi(swapReq);
         expect(swapResponse.ok, '1inch api response not ok').to.be.true;
         const swapData = await swapResponse.json();
         const quote = swapData.toTokenAmount;
@@ -1061,7 +1061,7 @@ contract('OneInchV3 Swap', function([_, user]) {
         await this.proxy.updateTokenMock(this.token0.address);
 
         // Call 1inch API
-        const swapResponse = await fetch(swapReq);
+        const swapResponse = await callExternalApi(swapReq);
         expect(swapResponse.ok, '1inch api response not ok').to.be.true;
         const swapData = await swapResponse.json();
         const quote = swapData.toTokenAmount;
