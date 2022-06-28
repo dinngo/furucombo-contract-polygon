@@ -15,33 +15,49 @@ contract HFundsOperation is HandlerBase {
         return "HFundsOperation";
     }
 
-    function purchase(
-        address fundsAddr,
-        address tokenIn,
-        uint256 amount
-    ) external payable returns (uint256) {
+    function purchase(address fundsAddr, uint256 amount)
+        external
+        payable
+        returns (uint256)
+    {
         IFunds funds = IFunds(fundsAddr);
-
-        // Check denomination
-        IERC20 denomination = funds.denomination();
-        _requireMsg(
-            address(denomination) == tokenIn,
-            "purchase",
-            "denomination not match"
-        );
+        address denomination = funds.denomination();
 
         // Check amount
-        uint256 amountIn = _getBalance(tokenIn, type(uint256).max);
+        uint256 amountIn = _getBalance(denomination, type(uint256).max);
         _requireMsg(amountIn == amount, "purchase", "amount not match");
 
         // Purchase
-        _tokenApprove(tokenIn, fundsAddr, amount);
+        _tokenApprove(denomination, fundsAddr, amount);
         uint256 share = funds.purchase(amount);
-        _tokenApproveZero(tokenIn, fundsAddr);
+        _tokenApproveZero(denomination, fundsAddr);
 
-        IERC20 shareToken = funds.shareToken();
-        _updateToken(address(shareToken));
+        address shareToken = funds.shareToken();
+        _updateToken(shareToken);
 
         return share;
+    }
+
+    function redeem(address fundsAddr, uint256 share)
+        external
+        payable
+        returns (uint256)
+    {
+        IFunds funds = IFunds(fundsAddr);
+        address shareToken = funds.shareToken();
+
+        // Check share
+        uint256 shareIn = IERC20(shareToken).balanceOf(address(this));
+        _requireMsg(shareIn == share, "redeem", "share not match");
+
+        // Redeem
+        _tokenApprove(shareToken, fundsAddr, share);
+        uint256 amount = funds.redeem(share, false);
+        _tokenApproveZero(shareToken, fundsAddr);
+
+        address denomination = funds.denomination();
+        _updateToken(denomination);
+
+        return amount;
     }
 }
