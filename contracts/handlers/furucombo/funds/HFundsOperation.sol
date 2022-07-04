@@ -3,8 +3,11 @@
 pragma solidity 0.8.10;
 
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 import "../../HandlerBase.sol";
 import "./IFunds.sol";
+
+import "hardhat/console.sol";
 
 /// @title Furucombo funds operation handler.
 /// @notice Deposit or withdraw to/from funds.
@@ -52,7 +55,29 @@ contract HFundsOperation is HandlerBase {
 
         // Redeem
         _tokenApprove(shareToken, fundsAddr, share);
-        uint256 amount = funds.redeem(share, false);
+        uint256 amount;
+
+        try funds.redeem(share, false) returns (uint256 balance) {
+            amount = balance;
+        } catch Error(string memory reason) {
+            _revertMsg("redeem", reason);
+        } catch (bytes memory data) {
+            // The last 32 bytes should be Funds RevertCode.
+            // Ex: 0x64c41b44000000000000000000000000000000000000000000000000000000000000004a
+            uint256 revertCode;
+            assembly {
+                revertCode := mload(add(data, add(0x20, 4)))
+            }
+            _revertMsg(
+                "redeem",
+                string(
+                    abi.encodePacked(
+                        "RevertCode:",
+                        Strings.toString(revertCode)
+                    )
+                )
+            );
+        }
         _tokenApproveZero(shareToken, fundsAddr);
 
         address denomination = funds.denomination();

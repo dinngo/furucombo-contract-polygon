@@ -17,4 +17,6 @@ interface IShareToken is IERC20 {
     function netTotalShare() external view returns (uint256);
 
     function grossTotalShare() external view returns (uint256);
+
+    function owner() external view returns (address);
 }
