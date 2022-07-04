@@ -9,6 +9,7 @@ interface IFunds{
     function shareToken() external view returns (address);
     function calculateShare(uint256) external view returns (uint256);
     function calculateBalance(uint256) external view returns (uint256);
+    function vault() external view returns (address);
 
     function purchase(uint256) external returns (uint256);
     function redeem(uint256, bool) external returns (uint256);

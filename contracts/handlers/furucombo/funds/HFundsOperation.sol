@@ -8,12 +8,11 @@ import "../../HandlerBase.sol";
 import "./IFunds.sol";
 import "./IFundProxyFactory.sol";
 
-import "hardhat/console.sol";
-
 /// @title Furucombo funds operation handler.
 /// @notice Deposit or withdraw to/from funds.
 contract HFundsOperation is HandlerBase {
     using SafeERC20 for IERC20;
+    using Strings for uint256;
 
     IFundProxyFactory public constant FUND_PROXY_FACTORY =
         IFundProxyFactory(0xFD1353baBf86387FcB6D009C7b74c1aB2178B304);
@@ -37,7 +36,7 @@ contract HFundsOperation is HandlerBase {
 
         // Check amount
         uint256 amountIn = _getBalance(denomination, type(uint256).max);
-        _requireMsg(amountIn == amount, "purchase", "amount not match");
+        _requireMsg(amount <= amountIn, "purchase", "insufficient amount");
 
         // Purchase
         _tokenApprove(denomination, fundsAddr, amount);
@@ -56,12 +55,7 @@ contract HFundsOperation is HandlerBase {
             }
             _revertMsg(
                 "purchase",
-                string(
-                    abi.encodePacked(
-                        "RevertCode_",
-                        Strings.toString(revertCode)
-                    )
-                )
+                string(abi.encodePacked("RevertCode_", revertCode.toString()))
             );
         }
 
@@ -88,7 +82,7 @@ contract HFundsOperation is HandlerBase {
 
         // Check share
         uint256 shareIn = IERC20(shareToken).balanceOf(address(this));
-        _requireMsg(shareIn == share, "redeem", "share not match");
+        _requireMsg(share <= shareIn, "redeem", "insufficient share");
 
         // Redeem
         _tokenApprove(shareToken, fundsAddr, share);
@@ -107,12 +101,7 @@ contract HFundsOperation is HandlerBase {
             }
             _revertMsg(
                 "redeem",
-                string(
-                    abi.encodePacked(
-                        "RevertCode_",
-                        Strings.toString(revertCode)
-                    )
-                )
+                string(abi.encodePacked("RevertCode_", revertCode.toString()))
             );
         }
 
