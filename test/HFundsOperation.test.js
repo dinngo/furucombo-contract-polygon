@@ -80,8 +80,6 @@ contract('HFundsOperation', function([_, user]) {
         from: denominationProvider,
       });
 
-      const expectedShare = await funds.calculateShare(purchaseAmount);
-
       const receipt = await this.proxy.execMock(to, data, {
         from: user,
       });
@@ -98,8 +96,41 @@ contract('HFundsOperation', function([_, user]) {
       // User's share should be equal with handler return share
       expect(userShare).to.be.bignumber.eq(handlerReturn);
 
-      // User's share should greater or equal than expectedShare
-      expect(userShare).to.be.bignumber.gte(expectedShare);
+      // Proxy shouldn't have remaining share
+      expect(proxyShare).to.be.zero;
+
+      // Proxy shouldn't have remaining denomination
+      expect(proxyDenomination).to.be.zero;
+    });
+
+    it('should revert: ', async function() {
+      const purchaseAmount = mwei('500');
+      const to = this.hFundsOperation.address;
+      const data = abi.simpleEncode(
+        'purchase(address,uint256)',
+        fundsAddress,
+        purchaseAmount
+      );
+
+      await denomination.transfer(this.proxy.address, purchaseAmount, {
+        from: denominationProvider,
+      });
+
+      const receipt = await this.proxy.execMock(to, data, {
+        from: user,
+      });
+
+      const handlerReturn = getHandlerReturn(receipt, ['uint256'])[0];
+
+      const proxyShare = await shareToken.balanceOf(this.proxy.address);
+      const userShare = await shareToken.balanceOf(user);
+
+      const proxyDenomination = await denomination.balanceOf(
+        this.proxy.address
+      );
+
+      // User's share should be equal with handler return share
+      expect(userShare).to.be.bignumber.eq(handlerReturn);
 
       // Proxy shouldn't have remaining share
       expect(proxyShare).to.be.zero;
@@ -142,8 +173,6 @@ contract('HFundsOperation', function([_, user]) {
         from: user,
       });
 
-      const expectedBalance = await funds.calculateBalance(redeemShare);
-
       const receipt = await this.proxy.execMock(to, data, {
         from: user,
       });
@@ -151,7 +180,6 @@ contract('HFundsOperation', function([_, user]) {
       const handlerReturn = getHandlerReturn(receipt, ['uint256'])[0];
 
       const proxyShare = await shareToken.balanceOf(this.proxy.address);
-      const userShare = await shareToken.balanceOf(user);
 
       const proxyDenomination = await denomination.balanceOf(
         this.proxy.address
@@ -159,23 +187,21 @@ contract('HFundsOperation', function([_, user]) {
 
       const userDenomination = await denomination.balanceOf(user);
 
-      console.log('handlerReturn:' + handlerReturn.toString());
-      console.log('proxyShare:' + proxyShare.toString());
-      console.log('userShare:' + userShare.toString());
-      console.log('proxyDenomination:' + proxyDenomination.toString());
-      console.log('userDenomination:' + userDenomination.toString());
-      console.log('expectedBalance:' + expectedBalance.toString());
-      // // User's share should be equal with handler return share
-      // expect(userShare).to.be.bignumber.eq(handlerReturn);
+      // console.log('handlerReturn:' + handlerReturn.toString());
+      // console.log('proxyShare:' + proxyShare.toString());
+      // console.log('userShare:' + userShare.toString());
+      // console.log('proxyDenomination:' + proxyDenomination.toString());
+      // console.log('userDenomination:' + userDenomination.toString());
+      // console.log('expectedBalance:' + expectedBalance.toString());
 
-      // // User's share should greater or equal than expectedShare
-      // expect(userShare).to.be.bignumber.gte(expectedShare);
+      // User's denomination balance should be equal with handler return.
+      expect(userDenomination).to.be.bignumber.eq(handlerReturn);
 
-      // // Proxy shouldn't have remaining share
-      // expect(proxyShare).to.be.zero;
+      // Proxy shouldn't have remaining share
+      expect(proxyShare).to.be.zero;
 
-      // // Proxy shouldn't have remaining denomination
-      // expect(proxyDenomination).to.be.zero;
+      // Proxy shouldn't have remaining denomination
+      expect(proxyDenomination).to.be.zero;
     });
   });
 });
