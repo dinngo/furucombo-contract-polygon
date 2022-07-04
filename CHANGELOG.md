@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [unreleased]
 
+### Added
+
+- Support Furucombo-Funds any token input.
+
+### Changed
+
 ## [1.12.0]
 
 ### Added
