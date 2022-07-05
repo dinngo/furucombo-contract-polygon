@@ -26,10 +26,7 @@ contract HFundsOperation is HandlerBase {
         payable
         returns (uint256)
     {
-        require(
-            FUND_PROXY_FACTORY.isFundCreated(fundsAddr) == true,
-            "invalid funds"
-        );
+        require(FUND_PROXY_FACTORY.isFundCreated(fundsAddr), "invalid funds");
 
         IFunds funds = IFunds(fundsAddr);
         address denomination = funds.denomination();
@@ -41,9 +38,9 @@ contract HFundsOperation is HandlerBase {
         // Purchase
         _tokenApprove(denomination, fundsAddr, amount);
 
-        uint256 share;
+        uint256 shareAmount;
         try funds.purchase(amount) returns (uint256 share_) {
-            share = share_;
+            shareAmount = share_;
         } catch Error(string memory reason) {
             _revertMsg("purchase", reason);
         } catch (bytes memory data) {
@@ -64,7 +61,7 @@ contract HFundsOperation is HandlerBase {
         address shareToken = funds.shareToken();
         _updateToken(shareToken);
 
-        return share;
+        return shareAmount;
     }
 
     function redeem(address fundsAddr, uint256 share)
@@ -72,10 +69,7 @@ contract HFundsOperation is HandlerBase {
         payable
         returns (uint256)
     {
-        require(
-            FUND_PROXY_FACTORY.isFundCreated(fundsAddr) == true,
-            "invalid funds"
-        );
+        require(FUND_PROXY_FACTORY.isFundCreated(fundsAddr), "invalid funds");
 
         IFunds funds = IFunds(fundsAddr);
         address shareToken = funds.shareToken();
@@ -84,7 +78,7 @@ contract HFundsOperation is HandlerBase {
         uint256 shareIn = IERC20(shareToken).balanceOf(address(this));
         _requireMsg(share <= shareIn, "redeem", "insufficient share");
 
-        // Redeem
+        // Redeem, doesn't support redeem pending.
         _tokenApprove(shareToken, fundsAddr, share);
 
         uint256 amount;

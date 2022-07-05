@@ -6,7 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-- Support Furucombo-Funds any token input.
+- Support Furucombo-Funds purchase and redeem.
 
 ### Changed
 
