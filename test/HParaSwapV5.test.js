@@ -83,7 +83,12 @@ async function getPriceData(
   return priceData;
 }
 
-async function getTransactionData(priceData, slippageInBps) {
+async function getTransactionData(
+  priceData,
+  slippageInBps,
+  userAddress,
+  txOrigin
+) {
   const body = {
     srcToken: priceData.priceRoute.srcToken,
     srcDecimals: priceData.priceRoute.srcDecimals,
@@ -91,7 +96,8 @@ async function getTransactionData(priceData, slippageInBps) {
     destDecimals: priceData.priceRoute.destDecimals,
     srcAmount: priceData.priceRoute.srcAmount,
     slippage: slippageInBps,
-    userAddress: constants.ZERO_ADDRESS,
+    userAddress: userAddress,
+    txOrigin: txOrigin,
     priceRoute: priceData.priceRoute,
   };
 
@@ -179,7 +185,12 @@ contract('ParaSwapV5', function([_, user, user2]) {
           const expectReceivedAmount = priceData.priceRoute.destAmount;
 
           // Call Paraswap transaction API
-          const txData = await getTransactionData(priceData, slippageInBps);
+          const txData = await getTransactionData(
+            priceData,
+            slippageInBps,
+            this.onchainProxy.address,
+            user
+          );
 
           // Prepare handler data
           const callData = getCallData(HParaSwapV5, 'swap', [
@@ -237,7 +248,12 @@ contract('ParaSwapV5', function([_, user, user2]) {
           const expectReceivedAmount = priceData.priceRoute.destAmount;
 
           // Call Paraswap transaction API
-          const txData = await getTransactionData(priceData, slippageInBps);
+          const txData = await getTransactionData(
+            priceData,
+            slippageInBps,
+            this.onchainProxy.address,
+            user
+          );
 
           // Prepare handler data
           const callData = getCallData(HParaSwapV5, 'swap', [
@@ -294,7 +310,12 @@ contract('ParaSwapV5', function([_, user, user2]) {
           );
 
           // Call Paraswap transaction API
-          const txData = await getTransactionData(priceData, slippageInBps);
+          const txData = await getTransactionData(
+            priceData,
+            slippageInBps,
+            this.onchainProxy.address,
+            user
+          );
 
           // Prepare handler data
           const callData = getCallData(HParaSwapV5, 'swap', [
@@ -329,7 +350,12 @@ contract('ParaSwapV5', function([_, user, user2]) {
           );
 
           // Call Paraswap transaction API
-          const txData = await getTransactionData(priceData, slippageInBps);
+          const txData = await getTransactionData(
+            priceData,
+            slippageInBps,
+            this.onchainProxy.address,
+            user
+          );
 
           // Prepare handler data
           const callData = getCallData(HParaSwapV5, 'swap', [
@@ -384,7 +410,12 @@ contract('ParaSwapV5', function([_, user, user2]) {
         const expectReceivedAmount = priceData.priceRoute.destAmount;
 
         // Call Paraswap transaction API
-        const txData = await getTransactionData(priceData, slippageInBps);
+        const txData = await getTransactionData(
+          priceData,
+          slippageInBps,
+          this.onchainProxy.address,
+          user
+        );
 
         // Prepare handler data
         const callData = getCallData(HParaSwapV5, 'swap', [
@@ -435,7 +466,12 @@ contract('ParaSwapV5', function([_, user, user2]) {
         );
 
         // Call Paraswap transaction API
-        const txData = await getTransactionData(priceData, slippageInBps);
+        const txData = await getTransactionData(
+          priceData,
+          slippageInBps,
+          this.onchainProxy.address,
+          user
+        );
 
         // Prepare handler data
         const callData = getCallData(HParaSwapV5, 'swap', [
@@ -495,7 +531,12 @@ contract('ParaSwapV5', function([_, user, user2]) {
         const expectReceivedAmount = priceData.priceRoute.destAmount;
 
         // Call Paraswap transaction API
-        const txData = await getTransactionData(priceData, slippageInBps);
+        const txData = await getTransactionData(
+          priceData,
+          slippageInBps,
+          this.onchainProxy.address,
+          user
+        );
 
         // Prepare handler data
         const callData = getCallData(HParaSwapV5, 'swap', [
@@ -567,7 +608,12 @@ contract('ParaSwapV5', function([_, user, user2]) {
           const expectReceivedAmount = priceData.priceRoute.destAmount;
 
           // Call Paraswap transaction API
-          const txData = await getTransactionData(priceData, slippageInBps);
+          const txData = await getTransactionData(
+            priceData,
+            slippageInBps,
+            this.proxy.address,
+            user
+          );
 
           // Prepare handler data
           const callData = getCallData(HParaSwapV5, 'swap', [
@@ -626,7 +672,12 @@ contract('ParaSwapV5', function([_, user, user2]) {
           );
 
           // Call Paraswap transaction API
-          const txData = await getTransactionData(priceData, slippageInBps);
+          const txData = await getTransactionData(
+            priceData,
+            slippageInBps,
+            this.proxy.address,
+            user
+          );
 
           // Prepare handler data
           const callData = getCallData(HParaSwapV5, 'swap', [
@@ -680,7 +731,12 @@ contract('ParaSwapV5', function([_, user, user2]) {
           );
 
           // Call Paraswap transaction API
-          const txData = await getTransactionData(priceData, slippageInBps);
+          const txData = await getTransactionData(
+            priceData,
+            slippageInBps,
+            this.proxy.address,
+            user
+          );
 
           // Prepare handler data
           const callData = getCallData(HParaSwapV5, 'swap', [
@@ -715,7 +771,12 @@ contract('ParaSwapV5', function([_, user, user2]) {
           );
 
           // Call Paraswap transaction API
-          const txData = await getTransactionData(priceData, slippageInBps);
+          const txData = await getTransactionData(
+            priceData,
+            slippageInBps,
+            this.proxy.address,
+            user
+          );
 
           // Prepare handler data
           const callData = getCallData(HParaSwapV5, 'swap', [
@@ -770,7 +831,12 @@ contract('ParaSwapV5', function([_, user, user2]) {
         const expectReceivedAmount = priceData.priceRoute.destAmount;
 
         // Call Paraswap transaction API
-        const txData = await getTransactionData(priceData, slippageInBps);
+        const txData = await getTransactionData(
+          priceData,
+          slippageInBps,
+          this.proxy.address,
+          user
+        );
 
         // Prepare handler data
         const callData = getCallData(HParaSwapV5, 'swap', [
@@ -825,7 +891,12 @@ contract('ParaSwapV5', function([_, user, user2]) {
         );
 
         // Call Paraswap transaction API
-        const txData = await getTransactionData(priceData, slippageInBps);
+        const txData = await getTransactionData(
+          priceData,
+          slippageInBps,
+          this.proxy.address,
+          user
+        );
 
         // Prepare handler data
         const callData = getCallData(HParaSwapV5, 'swap', [
@@ -880,7 +951,12 @@ contract('ParaSwapV5', function([_, user, user2]) {
         const expectReceivedAmount = priceData.priceRoute.destAmount;
 
         // Call Paraswap transaction API
-        const txData = await getTransactionData(priceData, slippageInBps);
+        const txData = await getTransactionData(
+          priceData,
+          slippageInBps,
+          this.proxy.address,
+          user
+        );
 
         // Prepare handler data
         const callData = getCallData(HParaSwapV5, 'swap', [
