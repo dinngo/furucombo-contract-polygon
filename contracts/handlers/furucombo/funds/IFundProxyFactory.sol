@@ -3,5 +3,5 @@
 pragma solidity ^0.8.0;
 
 interface IFundProxyFactory{
-    function isFundCreated(address) external view returns(bool);
+    function isFundCreated(address fund) external view returns(bool);
 }
