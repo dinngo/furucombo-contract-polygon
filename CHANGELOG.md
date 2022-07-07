@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [unreleased]
 
+### Added
+
+- Support Furucombo-Funds purchase and redeem.
+
+### Changed
+
 ## [1.12.0]
 
 ### Added
