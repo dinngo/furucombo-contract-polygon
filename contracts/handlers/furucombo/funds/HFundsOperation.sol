@@ -31,10 +31,6 @@ contract HFundsOperation is HandlerBase {
         IFunds funds = IFunds(fundsAddr);
         address denomination = funds.denomination();
 
-        // Check amount
-        uint256 amountIn = _getBalance(denomination, type(uint256).max);
-        _requireMsg(amount <= amountIn, "purchase", "insufficient amount");
-
         // Purchase
         _tokenApprove(denomination, fundsAddr, amount);
 
@@ -50,10 +46,7 @@ contract HFundsOperation is HandlerBase {
             assembly {
                 revertCode := mload(add(data, add(0x20, 4)))
             }
-            _revertMsg(
-                "purchase",
-                string(abi.encodePacked("RevertCode_", revertCode.toString()))
-            );
+            _revertMsg("purchase", revertCode.toString());
         }
 
         _tokenApproveZero(denomination, fundsAddr);
@@ -74,10 +67,6 @@ contract HFundsOperation is HandlerBase {
         IFunds funds = IFunds(fundsAddr);
         address shareToken = funds.shareToken();
 
-        // Check share
-        uint256 shareIn = IERC20(shareToken).balanceOf(address(this));
-        _requireMsg(share <= shareIn, "redeem", "insufficient share");
-
         // Redeem, doesn't support redeem pending.
         _tokenApprove(shareToken, fundsAddr, share);
 
@@ -93,10 +82,7 @@ contract HFundsOperation is HandlerBase {
             assembly {
                 revertCode := mload(add(data, add(0x20, 4)))
             }
-            _revertMsg(
-                "redeem",
-                string(abi.encodePacked("RevertCode_", revertCode.toString()))
-            );
+            _revertMsg("redeem", revertCode.toString());
         }
 
         _tokenApproveZero(shareToken, fundsAddr);

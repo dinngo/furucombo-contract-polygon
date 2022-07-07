@@ -121,7 +121,7 @@ contract('HFundsOperation', function([_, user, dummy]) {
         this.proxy.execMock(to, data, {
           from: user,
         })
-      ).to.be.revertedWith('insufficient amount');
+      ).to.be.revertedWith('transfer amount exceeds balance');
     });
 
     it('should revert: purchase 0', async function() {
@@ -135,7 +135,7 @@ contract('HFundsOperation', function([_, user, dummy]) {
         this.proxy.execMock(to, data, {
           from: user,
         })
-      ).to.be.revertedWith('RevertCode_70'); // SHARE_MODULE_PURCHASE_ZERO_BALANCE
+      ).to.be.revertedWith('70'); // SHARE_MODULE_PURCHASE_ZERO_BALANCE
     });
   });
 
@@ -232,7 +232,7 @@ contract('HFundsOperation', function([_, user, dummy]) {
         this.proxy.execMock(to, data, {
           from: user,
         })
-      ).to.be.revertedWith('insufficient share');
+      ).to.be.revertedWith('73'); // SHARE_MODULE_INSUFFICIENT_SHARE
     });
 
     it('should revert: redeem 0 share', async function() {
@@ -242,7 +242,7 @@ contract('HFundsOperation', function([_, user, dummy]) {
         this.proxy.execMock(to, data, {
           from: user,
         })
-      ).to.be.revertedWith('RevertCode_72'); // SHARE_MODULE_REDEEM_ZERO_SHARE
+      ).to.be.revertedWith('72'); // SHARE_MODULE_REDEEM_ZERO_SHARE
     });
 
     it('should revert: redeem pending', async function() {
@@ -273,7 +273,7 @@ contract('HFundsOperation', function([_, user, dummy]) {
         this.proxy.execMock(to, data, {
           from: user,
         })
-      ).to.be.revertedWith('RevertCode_74'); // SHARE_MODULE_REDEEM_IN_PENDING_WITHOUT_PERMISSION
+      ).to.be.revertedWith('74'); // SHARE_MODULE_REDEEM_IN_PENDING_WITHOUT_PERMISSION
     });
   });
 });
