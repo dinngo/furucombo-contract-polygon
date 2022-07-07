@@ -18,7 +18,7 @@ contract HFurucomboFunds is HandlerBase {
         IFundProxyFactory(0xFD1353baBf86387FcB6D009C7b74c1aB2178B304);
 
     function getContractName() public pure override returns (string memory) {
-        return "HFundsOperation";
+        return "HFurucomboFunds";
     }
 
     function purchase(address fundsAddr, uint256 amount)
