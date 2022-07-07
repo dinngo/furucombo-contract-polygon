@@ -8,32 +8,32 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   const { deploy } = deployments;
   const { deployer } = await getNamedAccounts();
 
-  await deploy('HFundsOperation', {
+  await deploy('HFurucomboFunds', {
     from: deployer,
     args: [],
     log: true,
   });
 
-  const HFundsOperation = await ethers.getContract('HFundsOperation', deployer);
+  const HFurucomboFunds = await ethers.getContract('HFurucomboFunds', deployer);
 
   if (network.name == 'hardhat') {
-    await localDeployment(deployer, HFundsOperation);
+    await localDeployment(deployer, HFurucomboFunds);
   } else {
-    await betaDeployment(HFundsOperation);
+    await betaDeployment(HFurucomboFunds);
   }
 };
 
-async function localDeployment(deployer, HFundsOperation) {
+async function localDeployment(deployer, HFurucomboFunds) {
   console.log('local deployment...');
   const registry = await ethers.getContract('Registry', deployer);
 
   await registry.register(
-    HFundsOperation.address,
-    utils.formatBytes32String('HFundsOperation')
+    HFurucomboFunds.address,
+    utils.formatBytes32String('HFurucomboFunds')
   );
 }
 
-async function betaDeployment(HFundsOperation) {
+async function betaDeployment(HFurucomboFunds) {
   console.log('beta deployment...');
 
   const provider = ethers.provider;
@@ -45,8 +45,8 @@ async function betaDeployment(HFundsOperation) {
   ]);
 
   const registerData = iface.encodeFunctionData('register', [
-    HFundsOperation.address,
-    utils.formatBytes32String('HFundsOperation'),
+    HFurucomboFunds.address,
+    utils.formatBytes32String('HFurucomboFunds'),
   ]);
 
   const customData = registerData + 'ff00ff' + registryOwner.replace('0x', '');
@@ -61,5 +61,5 @@ async function betaDeployment(HFundsOperation) {
   });
 }
 
-module.exports.tags = ['HFundsOperation'];
+module.exports.tags = ['HFurucomboFunds'];
 module.exports.dependencies = ['Registry'];

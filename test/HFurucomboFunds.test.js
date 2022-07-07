@@ -13,23 +13,23 @@ const {
   impersonateAndInjectEther,
 } = require('./utils/utils');
 
-const HFundsOperation = artifacts.require('HFundsOperation');
+const HFurucomboFunds = artifacts.require('HFurucomboFunds');
 const Registry = artifacts.require('Registry');
 const Proxy = artifacts.require('ProxyMock');
 const IToken = artifacts.require('IERC20');
 const IShareToken = artifacts.require('IShareToken');
 const IFunds = artifacts.require('IFunds');
 
-contract('HFundsOperation', function([_, user, dummy]) {
+contract('HFurucomboFunds', function([_, user, dummy]) {
   let id;
 
   before(async function() {
     this.registry = await Registry.new();
     this.proxy = await Proxy.new(this.registry.address);
-    this.hFundsOperation = await HFundsOperation.new();
+    this.hFurucomboFunds = await HFurucomboFunds.new();
     await this.registry.register(
-      this.hFundsOperation.address,
-      utils.asciiToHex('HFundsOperation')
+      this.hFurucomboFunds.address,
+      utils.asciiToHex('HFurucomboFunds')
     );
   });
 
@@ -50,7 +50,7 @@ contract('HFundsOperation', function([_, user, dummy]) {
     const purchaseAmount = mwei('500');
 
     before(async function() {
-      to = this.hFundsOperation.address;
+      to = this.hFurucomboFunds.address;
       funds = await IFunds.at(fundsAddress);
       denominationAddress = await funds.denomination();
       denomination = await IToken.at(denominationAddress);
@@ -148,7 +148,7 @@ contract('HFundsOperation', function([_, user, dummy]) {
     const redeemShare = mwei('100');
 
     before(async function() {
-      to = this.hFundsOperation.address;
+      to = this.hFurucomboFunds.address;
       funds = await IFunds.at(fundsAddress);
       denominationAddress = await funds.denomination();
       denomination = await IToken.at(denominationAddress);

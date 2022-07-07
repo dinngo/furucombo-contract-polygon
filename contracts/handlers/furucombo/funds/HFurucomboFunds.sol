@@ -10,7 +10,7 @@ import "./IFundProxyFactory.sol";
 
 /// @title Furucombo funds operation handler.
 /// @notice Deposit or withdraw to/from funds.
-contract HFundsOperation is HandlerBase {
+contract HFurucomboFunds is HandlerBase {
     using SafeERC20 for IERC20;
     using Strings for uint256;
 
