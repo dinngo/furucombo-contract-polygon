@@ -11,6 +11,7 @@
     "check": "scripts/check.sh",
     "compile": "npx hardhat compile",
     "test": "scripts/test.sh",
+    "analysis": "scripts/analysis.sh",
     "lint:solhint": "solhint \"contracts/**/*.sol\"",
     "lint:prettier": "scripts/prettier.sh",
     "deploy": "scripts/deploy.sh"
