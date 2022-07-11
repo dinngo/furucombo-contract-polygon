@@ -30,6 +30,7 @@ contract HFurucomboFunds is HandlerBase {
 
         IFunds funds = IFunds(fundsAddr);
         address denomination = funds.denomination();
+        amount = _getBalance(denomination, amount);
 
         // Purchase
         _tokenApprove(denomination, fundsAddr, amount);
@@ -66,6 +67,7 @@ contract HFurucomboFunds is HandlerBase {
 
         IFunds funds = IFunds(fundsAddr);
         address shareToken = funds.shareToken();
+        share = _getBalance(shareToken, share);
 
         // Redeem, doesn't support redeem pending.
         _tokenApprove(shareToken, fundsAddr, share);

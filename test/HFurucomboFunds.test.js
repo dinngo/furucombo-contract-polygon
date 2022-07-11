@@ -1,8 +1,8 @@
+const { constants } = require('@openzeppelin/test-helpers');
+const { MAX_UINT256 } = constants;
 const abi = require('ethereumjs-abi');
 const utils = web3.utils;
-
 const { expect } = require('chai');
-
 const { UNIVERSE_CAPITAL_FUND } = require('./utils/constants');
 const {
   evmRevert,
@@ -84,6 +84,46 @@ contract('HFurucomboFunds', function([_, user, dummy]) {
 
       // User's share should be equal with handler return share
       expect(userShare).to.be.bignumber.eq(handlerReturn);
+
+      // Proxy shouldn't have remaining share
+      expect(proxyShare).to.be.zero;
+
+      // Proxy shouldn't have remaining denomination
+      expect(proxyDenomination).to.be.zero;
+    });
+
+    it('max amount', async function() {
+      const data = abi.simpleEncode(
+        'purchase(address,uint256)',
+        fundsAddress,
+        MAX_UINT256
+      );
+
+      await denomination.transfer(this.proxy.address, purchaseAmount, {
+        from: denominationProvider,
+      });
+
+      const userDenominationBefore = await denomination.balanceOf(user);
+
+      const receipt = await this.proxy.execMock(to, data, {
+        from: user,
+      });
+
+      const handlerReturn = getHandlerReturn(receipt, ['uint256'])[0];
+
+      const proxyShare = await shareToken.balanceOf(this.proxy.address);
+      const userShare = await shareToken.balanceOf(user);
+
+      const proxyDenomination = await denomination.balanceOf(
+        this.proxy.address
+      );
+      const userDenominationAfter = await denomination.balanceOf(user);
+
+      // User's share should be equal with handler return share
+      expect(userShare).to.be.bignumber.eq(handlerReturn);
+
+      // User's denomination shouldn't increase. Make sure proxy used up denomination
+      expect(userDenominationAfter).to.be.bignumber.eq(userDenominationBefore);
 
       // Proxy shouldn't have remaining share
       expect(proxyShare).to.be.zero;
@@ -190,6 +230,51 @@ contract('HFurucomboFunds', function([_, user, dummy]) {
 
       // User's denomination balance should be equal with handler return.
       expect(userDenomination).to.be.bignumber.eq(handlerReturn);
+
+      // Proxy shouldn't have remaining share
+      expect(proxyShare).to.be.zero;
+
+      // Proxy shouldn't have remaining denomination
+      expect(proxyDenomination).to.be.zero;
+    });
+
+    it('max amount', async function() {
+      const data = abi.simpleEncode(
+        'redeem(address,uint256)',
+        fundsAddress,
+        MAX_UINT256
+      );
+
+      // Mint share token to user
+      await shareToken.mint(user, redeemShare, {
+        from: shareTokenOwner,
+      });
+
+      await shareToken.transfer(this.proxy.address, redeemShare, {
+        from: user,
+      });
+
+      const userShareBefore = await shareToken.balanceOf(user);
+
+      const receipt = await this.proxy.execMock(to, data, {
+        from: user,
+      });
+
+      const handlerReturn = getHandlerReturn(receipt, ['uint256'])[0];
+
+      const proxyShare = await shareToken.balanceOf(this.proxy.address);
+      const userShareAfter = await shareToken.balanceOf(user);
+
+      const proxyDenomination = await denomination.balanceOf(
+        this.proxy.address
+      );
+      const userDenomination = await denomination.balanceOf(user);
+
+      // User's denomination balance should be equal with handler return.
+      expect(userDenomination).to.be.bignumber.eq(handlerReturn);
+
+      // User's share shouldn't increase. Make sure proxy used up share.
+      expect(userShareAfter).to.be.bignumber.eq(userShareBefore);
 
       // Proxy shouldn't have remaining share
       expect(proxyShare).to.be.zero;
