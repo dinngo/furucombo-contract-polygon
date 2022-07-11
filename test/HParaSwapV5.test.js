@@ -13,9 +13,6 @@ const {
   USDC_TOKEN,
   NATIVE_TOKEN_ADDRESS,
   NATIVE_TOKEN_DECIMAL,
-  FURUCOMBO_PROXY,
-  FURUCOMBO_REGISTRY,
-  FURUCOMBO_REGISTRY_OWNER,
 } = require('./utils/constants');
 const { ZERO_BYTES32 } = constants;
 const {
@@ -116,19 +113,8 @@ contract('ParaSwapV5', function([_, user, user2]) {
   let initialEvmId;
   before(async function() {
     initialEvmId = await evmSnapshot();
-
-    await impersonateAndInjectEther(FURUCOMBO_REGISTRY_OWNER);
-
     this.registry = await Registry.new();
-    this.onchainRegistry = await IRegistry.at(FURUCOMBO_REGISTRY);
-
     this.hParaSwap = await HParaSwapV5.new();
-
-    await this.onchainRegistry.register(
-      this.hParaSwap.address,
-      utils.asciiToHex('ParaSwapV5'),
-      { from: FURUCOMBO_REGISTRY_OWNER }
-    );
 
     await this.registry.register(
       this.hParaSwap.address,
@@ -140,7 +126,6 @@ contract('ParaSwapV5', function([_, user, user2]) {
       this.registry.address,
       this.feeRuleRegistry.address
     );
-    this.onchainProxy = await IProxy.at(FURUCOMBO_PROXY);
   });
 
   beforeEach(async function() {
