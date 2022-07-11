@@ -103,6 +103,8 @@ contract('HFurucomboFunds', function([_, user, dummy]) {
         from: denominationProvider,
       });
 
+      const userDenominationBefore = await denomination.balanceOf(user);
+
       const receipt = await this.proxy.execMock(to, data, {
         from: user,
       });
@@ -115,9 +117,13 @@ contract('HFurucomboFunds', function([_, user, dummy]) {
       const proxyDenomination = await denomination.balanceOf(
         this.proxy.address
       );
+      const userDenominationAfter = await denomination.balanceOf(user);
 
       // User's share should be equal with handler return share
       expect(userShare).to.be.bignumber.eq(handlerReturn);
+
+      // User's denomination shouldn't increase. Make sure proxy used up denomination
+      expect(userDenominationAfter).to.be.bignumber.eq(userDenominationBefore);
 
       // Proxy shouldn't have remaining share
       expect(proxyShare).to.be.zero;
@@ -248,6 +254,8 @@ contract('HFurucomboFunds', function([_, user, dummy]) {
         from: user,
       });
 
+      const userShareBefore = await shareToken.balanceOf(user);
+
       const receipt = await this.proxy.execMock(to, data, {
         from: user,
       });
@@ -255,15 +263,18 @@ contract('HFurucomboFunds', function([_, user, dummy]) {
       const handlerReturn = getHandlerReturn(receipt, ['uint256'])[0];
 
       const proxyShare = await shareToken.balanceOf(this.proxy.address);
+      const userShareAfter = await shareToken.balanceOf(user);
 
       const proxyDenomination = await denomination.balanceOf(
         this.proxy.address
       );
-
       const userDenomination = await denomination.balanceOf(user);
 
       // User's denomination balance should be equal with handler return.
       expect(userDenomination).to.be.bignumber.eq(handlerReturn);
+
+      // User's share shouldn't increase. Make sure proxy used up share.
+      expect(userShareAfter).to.be.bignumber.eq(userShareBefore);
 
       // Proxy shouldn't have remaining share
       expect(proxyShare).to.be.zero;
