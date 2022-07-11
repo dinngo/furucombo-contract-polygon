@@ -31,6 +31,7 @@ const {
 
 const HSushiSwap = artifacts.require('HSushiSwap');
 const Registry = artifacts.require('Registry');
+const FeeRuleRegistry = artifacts.require('FeeRuleRegistry');
 const Proxy = artifacts.require('ProxyMock');
 const IToken = artifacts.require('IERC20');
 const IUniswapV2Router = artifacts.require('IUniswapV2Router02');
@@ -47,7 +48,11 @@ contract('SushiSwap Swap', function([_, user, someone]) {
       utils.asciiToHex('SushiSwap')
     );
     this.router = await IUniswapV2Router.at(SUSHISWAP_ROUTER);
-    this.proxy = await Proxy.new(this.registry.address);
+    this.feeRuleRegistry = await FeeRuleRegistry.new('0', _);
+    this.proxy = await Proxy.new(
+      this.registry.address,
+      this.feeRuleRegistry.address
+    );
   });
 
   beforeEach(async function() {

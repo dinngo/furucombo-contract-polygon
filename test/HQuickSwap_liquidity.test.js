@@ -31,6 +31,7 @@ const {
 
 const HQuickSwap = artifacts.require('HQuickSwap');
 const Registry = artifacts.require('Registry');
+const FeeRuleRegistry = artifacts.require('FeeRuleRegistry');
 const Proxy = artifacts.require('ProxyMock');
 const IToken = artifacts.require('IERC20');
 const UniswapV2Router02 = artifacts.require('IUniswapV2Router02');
@@ -53,7 +54,11 @@ contract('QuickSwap Liquidity', function([_, user]) {
     tokenBProviderAddress = await tokenProviderSushi(tokenBAddress);
 
     this.registry = await Registry.new();
-    this.proxy = await Proxy.new(this.registry.address);
+    this.feeRuleRegistry = await FeeRuleRegistry.new('0', _);
+    this.proxy = await Proxy.new(
+      this.registry.address,
+      this.feeRuleRegistry.address
+    );
     this.hQuickSwap = await HQuickSwap.new();
     await this.registry.register(
       this.hQuickSwap.address,

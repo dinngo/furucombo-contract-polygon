@@ -27,6 +27,7 @@ const Foo4 = artifacts.require('Foo4');
 const Foo4Handler = artifacts.require('Foo4Handler');
 const Foo5Handler = artifacts.require('Foo5Handler');
 const Registry = artifacts.require('Registry');
+const FeeRuleRegistry = artifacts.require('FeeRuleRegistry');
 const Proxy = artifacts.require('ProxyMock');
 const HMock = artifacts.require('HMock');
 
@@ -37,7 +38,11 @@ contract('Proxy', function([_, deployer, user]) {
 
   before(async function() {
     this.registry = await Registry.new();
-    this.proxy = await Proxy.new(this.registry.address);
+    this.feeRuleRegistry = await FeeRuleRegistry.new('0', _);
+    this.proxy = await Proxy.new(
+      this.registry.address,
+      this.feeRuleRegistry.address
+    );
   });
 
   beforeEach(async function() {
@@ -93,7 +98,7 @@ contract('Proxy', function([_, deployer, user]) {
         abi.simpleEncode('bar(uint256,uint256):(uint256)', index, num),
       ];
       await expectRevert(
-        this.proxy.batchExec(to, config, data),
+        this.proxy.batchExec(to, config, data, []),
         'Invalid handler'
       );
     });
@@ -138,7 +143,7 @@ contract('Proxy', function([_, deployer, user]) {
         abi.simpleEncode('bar(uint256,uint256):(uint256)', index, num),
       ];
       await expectRevert(
-        this.proxy.batchExec(to, config, data, { from: user }),
+        this.proxy.batchExec(to, config, data, [], { from: user }),
         'Banned'
       );
     });
@@ -181,7 +186,7 @@ contract('Proxy', function([_, deployer, user]) {
         abi.simpleEncode('bar(uint256,uint256):(uint256)', index, num),
       ];
       await expectRevert(
-        this.proxy.batchExec(to, config, data, { from: user }),
+        this.proxy.batchExec(to, config, data, [], { from: user }),
         'Halted'
       );
     });
@@ -228,7 +233,7 @@ contract('Proxy', function([_, deployer, user]) {
         abi.simpleEncode('bar(uint256,uint256):(uint256)', index[1], num[1]),
         abi.simpleEncode('bar(uint256,uint256):(uint256)', index[2], num[2]),
       ];
-      await this.proxy.batchExec(to, config, data);
+      await this.proxy.batchExec(to, config, data, []);
       const result = [
         await this.foo0.accounts(this.proxy.address),
         await this.foo1.accounts(this.proxy.address),
@@ -292,7 +297,7 @@ contract('Proxy', function([_, deployer, user]) {
         abi.simpleEncode('bar(uint256,uint256):(uint256)', value[1], index[1]),
         abi.simpleEncode('bar(uint256,uint256):(uint256)', value[2], index[2]),
       ];
-      const receipt = await this.proxy.batchExec(to, config, data, {
+      const receipt = await this.proxy.batchExec(to, config, data, [], {
         from: user,
         value: ether('1'),
       });
@@ -413,7 +418,7 @@ contract('Proxy', function([_, deployer, user]) {
         abi.simpleEncode('bar1(address,bytes32)', this.foo.address, a),
       ];
 
-      await this.proxy.batchExec(tos, configs, datas, {
+      await this.proxy.batchExec(tos, configs, datas, [], {
         from: user,
         value: ether('1'),
       });
@@ -436,7 +441,7 @@ contract('Proxy', function([_, deployer, user]) {
         abi.simpleEncode('bar1(address,bytes32)', this.foo.address, a),
       ];
 
-      await this.proxy.batchExec(tos, configs, datas, {
+      await this.proxy.batchExec(tos, configs, datas, [], {
         from: user,
         value: ether('1'),
       });
@@ -468,7 +473,7 @@ contract('Proxy', function([_, deployer, user]) {
         abi.simpleEncode('barUint1(address,uint256)', this.foo.address, ratio),
       ];
 
-      const receipt = await this.proxy.batchExec(tos, configs, datas, {
+      const receipt = await this.proxy.batchExec(tos, configs, datas, [], {
         from: user,
         value: ether('1'),
       });
@@ -499,7 +504,7 @@ contract('Proxy', function([_, deployer, user]) {
         ),
       ];
 
-      await this.proxy.batchExec(tos, configs, datas, {
+      await this.proxy.batchExec(tos, configs, datas, [], {
         from: user,
         value: ether('1'),
       });
@@ -520,7 +525,7 @@ contract('Proxy', function([_, deployer, user]) {
         abi.simpleEncode('barUint1(address,uint256)', this.foo.address, a),
       ];
 
-      await this.proxy.batchExec(tos, configs, datas, {
+      await this.proxy.batchExec(tos, configs, datas, [], {
         from: user,
         value: ether('1'),
       });
@@ -546,7 +551,7 @@ contract('Proxy', function([_, deployer, user]) {
       ];
 
       await expectRevert(
-        this.proxy.batchExec(tos, configs, datas, {
+        this.proxy.batchExec(tos, configs, datas, [], {
           from: user,
           value: ether('1'),
         }),
@@ -570,7 +575,7 @@ contract('Proxy', function([_, deployer, user]) {
       ];
 
       await expectRevert(
-        this.proxy.batchExec(tos, configs, datas, {
+        this.proxy.batchExec(tos, configs, datas, [], {
           from: user,
           value: ether('1'),
         }),
@@ -594,7 +599,7 @@ contract('Proxy', function([_, deployer, user]) {
       ];
 
       await expectRevert(
-        this.proxy.batchExec(tos, configs, datas, {
+        this.proxy.batchExec(tos, configs, datas, [], {
           from: user,
           value: ether('1'),
         }),
@@ -618,7 +623,7 @@ contract('Proxy', function([_, deployer, user]) {
       ];
 
       await expectRevert(
-        this.proxy.batchExec(tos, configs, datas, {
+        this.proxy.batchExec(tos, configs, datas, [], {
           from: user,
           value: ether('1'),
         }),
@@ -640,7 +645,7 @@ contract('Proxy', function([_, deployer, user]) {
       ];
 
       await expectRevert.unspecified(
-        this.proxy.batchExec(tos, configs, datas, {
+        this.proxy.batchExec(tos, configs, datas, [], {
           from: user,
           value: ether('1'),
         })

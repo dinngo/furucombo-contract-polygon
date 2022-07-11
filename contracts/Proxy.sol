@@ -7,9 +7,11 @@ import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "./interface/IProxy.sol";
 import "./interface/IRegistry.sol";
+import "./interface/IFeeRuleRegistry.sol";
 import "./Config.sol";
 import "./Storage.sol";
 import "./lib/LibParam.sol";
+import "./lib/LibFeeStorage.sol";
 
 /**
  * @title The entrance of Furucombo
@@ -21,6 +23,9 @@ contract Proxy is IProxy, Storage, Config {
     using LibParam for bytes32;
     using LibStack for bytes32[];
     using Strings for uint256;
+    using LibFeeStorage for mapping(bytes32 => bytes32);
+
+    event ChargeFee(address indexed tokenIn, uint256 feeAmount);
 
     modifier isNotBanned() {
         require(registry.bannedAgents(address(this)) == 0, "Banned");
@@ -32,10 +37,14 @@ contract Proxy is IProxy, Storage, Config {
         _;
     }
 
+    address private constant NATIVE_TOKEN =
+        0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
     IRegistry public immutable registry;
+    IFeeRuleRegistry public immutable feeRuleRegistry;
 
-    constructor(address _registry) {
+    constructor(address _registry, address _feeRuleRegistry) {
         registry = IRegistry(_registry);
+        feeRuleRegistry = IFeeRuleRegistry(_feeRuleRegistry);
     }
 
     /**
@@ -73,13 +82,15 @@ contract Proxy is IProxy, Storage, Config {
      * @param tos The handlers of combo.
      * @param configs The configurations of executing cubes.
      * @param datas The combo datas.
+     * @param ruleIndexes The indexes of rules.
      */
     function batchExec(
         address[] calldata tos,
         bytes32[] calldata configs,
-        bytes[] memory datas
+        bytes[] memory datas,
+        uint256[] calldata ruleIndexes
     ) external payable override isNotHalted isNotBanned {
-        _preProcess();
+        _preProcess(ruleIndexes);
         _execs(tos, configs, datas);
         _postProcess();
     }
@@ -298,9 +309,26 @@ contract Proxy is IProxy, Storage, Config {
     }
 
     /// @notice The pre-process phase.
-    function _preProcess() internal virtual isStackEmpty {
+    function _preProcess(uint256[] memory _ruleIndexes)
+        internal
+        virtual
+        isStackEmpty
+    {
         // Set the sender.
         _setSender();
+        // Set the fee collector
+        cache._setFeeCollector(feeRuleRegistry.feeCollector());
+        // Calculate fee
+        uint256 feeRate =
+            feeRuleRegistry.calFeeRateMulti(_getSender(), _ruleIndexes);
+        require(feeRate <= PERCENTAGE_BASE, "fee rate out of range");
+        cache._setFeeRate(feeRate);
+        if (msg.value > 0 && feeRate > 0) {
+            // Process ether fee
+            uint256 feeEth = _calFee(msg.value, feeRate);
+            payable(cache._getFeeCollector()).transfer(feeEth);
+            emit ChargeFee(NATIVE_TOKEN, feeEth);
+        }
     }
 
     /// @notice The post-process phase.
@@ -345,5 +373,13 @@ contract Proxy is IProxy, Storage, Config {
     /// @notice Check if the caller is valid in registry.
     function _isValidCaller(address caller) internal view returns (bool) {
         return registry.isValidCaller(caller);
+    }
+
+    function _calFee(uint256 _amount, uint256 _feeRate)
+        internal
+        pure
+        returns (uint256)
+    {
+        return (_amount * _feeRate) / PERCENTAGE_BASE;
     }
 }

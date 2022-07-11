@@ -28,6 +28,7 @@ const {
 
 const Proxy = artifacts.require('ProxyMock');
 const Registry = artifacts.require('Registry');
+const FeeRuleRegistry = artifacts.require('FeeRuleRegistry');
 const HCurve = artifacts.require('HCurve');
 const ICurveHandler = artifacts.require('ICurveHandler');
 const IToken = artifacts.require('IERC20');
@@ -43,7 +44,11 @@ contract('Curve', function([_, user]) {
       utils.asciiToHex('HCurve')
     );
 
-    this.proxy = await Proxy.new(this.registry.address);
+    this.feeRuleRegistry = await FeeRuleRegistry.new('0', _);
+    this.proxy = await Proxy.new(
+      this.registry.address,
+      this.feeRuleRegistry.address
+    );
     this.aaveSwap = await ICurveHandler.at(CURVE_AAVE_SWAP);
   });
 

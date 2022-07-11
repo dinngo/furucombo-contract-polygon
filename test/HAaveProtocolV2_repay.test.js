@@ -33,6 +33,7 @@ const {
 
 const HAaveV2 = artifacts.require('HAaveProtocolV2');
 const Registry = artifacts.require('Registry');
+const FeeRuleRegistry = artifacts.require('FeeRuleRegistry');
 const Proxy = artifacts.require('ProxyMock');
 const IToken = artifacts.require('IERC20');
 const IAToken = artifacts.require('IATokenV2');
@@ -52,7 +53,11 @@ contract('Aave V2', function([_, user]) {
     providerAddress = await tokenProviderQuick(tokenAddress);
 
     this.registry = await Registry.new();
-    this.proxy = await Proxy.new(this.registry.address);
+    this.feeRuleRegistry = await FeeRuleRegistry.new('0', _);
+    this.proxy = await Proxy.new(
+      this.registry.address,
+      this.feeRuleRegistry.address
+    );
     this.hAaveV2 = await HAaveV2.new();
     await this.registry.register(
       this.hAaveV2.address,

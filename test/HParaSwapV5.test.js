@@ -35,6 +35,7 @@ const queryString = require('query-string');
 const HParaSwapV5 = artifacts.require('HParaSwapV5');
 const IRegistry = artifacts.require('IRegistry');
 const Registry = artifacts.require('Registry');
+const FeeRuleRegistry = artifacts.require('FeeRuleRegistry');
 const IProxy = artifacts.require('IProxy');
 const Proxy = artifacts.require('ProxyMock');
 const IToken = artifacts.require('IERC20');
@@ -134,7 +135,11 @@ contract('ParaSwapV5', function([_, user, user2]) {
       utils.asciiToHex('ParaSwapV5')
     );
 
-    this.proxy = await Proxy.new(this.registry.address);
+    this.feeRuleRegistry = await FeeRuleRegistry.new('0', _);
+    this.proxy = await Proxy.new(
+      this.registry.address,
+      this.feeRuleRegistry.address
+    );
     this.onchainProxy = await IProxy.at(FURUCOMBO_PROXY);
   });
 
@@ -149,7 +154,9 @@ contract('ParaSwapV5', function([_, user, user2]) {
     await evmRevert(initialEvmId);
   });
 
-  describe('with on chain proxy', function() {
+  // Because on-chain Proxy is not fee-charged proxy.
+  // Skip on-chain proxy test cases until on-chain proxy is fee-charged.
+  describe.skip('with on chain proxy', function() {
     const configs = [ZERO_BYTES32];
     describe('MATIC to Token', function() {
       const tokenAddress = DAI_TOKEN;

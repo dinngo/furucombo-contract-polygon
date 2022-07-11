@@ -28,6 +28,7 @@ const queryString = require('query-string');
 
 const HOneInch = artifacts.require('HOneInchV3');
 const Registry = artifacts.require('Registry');
+const FeeRuleRegistry = artifacts.require('FeeRuleRegistry');
 const Proxy = artifacts.require('ProxyMock');
 const IToken = artifacts.require('IERC20');
 const IOneInch = artifacts.require('IAggregationRouterV3');
@@ -71,7 +72,11 @@ contract('OneInchV3 Swap', function([_, user]) {
       this.hOneInch.address,
       utils.asciiToHex('OneInchV3')
     );
-    this.proxy = await Proxy.new(this.registry.address);
+    this.feeRuleRegistry = await FeeRuleRegistry.new('0', _);
+    this.proxy = await Proxy.new(
+      this.registry.address,
+      this.feeRuleRegistry.address
+    );
   });
 
   beforeEach(async function() {

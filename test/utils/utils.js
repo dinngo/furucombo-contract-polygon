@@ -11,6 +11,10 @@ const {
   USDC_TOKEN,
   WMATIC_TOKEN,
   RecordHandlerResultSig,
+  STORAGE_KEY_MSG_SENDER,
+  STORAGE_KEY_CUBE_COUNTER,
+  STORAGE_KEY_FEE_RATE,
+  STORAGE_KEY_FEE_COLLECTOR,
 } = require('./constants');
 
 function profileGas(receipt) {
@@ -242,6 +246,17 @@ async function callExternalApi(
   return resp; // return error resp from external api to caller.
 }
 
+async function checkCacheClean(proxyAddr) {
+  expect(await web3.eth.getStorageAt(proxyAddr, STORAGE_KEY_MSG_SENDER)).to.be
+    .zero;
+  expect(await web3.eth.getStorageAt(proxyAddr, STORAGE_KEY_CUBE_COUNTER)).to.be
+    .zero;
+  expect(await web3.eth.getStorageAt(proxyAddr, STORAGE_KEY_FEE_RATE)).to.be
+    .zero;
+  expect(await web3.eth.getStorageAt(proxyAddr, STORAGE_KEY_FEE_COLLECTOR)).to
+    .be.zero;
+}
+
 module.exports = {
   profileGas,
   evmSnapshot,
@@ -267,4 +282,5 @@ module.exports = {
   tokenProviderCurveGauge,
   impersonateAndInjectEther,
   callExternalApi,
+  checkCacheClean,
 };

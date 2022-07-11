@@ -19,6 +19,7 @@ const {
 
 const Proxy = artifacts.require('ProxyMock');
 const Registry = artifacts.require('Registry');
+const FeeRuleRegistry = artifacts.require('FeeRuleRegistry');
 const HCurveDao = artifacts.require('HCurveDao');
 const ILiquidityGauge = artifacts.require('ILiquidityGauge');
 const IToken = artifacts.require('IERC20');
@@ -46,7 +47,11 @@ contract('Curve DAO', function([_, user]) {
     );
     this.token0 = await IToken.at(token0Address);
     this.gauge0 = await ILiquidityGauge.at(gauge0Address);
-    this.proxy = await Proxy.new(this.registry.address);
+    this.feeRuleRegistry = await FeeRuleRegistry.new('0', _);
+    this.proxy = await Proxy.new(
+      this.registry.address,
+      this.feeRuleRegistry.address
+    );
   });
 
   beforeEach(async function() {
