@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 pragma solidity 0.8.10;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -17,22 +19,22 @@ contract FeeRuleRegistry is IFeeRuleRegistry, Ownable {
     event SetBasisFeeRate(uint256 basisFeeRate);
     event SetFeeCollector(address feeCollector);
 
-    constructor(uint256 _basisFeeRate, address _feeCollector) {
-        if (_basisFeeRate != 0) setBasisFeeRate(_basisFeeRate);
-        setFeeCollector(_feeCollector);
+    constructor(uint256 basisFeeRate_, address feeCollector_) {
+        if (basisFeeRate_ != 0) setBasisFeeRate(basisFeeRate_);
+        setFeeCollector(feeCollector_);
     }
 
-    function setBasisFeeRate(uint256 _basisFeeRate) public override onlyOwner {
-        require(_basisFeeRate <= BASE, "Out of range");
-        require(_basisFeeRate != basisFeeRate, "Same as current one");
-        basisFeeRate = _basisFeeRate;
+    function setBasisFeeRate(uint256 basisFeeRate_) public override onlyOwner {
+        require(basisFeeRate_ <= BASE, "Out of range");
+        require(basisFeeRate_ != basisFeeRate, "Same as current one");
+        basisFeeRate = basisFeeRate_;
         emit SetBasisFeeRate(basisFeeRate);
     }
 
-    function setFeeCollector(address _feeCollector) public override onlyOwner {
-        require(_feeCollector != address(0), "Zero address");
-        require(_feeCollector != feeCollector, "Same as current one");
-        feeCollector = _feeCollector;
+    function setFeeCollector(address feeCollector_) public override onlyOwner {
+        require(feeCollector_ != address(0), "Zero address");
+        require(feeCollector_ != feeCollector, "Same as current one");
+        feeCollector = feeCollector_;
         emit SetFeeCollector(feeCollector);
     }
 

@@ -159,6 +159,7 @@ contract HFunds is HandlerBase {
         address sender = _getSender();
         uint256 feeRate = cache._getFeeRate();
         uint256[] memory amountsInProxy = new uint256[](amounts.length);
+        address collector = cache._getFeeCollector();
 
         for (uint256 i = 0; i < tokens.length; i++) {
             _notMaticToken(tokens[i]);
@@ -169,7 +170,7 @@ contract HFunds is HandlerBase {
             );
             if (feeRate > 0) {
                 uint256 fee = _calFee(amounts[i], feeRate);
-                IERC20(tokens[i]).safeTransfer(cache._getFeeCollector(), fee);
+                IERC20(tokens[i]).safeTransfer(collector, fee);
                 amountsInProxy[i] = amounts[i] - fee;
                 emit ChargeFee(tokens[i], fee);
             } else {

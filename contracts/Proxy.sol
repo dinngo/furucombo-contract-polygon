@@ -326,7 +326,12 @@ contract Proxy is IProxy, Storage, Config {
         if (msg.value > 0 && feeRate > 0) {
             // Process ether fee
             uint256 feeEth = _calFee(msg.value, feeRate);
-            payable(cache._getFeeCollector()).transfer(feeEth);
+
+            // It will fail if fee collector is gnosis contract, because .transfer() will only consume 23000 gas limit.
+            // Replacing .transfer() with .call('') to avoid out of gas
+            address collector = cache._getFeeCollector();
+            (bool success, ) = collector.call{value: feeEth}("");
+            require(success, "Send fee to collector failed");
             emit ChargeFee(NATIVE_TOKEN, feeEth);
         }
     }
@@ -375,11 +380,11 @@ contract Proxy is IProxy, Storage, Config {
         return registry.isValidCaller(caller);
     }
 
-    function _calFee(uint256 _amount, uint256 _feeRate)
+    function _calFee(uint256 amount, uint256 feeRate)
         internal
         pure
         returns (uint256)
     {
-        return (_amount * _feeRate) / PERCENTAGE_BASE;
+        return (amount * feeRate) / PERCENTAGE_BASE;
     }
 }
