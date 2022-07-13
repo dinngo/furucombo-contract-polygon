@@ -1,3 +1,5 @@
+const { network } = require('hardhat');
+
 const utils = ethers.utils;
 
 // beta parameter
