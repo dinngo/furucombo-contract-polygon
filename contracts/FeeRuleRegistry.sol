@@ -38,83 +38,83 @@ contract FeeRuleRegistry is IFeeRuleRegistry, Ownable {
         emit SetFeeCollector(feeCollector);
     }
 
-    function registerRule(address _rule) external override onlyOwner {
-        require(_rule != address(0), "Not allow to register zero address");
-        rules[counter] = _rule;
-        emit RegisteredRule(counter, _rule);
+    function registerRule(address rule_) external override onlyOwner {
+        require(rule_ != address(0), "Not allow to register zero address");
+        rules[counter] = rule_;
+        emit RegisteredRule(counter, rule_);
         counter = counter + 1;
     }
 
-    function unregisterRule(uint256 _ruleIndex) external override onlyOwner {
+    function unregisterRule(uint256 ruleIndex_) external override onlyOwner {
         require(
-            rules[_ruleIndex] != address(0),
+            rules[ruleIndex_] != address(0),
             "Rule not set or unregistered"
         );
-        rules[_ruleIndex] = address(0);
-        emit UnregisteredRule(_ruleIndex);
+        rules[ruleIndex_] = address(0);
+        emit UnregisteredRule(ruleIndex_);
     }
 
-    function calFeeRateMulti(address _usr, uint256[] calldata _ruleIndexes)
+    function calFeeRateMulti(address usr_, uint256[] calldata ruleIndexes_)
         external
         view
         override
         returns (uint256 scaledRate)
     {
         scaledRate =
-            (calFeeRateMultiWithoutBasis(_usr, _ruleIndexes) * basisFeeRate) /
+            (calFeeRateMultiWithoutBasis(usr_, ruleIndexes_) * basisFeeRate) /
             BASE;
     }
 
     function calFeeRateMultiWithoutBasis(
-        address _usr,
-        uint256[] calldata _ruleIndexes
+        address usr_,
+        uint256[] calldata ruleIndexes_
     ) public view override returns (uint256 scaledRate) {
-        uint256 len = _ruleIndexes.length;
+        uint256 len = ruleIndexes_.length;
         if (len == 0) {
             scaledRate = BASE;
         } else {
-            scaledRate = _calDiscount(_usr, rules[_ruleIndexes[0]]);
+            scaledRate = _calDiscount(usr_, rules[ruleIndexes_[0]]);
             for (uint256 i = 1; i < len; i++) {
                 require(
-                    _ruleIndexes[i] > _ruleIndexes[i - 1],
+                    ruleIndexes_[i] > ruleIndexes_[i - 1],
                     "Not ascending order"
                 );
 
                 scaledRate =
-                    (scaledRate * _calDiscount(_usr, rules[_ruleIndexes[i]])) /
+                    (scaledRate * _calDiscount(usr_, rules[ruleIndexes_[i]])) /
                     BASE;
             }
         }
     }
 
-    function calFeeRate(address _usr, uint256 _ruleIndex)
+    function calFeeRate(address usr_, uint256 ruleIndex_)
         external
         view
         override
         returns (uint256 scaledRate)
     {
         scaledRate =
-            (calFeeRateWithoutBasis(_usr, _ruleIndex) * basisFeeRate) /
+            (calFeeRateWithoutBasis(usr_, ruleIndex_) * basisFeeRate) /
             BASE;
     }
 
-    function calFeeRateWithoutBasis(address _usr, uint256 _ruleIndex)
+    function calFeeRateWithoutBasis(address usr_, uint256 ruleIndex_)
         public
         view
         override
         returns (uint256 scaledRate)
     {
-        scaledRate = _calDiscount(_usr, rules[_ruleIndex]);
+        scaledRate = _calDiscount(usr_, rules[ruleIndex_]);
     }
 
     /* Internal Functions */
-    function _calDiscount(address _usr, address _rule)
+    function _calDiscount(address usr_, address rule_)
         internal
         view
         returns (uint256 discount)
     {
-        if (_rule != address(0)) {
-            discount = IRule(_rule).calDiscount(_usr);
+        if (rule_ != address(0)) {
+            discount = IRule(rule_).calDiscount(usr_);
             require(discount <= BASE, "Discount out of range");
         } else {
             discount = BASE;

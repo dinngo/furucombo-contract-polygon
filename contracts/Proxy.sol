@@ -42,9 +42,9 @@ contract Proxy is IProxy, Storage, Config {
     IRegistry public immutable registry;
     IFeeRuleRegistry public immutable feeRuleRegistry;
 
-    constructor(address _registry, address _feeRuleRegistry) {
-        registry = IRegistry(_registry);
-        feeRuleRegistry = IFeeRuleRegistry(_feeRuleRegistry);
+    constructor(address registry_, address feeRuleRegistry_) {
+        registry = IRegistry(registry_);
+        feeRuleRegistry = IFeeRuleRegistry(feeRuleRegistry_);
     }
 
     /**
@@ -235,23 +235,23 @@ contract Proxy is IProxy, Storage, Config {
 
     /**
      * @notice The execution of a single cube.
-     * @param _to The handler of cube.
-     * @param _data The cube execution data.
-     * @param _counter The current counter of the cube.
+     * @param to_ The handler of cube.
+     * @param data_ The cube execution data.
+     * @param counter_ The current counter of the cube.
      */
     function _exec(
-        address _to,
-        bytes memory _data,
-        uint256 _counter
+        address to_,
+        bytes memory data_,
+        uint256 counter_
     ) internal returns (bytes memory result) {
-        require(_isValidHandler(_to), "Invalid handler");
+        require(_isValidHandler(to_), "Invalid handler");
         bool success;
         assembly {
             success := delegatecall(
                 sub(gas(), 5000),
-                _to,
-                add(_data, 0x20),
-                mload(_data),
+                to_,
+                add(data_, 0x20),
+                mload(data_),
                 0,
                 0
             )
@@ -272,13 +272,13 @@ contract Proxy is IProxy, Storage, Config {
                 result := add(result, 0x04)
             }
 
-            if (_counter == type(uint256).max) {
+            if (counter_ == type(uint256).max) {
                 revert(abi.decode(result, (string))); // Don't prepend counter
             } else {
                 revert(
                     string(
                         abi.encodePacked(
-                            _counter.toString(),
+                            counter_.toString(),
                             "_",
                             abi.decode(result, (string))
                         )
@@ -290,9 +290,9 @@ contract Proxy is IProxy, Storage, Config {
 
     /**
      * @notice Setup the post-process.
-     * @param _to The handler of post-process.
+     * @param to_ The handler of post-process.
      */
-    function _setPostProcess(address _to) internal {
+    function _setPostProcess(address to_) internal {
         // If the stack length equals 0, just skip
         // If the top is a custom post-process, replace it with the handler
         // address.
@@ -303,13 +303,13 @@ contract Proxy is IProxy, Storage, Config {
             bytes4(stack.peek(1)) != 0x00000000
         ) {
             stack.pop();
-            stack.setAddress(_to);
+            stack.setAddress(to_);
             stack.setHandlerType(HandlerType.Custom);
         }
     }
 
     /// @notice The pre-process phase.
-    function _preProcess(uint256[] memory _ruleIndexes)
+    function _preProcess(uint256[] memory ruleIndexes_)
         internal
         virtual
         isStackEmpty
@@ -320,7 +320,7 @@ contract Proxy is IProxy, Storage, Config {
         cache._setFeeCollector(feeRuleRegistry.feeCollector());
         // Calculate fee
         uint256 feeRate =
-            feeRuleRegistry.calFeeRateMulti(_getSender(), _ruleIndexes);
+            feeRuleRegistry.calFeeRateMulti(_getSender(), ruleIndexes_);
         require(feeRate <= PERCENTAGE_BASE, "fee rate out of range");
         cache._setFeeRate(feeRate);
         if (msg.value > 0 && feeRate > 0) {
