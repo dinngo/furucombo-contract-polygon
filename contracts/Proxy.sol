@@ -327,7 +327,7 @@ contract Proxy is IProxy, Storage, Config {
             // Process ether fee
             uint256 feeEth = _calFee(msg.value, feeRate);
 
-            // It will fail if fee collector is gnosis contract, because .transfer() will only consume 23000 gas limit.
+            // It will fail if fee collector is gnosis contract, because .transfer() will only consume 2300 gas limit.
             // Replacing .transfer() with .call('') to avoid out of gas
             address collector = cache._getFeeCollector();
             (bool success, ) = collector.call{value: feeEth}("");
@@ -366,7 +366,9 @@ contract Proxy is IProxy, Storage, Config {
         uint256 amount = address(this).balance;
         if (amount > 0) payable(msg.sender).transfer(amount);
 
-        // Reset the msg.sender
+        // Reset cached datas
+        cache._resetFeeCollector();
+        cache._resetFeeRate();
         _resetSender();
     }
 
