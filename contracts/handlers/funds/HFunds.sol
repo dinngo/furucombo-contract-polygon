@@ -183,11 +183,11 @@ contract HFunds is HandlerBase {
         return amountsInProxy;
     }
 
-    function _calFee(uint256 _amount, uint256 _feeRate)
+    function _calFee(uint256 amount, uint256 feeRate)
         internal
         pure
         returns (uint256)
     {
-        return (_amount * _feeRate) / PERCENTAGE_BASE;
+        return (amount * feeRate) / PERCENTAGE_BASE;
     }
 }
