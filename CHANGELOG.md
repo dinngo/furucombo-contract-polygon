@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
 ### Added
 
 - Support Furucombo-Funds purchase and redeem.
+- Support Curve withdraw to gauges in `HCurveDao`.
 
 ### Changed
 

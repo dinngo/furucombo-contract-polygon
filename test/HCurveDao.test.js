@@ -13,6 +13,8 @@ const {
   evmRevert,
   evmSnapshot,
   profileGas,
+  getHandlerReturn,
+  hasFuncSig,
   tokenProviderCurveGauge,
 } = require('./utils/utils');
 
@@ -29,6 +31,9 @@ contract('Curve DAO', function([_, user]) {
   const token0Address = CURVE_AAVECRV;
   const gauge0Address = CURVE_AAVE_GAUGE;
   const gauge0Amount = ether('0.1');
+  const setApproveDepositSig = web3.eth.abi.encodeFunctionSignature(
+    'set_approve_deposit(address,bool)'
+  );
 
   let token0Provider;
 
@@ -65,9 +70,13 @@ contract('Curve DAO', function([_, user]) {
         this.gauge0.address,
         gauge0Amount
       );
-      await this.gauge0.set_approve_deposit(this.proxy.address, true, {
-        from: user,
-      });
+
+      if (await hasFuncSig(this.gauge0.address, setApproveDepositSig)) {
+        // Only v1 and v2 gauges need deposit approval
+        await this.gauge0.set_approve_deposit(this.proxy.address, true, {
+          from: user,
+        });
+      }
 
       const depositUser = await this.gauge0.balanceOf(user);
       const receipt = await this.proxy.execMock(to, data, {
@@ -93,9 +102,13 @@ contract('Curve DAO', function([_, user]) {
         this.gauge0.address,
         MAX_UINT256
       );
-      await this.gauge0.set_approve_deposit(this.proxy.address, true, {
-        from: user,
-      });
+
+      if (await hasFuncSig(this.gauge0.address, setApproveDepositSig)) {
+        // Only v1 and v2 gauges need deposit approval
+        await this.gauge0.set_approve_deposit(this.proxy.address, true, {
+          from: user,
+        });
+      }
 
       const depositUser = await this.gauge0.balanceOf(user);
       const receipt = await this.proxy.execMock(to, data, {
@@ -112,6 +125,11 @@ contract('Curve DAO', function([_, user]) {
     });
 
     it('without approval', async function() {
+      if (!(await hasFuncSig(this.gauge0.address, setApproveDepositSig))) {
+        // V3 gauges afterwards skip this
+        this.skip();
+      }
+
       await this.token0.transfer(this.proxy.address, gauge0Amount, {
         from: token0Provider,
       });
@@ -128,6 +146,74 @@ contract('Curve DAO', function([_, user]) {
         }),
         'HCurveDao_deposit: Not approved'
       );
+    });
+  });
+
+  describe('Withdraw lp token from v2 gauge afterwards', function() {
+    let data;
+
+    beforeEach(async function() {
+      // Transfer gauge token to furucombo proxy
+      await this.token0.transfer(user, gauge0Amount, {
+        from: token0Provider,
+      });
+      await this.token0.approve(this.gauge0.address, gauge0Amount, {
+        from: user,
+      });
+      await this.gauge0.deposit(gauge0Amount, user, {
+        from: user,
+      });
+      await this.gauge0.transfer(this.proxy.address, gauge0Amount, {
+        from: user,
+      });
+    });
+
+    it('normal', async function() {
+      data = abi.simpleEncode(
+        'withdraw(address,uint256)',
+        this.gauge0.address,
+        gauge0Amount
+      );
+    });
+
+    it('max amount', async function() {
+      data = abi.simpleEncode(
+        'withdraw(address,uint256)',
+        this.gauge0.address,
+        MAX_UINT256
+      );
+    });
+
+    afterEach(async function() {
+      const to = this.hCurveDao.address;
+      const withdrawUser = await this.token0.balanceOf(user);
+      const receipt = await this.proxy.execMock(to, data, {
+        from: user,
+        value: ether('0.1'),
+      });
+      const withdrawUserEnd = await this.token0.balanceOf(user);
+
+      // Check handler return
+      const handlerReturn = utils.toBN(
+        getHandlerReturn(receipt, ['uint256'])[0]
+      );
+      expect(handlerReturn).to.be.bignumber.eq(gauge0Amount);
+
+      // Check lp amount
+      expect(withdrawUserEnd.sub(withdrawUser)).to.be.bignumber.eq(
+        gauge0Amount
+      );
+      expect(
+        await this.token0.balanceOf(this.proxy.address)
+      ).to.be.bignumber.eq(ether('0'));
+
+      // Check gauge token amount
+      expect(await this.gauge0.balanceOf(user)).to.be.bignumber.eq(ether('0'));
+      expect(
+        await this.gauge0.balanceOf(this.proxy.address)
+      ).to.be.bignumber.eq(ether('0'));
+
+      profileGas(receipt);
     });
   });
 });
