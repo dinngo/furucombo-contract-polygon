@@ -1,5 +1,4 @@
 const {
-  BN,
   ether,
   expectRevert,
   constants,
@@ -21,7 +20,6 @@ const {
 const Proxy = artifacts.require('ProxyMock');
 const Registry = artifacts.require('Registry');
 const HCurveDao = artifacts.require('HCurveDao');
-const IMinter = artifacts.require('IMinter');
 const ILiquidityGauge = artifacts.require('ILiquidityGauge');
 const IToken = artifacts.require('IERC20');
 
