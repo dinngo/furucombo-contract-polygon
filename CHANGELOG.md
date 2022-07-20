@@ -4,13 +4,15 @@ All notable changes to this project will be documented in this file.
 
 ## [unreleased]
 
+### Added
+
+- Support Curve withdraw to gauges in `HCurveDao`.
+
 ## [1.13.0] - 2022-07-18
 
 ### Added
 
 - Support Furucombo-Funds purchase and redeem.
-
-### Changed
 
 ## [1.12.0] - 2022-06-14
 
