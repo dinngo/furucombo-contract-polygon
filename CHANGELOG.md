@@ -14,8 +14,6 @@ All notable changes to this project will be documented in this file.
 
 - Support Furucombo-Funds purchase and redeem.
 
-### Changed
-
 ## [1.12.0] - 2022-06-14
 
 ### Added
