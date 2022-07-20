@@ -148,7 +148,8 @@ contract('Curve DAO', function([_, user]) {
   });
 
   describe('Withdraw lp token from v2 gauge afterwards', function() {
-    let data;
+    let withdrawUser;
+    let receipt;
 
     beforeEach(async function() {
       // Transfer gauge token to furucombo proxy
@@ -167,28 +168,34 @@ contract('Curve DAO', function([_, user]) {
     });
 
     it('normal', async function() {
-      data = abi.simpleEncode(
+      const to = this.hCurveDao.address;
+      const data = abi.simpleEncode(
         'withdraw(address,uint256)',
         this.gauge0.address,
         gauge0Amount
       );
+      withdrawUser = await this.token0.balanceOf(user);
+      receipt = await this.proxy.execMock(to, data, {
+        from: user,
+        value: ether('0.1'),
+      });
     });
 
     it('max amount', async function() {
-      data = abi.simpleEncode(
+      const to = this.hCurveDao.address;
+      const data = abi.simpleEncode(
         'withdraw(address,uint256)',
         this.gauge0.address,
         MAX_UINT256
       );
-    });
-
-    afterEach(async function() {
-      const to = this.hCurveDao.address;
-      const withdrawUser = await this.token0.balanceOf(user);
-      const receipt = await this.proxy.execMock(to, data, {
+      withdrawUser = await this.token0.balanceOf(user);
+      receipt = await this.proxy.execMock(to, data, {
         from: user,
         value: ether('0.1'),
       });
+    });
+
+    afterEach(async function() {
       const withdrawUserEnd = await this.token0.balanceOf(user);
 
       // Check handler return
