@@ -377,7 +377,7 @@ contract('ParaSwapV5', function([_, user, user2]) {
       });
     }); // describe('MATIC to token') end
 
-    describe('token to Matic', function() {
+    describe.skip('token to Matic', function() {
       const tokenAddress = USDC_TOKEN;
       const tokenDecimal = 6;
       const slippageInBps = 100; // 1%
@@ -798,7 +798,7 @@ contract('ParaSwapV5', function([_, user, user2]) {
       });
     }); // describe('MATIC to token') end
 
-    describe('token to Matic', function() {
+    describe.skip('token to Matic', function() {
       const tokenAddress = DAI_TOKEN;
       const tokenDecimal = 18;
       const slippageInBps = 100; // 1%
