@@ -8,7 +8,7 @@ const {
   USDC_TOKEN,
   USDT_TOKEN,
   TUSD_TOKEN,
-  CURVE_FACTORY_ZAP,
+  CURVE_FACTORY_ZAP_META_USD,
   CURVE_FACTORY_TUSD,
   CURVE_FACTORY_TUSD_PROVIDER,
 } = require('./utils/constants');
@@ -40,7 +40,7 @@ contract('Curve Factory Meta', function([_, user]) {
       utils.asciiToHex('HCurve')
     );
     this.proxy = await Proxy.new(this.registry.address);
-    this.zap = await ICurveHandler.at(CURVE_FACTORY_ZAP);
+    this.zap = await ICurveHandler.at(CURVE_FACTORY_ZAP_META_USD);
     this.tusdSwap = await ICurveHandler.at(CURVE_FACTORY_TUSD);
   });
 
