@@ -115,7 +115,8 @@ contract('Curve Factory Meta', function([_, user]) {
       expect(await this.token0.balanceOf(user)).to.be.bignumber.eq(token0User);
       expectEqWithinBps(
         await this.token1.balanceOf(user),
-        token1User.add(answer)
+        token1User.add(answer),
+        100
       );
 
       profileGas(receipt);
