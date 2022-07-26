@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 ### Added
 
 - Support Curve withdraw to gauges in `HCurveDao`.
+- Support Curve exchange underlying factory zap in `HCurve`.
 
 ## [1.13.0] - 2022-07-18
 
