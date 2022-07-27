@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## [unreleased]
 
+## [1.14.0] - 2022-07-27
+
 ### Added
 
 - Support Curve withdraw to gauges in `HCurveDao`.
