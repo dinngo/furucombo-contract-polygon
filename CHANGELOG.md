@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file.
 
 - Support Curve withdraw to gauges in `HCurveDao`.
 - Support Curve exchange underlying factory zap in `HCurve`.
+- Static analysis tool - slither
 
 ## [1.13.0] - 2022-07-18
 
