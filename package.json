@@ -49,12 +49,14 @@
     "query-string": "^6.13.1",
     "solc": "0.6.12",
     "solhint": "^3.0.0",
+    "solidity-coverage": "^0.7.21",
     "truffle": "5.1.60",
     "web3": "^1.5.2",
     "web3-provider-engine": "^15.0.12"
   },
   "dependencies": {
     "@openzeppelin/contracts": "4.3.2",
+    "dotenv": "^16.0.1",
     "pify": "^5.0.0"
   },
   "husky": {
