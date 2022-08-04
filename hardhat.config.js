@@ -5,6 +5,7 @@ require('hardhat-deploy-ethers');
 // Truffle and Web3.js plugin
 require('@nomiclabs/hardhat-web3');
 require('@nomiclabs/hardhat-truffle5');
+require('@nomiclabs/hardhat-etherscan');
 
 const fs = require('fs');
 let key_beta;
@@ -66,8 +67,17 @@ module.exports = {
       gas: 30000000,
       timeout: 900000,
     },
+    prod: {
+      url: process.env.PROD_URL || 'https://rpc.ankr.com/polygon/',
+      chainId: process.env.PROD_CHAIN_ID || 137,
+      accounts:
+        process.env.PROD_SECRET !== undefined ? [process.env.PROD_SECRET] : [],
+    },
   },
   mocha: {
     timeout: 900000,
+  },
+  etherscan: {
+    apiKey: process.env.ETHERSCAN_KEY || '',
   },
 };
