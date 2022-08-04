@@ -63,16 +63,6 @@ module.exports = {
       gasPrice: 0,
       gas: 30000000,
     },
-    // Due to "evm_snapshot/evm_revert" JSON-RPC method used in tests
-    // we have to launch hardhat network at localhost:8545(like ganache)
-    // and use "--network localhost" parameter to connect to localhost:8545.
-    // some settings like gasPrice might be overrided if we configure it at networks "hardhat".
-    // So configure these parameters at networks "localhost".
-    localhost: {
-      gasPrice: 0,
-      gas: 30000000,
-      timeout: 900000,
-    },
   },
   mocha: {
     timeout: 900000,
