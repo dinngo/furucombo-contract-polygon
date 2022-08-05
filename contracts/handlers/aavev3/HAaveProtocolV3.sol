@@ -62,6 +62,23 @@ contract HAaveProtocolV3 is
         IWMATIC(WMATIC).withdraw(withdrawAmount);
     }
 
+    function borrow(
+        address asset,
+        uint256 amount,
+        uint256 rateMode
+    ) external payable {
+        _notMaticToken(asset);
+        address onBehalfOf = _getSender();
+        _borrow(asset, amount, rateMode, onBehalfOf);
+        _updateToken(asset);
+    }
+
+    function borrowETH(uint256 amount, uint256 rateMode) external payable {
+        address onBehalfOf = _getSender();
+        _borrow(WMATIC, amount, rateMode, onBehalfOf);
+        IWMATIC(WMATIC).withdraw(amount);
+    }
+
     // function repay(
     //     address asset,
     //     uint256 amount,
@@ -81,23 +98,6 @@ contract HAaveProtocolV3 is
     //     remainDebt = _repay(WMATIC, amount, rateMode, onBehalfOf);
 
     //     _updateToken(WMATIC);
-    // }
-
-    // function borrow(
-    //     address asset,
-    //     uint256 amount,
-    //     uint256 rateMode
-    // ) external payable {
-    //     _notMaticToken(asset);
-    //     address onBehalfOf = _getSender();
-    //     _borrow(asset, amount, rateMode, onBehalfOf);
-    //     _updateToken(asset);
-    // }
-
-    // function borrowETH(uint256 amount, uint256 rateMode) external payable {
-    //     address onBehalfOf = _getSender();
-    //     _borrow(WMATIC, amount, rateMode, onBehalfOf);
-    //     IWMATIC(WMATIC).withdraw(amount);
     // }
 
     // function flashLoan(
@@ -214,6 +214,29 @@ contract HAaveProtocolV3 is
         }
     }
 
+    function _borrow(
+        address asset,
+        uint256 amount,
+        uint256 rateMode,
+        address onBehalfOf
+    ) internal {
+        address pool = IPoolAddressesProvider(PROVIDER).getPool();
+
+        try
+            IPool(pool).borrow(
+                asset,
+                amount,
+                rateMode,
+                REFERRAL_CODE,
+                onBehalfOf
+            )
+        {} catch Error(string memory reason) {
+            _revertMsg("borrow", reason);
+        } catch {
+            _revertMsg("borrow");
+        }
+    }
+
     // function _repay(
     //     address asset,
     //     uint256 amount,
@@ -240,30 +263,6 @@ contract HAaveProtocolV3 is
     //         DataTypes.InterestRateMode.STABLE
     //         ? IERC20(reserve.stableDebtTokenAddress).balanceOf(onBehalfOf)
     //         : IERC20(reserve.variableDebtTokenAddress).balanceOf(onBehalfOf);
-    // }
-
-    // function _borrow(
-    //     address asset,
-    //     uint256 amount,
-    //     uint256 rateMode,
-    //     address onBehalfOf
-    // ) internal {
-    //     address pool =
-    //         ILendingPoolAddressesProviderV2(PROVIDER).getLendingPool();
-
-    //     try
-    //         ILendingPoolV2(pool).borrow(
-    //             asset,
-    //             amount,
-    //             rateMode,
-    //             REFERRAL_CODE,
-    //             onBehalfOf
-    //         )
-    //     {} catch Error(string memory reason) {
-    //         _revertMsg("borrow", reason);
-    //     } catch {
-    //         _revertMsg("borrow");
-    //     }
     // }
 
     function _getLendingPoolAndAToken(address underlying)

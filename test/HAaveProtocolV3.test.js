@@ -464,7 +464,7 @@ contract('Aave V3', function([_, user, someone]) {
 
         await expectRevert(
           this.proxy.execMock(to, data, { from: user }),
-          'HAaveProtocolV3_withdraw: 32' // NOT_ENOUGH_AVAILABLE_USER_BALANCE
+          'HAaveProtocolV3_withdraw: 32' // AAVEV3 Error Code: NOT_ENOUGH_AVAILABLE_USER_BALANCE
         );
       });
 
