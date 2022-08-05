@@ -42,25 +42,25 @@ contract HAaveProtocolV3 is
         _updateToken(WMATIC);
     }
 
-    // function withdraw(address asset, uint256 amount)
-    //     external
-    //     payable
-    //     returns (uint256 withdrawAmount)
-    // {
-    //     _notMaticToken(asset);
-    //     withdrawAmount = _withdraw(asset, amount);
+    function withdraw(address asset, uint256 amount)
+        external
+        payable
+        returns (uint256 withdrawAmount)
+    {
+        _notMaticToken(asset);
+        withdrawAmount = _withdraw(asset, amount);
 
-    //     _updateToken(asset);
-    // }
+        _updateToken(asset);
+    }
 
-    // function withdrawETH(uint256 amount)
-    //     external
-    //     payable
-    //     returns (uint256 withdrawAmount)
-    // {
-    //     withdrawAmount = _withdraw(WMATIC, amount);
-    //     IWMATIC(WMATIC).withdraw(withdrawAmount);
-    // }
+    function withdrawETH(uint256 amount)
+        external
+        payable
+        returns (uint256 withdrawAmount)
+    {
+        withdrawAmount = _withdraw(WMATIC, amount);
+        IWMATIC(WMATIC).withdraw(withdrawAmount);
+    }
 
     // function repay(
     //     address asset,
@@ -196,23 +196,23 @@ contract HAaveProtocolV3 is
         _updateToken(aToken);
     }
 
-    // function _withdraw(address asset, uint256 amount)
-    //     internal
-    //     returns (uint256 withdrawAmount)
-    // {
-    //     (address pool, address aToken) = _getLendingPoolAndAToken(asset);
-    //     amount = _getBalance(aToken, amount);
+    function _withdraw(address asset, uint256 amount)
+        internal
+        returns (uint256 withdrawAmount)
+    {
+        (address pool, address aToken) = _getLendingPoolAndAToken(asset);
+        amount = _getBalance(aToken, amount);
 
-    //     try
-    //         ILendingPoolV2(pool).withdraw(asset, amount, address(this))
-    //     returns (uint256 ret) {
-    //         withdrawAmount = ret;
-    //     } catch Error(string memory reason) {
-    //         _revertMsg("withdraw", reason);
-    //     } catch {
-    //         _revertMsg("withdraw");
-    //     }
-    // }
+        try IPool(pool).withdraw(asset, amount, address(this)) returns (
+            uint256 ret
+        ) {
+            withdrawAmount = ret;
+        } catch Error(string memory reason) {
+            _revertMsg("withdraw", reason);
+        } catch {
+            _revertMsg("withdraw");
+        }
+    }
 
     // function _repay(
     //     address asset,
