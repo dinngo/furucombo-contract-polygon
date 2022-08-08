@@ -36,7 +36,7 @@ const Registry = artifacts.require('Registry');
 const Proxy = artifacts.require('ProxyMock');
 const IToken = artifacts.require('IERC20');
 const IAToken = artifacts.require('IATokenV3');
-const ILendingPool = artifacts.require('IPool');
+const IPool = artifacts.require('IPool');
 const IProvider = artifacts.require('IPoolAddressesProvider');
 const SimpleToken = artifacts.require('SimpleToken');
 
@@ -63,8 +63,8 @@ contract('Aave V3', function([_, user, someone]) {
       utils.asciiToHex('AaveProtocolV3')
     );
     this.provider = await IProvider.at(AAVEPROTOCOL_V3_PROVIDER);
-    this.lendingPoolAddress = await this.provider.getPool();
-    this.lendingPool = await ILendingPool.at(this.lendingPoolAddress);
+    this.poolAddress = await this.provider.getPool();
+    this.pool = await IPool.at(this.poolAddress);
     this.token = await IToken.at(tokenAddress);
     this.aToken = await IAToken.at(aTokenAddress);
     this.wmatic = await IToken.at(WMATIC_TOKEN);
@@ -92,23 +92,18 @@ contract('Aave V3', function([_, user, someone]) {
 
     before(async function() {
       this.borrowToken = await IToken.at(borrowTokenAddr);
-      this.wmatic = await IToken.at(WMATIC_TOKEN);
       this.debtToken = await IStableDebtToken.at(debtTokenAddr);
     });
 
     beforeEach(async function() {
       // Deposit
-      await this.token.approve(this.lendingPool.address, depositAmount, {
+      await this.token.approve(this.pool.address, depositAmount, {
         from: providerAddress,
       });
       expect(await this.aToken.balanceOf(user)).to.be.bignumber.zero;
-      await this.lendingPool.deposit(
-        this.token.address,
-        depositAmount,
-        user,
-        0,
-        { from: providerAddress }
-      );
+      await this.pool.deposit(this.token.address, depositAmount, user, 0, {
+        from: providerAddress,
+      });
       expect(await this.aToken.balanceOf(user)).to.be.bignumber.eq(
         depositAmount
       );
@@ -130,12 +125,14 @@ contract('Aave V3', function([_, user, someone]) {
         from: user,
       });
       await balanceUser.get();
+
       const receipt = await this.proxy.execMock(to, data, {
         from: user,
         value: ether('0.1'),
       });
       const borrowTokenUserAfter = await this.borrowToken.balanceOf(user);
       const debtTokenUserAfter = await this.debtToken.balanceOf(user);
+
       // Verify proxy balance
       expect(await balanceProxy.get()).to.be.bignumber.zero;
       expect(
@@ -265,6 +262,7 @@ contract('Aave V3', function([_, user, someone]) {
         borrowAmount,
         rateMode
       );
+
       await this.debtToken.approveDelegation(this.proxy.address, borrowAmount, {
         from: user,
       });
@@ -400,18 +398,14 @@ contract('Aave V3', function([_, user, someone]) {
 
     beforeEach(async function() {
       // Deposit
-      await this.token.approve(this.lendingPool.address, depositAmount, {
+      await this.token.approve(this.pool.address, depositAmount, {
         from: providerAddress,
       });
 
       expect(await this.aToken.balanceOf(user)).to.be.bignumber.zero;
-      await this.lendingPool.deposit(
-        this.token.address,
-        depositAmount,
-        user,
-        0,
-        { from: providerAddress }
-      );
+      await this.pool.deposit(this.token.address, depositAmount, user, 0, {
+        from: providerAddress,
+      });
       expectEqWithinBps(await this.aToken.balanceOf(user), depositAmount, 10);
 
       borrowTokenUserBefore = await this.borrowToken.balanceOf(user);
@@ -433,12 +427,14 @@ contract('Aave V3', function([_, user, someone]) {
         from: user,
       });
       await balanceUser.get();
+
       const receipt = await this.proxy.execMock(to, data, {
         from: user,
         value: ether('0.1'),
       });
       const borrowTokenUserAfter = await this.borrowToken.balanceOf(user);
       const debtTokenUserAfter = await this.debtToken.balanceOf(user);
+
       // Verify proxy balance
       expect(await balanceProxy.get()).to.be.bignumber.zero;
       expect(
@@ -461,7 +457,6 @@ contract('Aave V3', function([_, user, someone]) {
       expect(debtTokenUserAfter.sub(debtTokenUserBefore)).to.be.bignumber.lt(
         borrowAmount.add(interestMax)
       );
-
       profileGas(receipt);
     });
 
@@ -483,12 +478,14 @@ contract('Aave V3', function([_, user, someone]) {
         }
       );
       await balanceUser.get();
+
       const receipt = await this.proxy.execMock(to, data, {
         from: user,
         value: ether('0.1'),
       });
       const borrowWMATICUserAfter = await this.wmatic.balanceOf(user);
       const debtWMATICUserAfter = await this.debtWMATIC.balanceOf(user);
+
       // Verify proxy balance
       expect(await balanceProxy.get()).to.be.bignumber.zero;
       expect(
@@ -511,7 +508,6 @@ contract('Aave V3', function([_, user, someone]) {
       expect(debtWMATICUserAfter.sub(debtWMATICUserBefore)).to.be.bignumber.lt(
         borrowAmount.add(interestMax)
       );
-
       profileGas(receipt);
     });
 
@@ -530,14 +526,15 @@ contract('Aave V3', function([_, user, someone]) {
           from: user,
         }
       );
+
       const balancerUserBefore = await balanceUser.get();
       const receipt = await this.proxy.execMock(to, data, {
         from: user,
         value: ether('0.1'),
       });
-
       const balancerUserAfter = await balanceUser.get();
       const debtWMATICUserAfter = await this.debtWMATIC.balanceOf(user);
+
       // Verify proxy balance
       expect(await balanceProxy.get()).to.be.bignumber.zero;
       expect(
@@ -569,6 +566,7 @@ contract('Aave V3', function([_, user, someone]) {
         borrowAmount,
         rateMode
       );
+
       await this.debtWMATIC.approveDelegation(
         this.proxy.address,
         borrowAmount,

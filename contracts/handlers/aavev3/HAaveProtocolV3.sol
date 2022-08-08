@@ -79,26 +79,26 @@ contract HAaveProtocolV3 is
         IWMATIC(WMATIC).withdraw(amount);
     }
 
-    // function repay(
-    //     address asset,
-    //     uint256 amount,
-    //     uint256 rateMode,
-    //     address onBehalfOf
-    // ) external payable returns (uint256 remainDebt) {
-    //     _notMaticToken(asset);
-    //     remainDebt = _repay(asset, amount, rateMode, onBehalfOf);
-    // }
+    function repay(
+        address asset,
+        uint256 amount,
+        uint256 rateMode,
+        address onBehalfOf
+    ) external payable returns (uint256 remainDebt) {
+        _notMaticToken(asset);
+        remainDebt = _repay(asset, amount, rateMode, onBehalfOf);
+    }
 
-    // function repayETH(
-    //     uint256 amount,
-    //     uint256 rateMode,
-    //     address onBehalfOf
-    // ) external payable returns (uint256 remainDebt) {
-    //     IWMATIC(WMATIC).deposit{value: amount}();
-    //     remainDebt = _repay(WMATIC, amount, rateMode, onBehalfOf);
+    function repayETH(
+        uint256 amount,
+        uint256 rateMode,
+        address onBehalfOf
+    ) external payable returns (uint256 remainDebt) {
+        IWMATIC(WMATIC).deposit{value: amount}();
+        remainDebt = _repay(WMATIC, amount, rateMode, onBehalfOf);
 
-    //     _updateToken(WMATIC);
-    // }
+        _updateToken(WMATIC);
+    }
 
     // function flashLoan(
     //     address[] calldata assets,
@@ -237,33 +237,32 @@ contract HAaveProtocolV3 is
         }
     }
 
-    // function _repay(
-    //     address asset,
-    //     uint256 amount,
-    //     uint256 rateMode,
-    //     address onBehalfOf
-    // ) internal returns (uint256 remainDebt) {
-    //     address pool =
-    //         ILendingPoolAddressesProviderV2(PROVIDER).getLendingPool();
-    //     _tokenApprove(asset, pool, amount);
+    function _repay(
+        address asset,
+        uint256 amount,
+        uint256 rateMode,
+        address onBehalfOf
+    ) internal returns (uint256 remainDebt) {
+        address pool = IPoolAddressesProvider(PROVIDER).getPool();
+        _tokenApprove(asset, pool, amount);
 
-    //     try
-    //         ILendingPoolV2(pool).repay(asset, amount, rateMode, onBehalfOf)
-    //     {} catch Error(string memory reason) {
-    //         _revertMsg("repay", reason);
-    //     } catch {
-    //         _revertMsg("repay");
-    //     }
+        try
+            IPool(pool).repay(asset, amount, rateMode, onBehalfOf)
+        {} catch Error(string memory reason) {
+            _revertMsg("repay", reason);
+        } catch {
+            _revertMsg("repay");
+        }
 
-    //     _tokenApproveZero(asset, pool);
+        _tokenApproveZero(asset, pool);
 
-    //     DataTypes.ReserveData memory reserve =
-    //         ILendingPoolV2(pool).getReserveData(asset);
-    //     remainDebt = DataTypes.InterestRateMode(rateMode) ==
-    //         DataTypes.InterestRateMode.STABLE
-    //         ? IERC20(reserve.stableDebtTokenAddress).balanceOf(onBehalfOf)
-    //         : IERC20(reserve.variableDebtTokenAddress).balanceOf(onBehalfOf);
-    // }
+        DataTypes.ReserveData memory reserve =
+            IPool(pool).getReserveData(asset);
+        remainDebt = DataTypes.InterestRateMode(rateMode) ==
+            DataTypes.InterestRateMode.STABLE
+            ? IERC20(reserve.stableDebtTokenAddress).balanceOf(onBehalfOf)
+            : IERC20(reserve.variableDebtTokenAddress).balanceOf(onBehalfOf);
+    }
 
     function _getLendingPoolAndAToken(address underlying)
         internal
