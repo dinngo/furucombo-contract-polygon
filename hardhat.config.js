@@ -1,11 +1,13 @@
 require('@nomiclabs/hardhat-waffle');
 require('hardhat-deploy');
 require('hardhat-deploy-ethers');
-
+require('solidity-coverage');
 // Truffle and Web3.js plugin
 require('@nomiclabs/hardhat-web3');
 require('@nomiclabs/hardhat-truffle5');
 require('@nomiclabs/hardhat-etherscan');
+
+require('dotenv').config();
 
 const fs = require('fs');
 let key_beta;
@@ -48,6 +50,9 @@ module.exports = {
       url: 'https://polygon-beta.furucombo.app/',
     },
     hardhat: {
+      forking: {
+        url: process.env.POLYGON_MAINNET_NODE,
+      },
       chainId: 137, // hardhat sets 31337 as chainId rather than a forked chainId, so we set here.
       accounts: {
         mnemonic:
@@ -56,16 +61,8 @@ module.exports = {
         initialIndex: 0,
       },
       initialBaseFeePerGas: 0,
-    },
-    // Due to "evm_snapshot/evm_revert" JSON-RPC method used in tests
-    // we have to launch hardhat network at localhost:8545(like ganache)
-    // and use "--network localhost" parameter to connect to localhost:8545.
-    // some settings like gasPrice might be overrided if we configure it at networks "hardhat".
-    // So configure these parameters at networks "localhost".
-    localhost: {
       gasPrice: 0,
       gas: 30000000,
-      timeout: 900000,
     },
     prod: {
       url: process.env.PROD_URL || 'https://rpc.ankr.com/polygon/',
