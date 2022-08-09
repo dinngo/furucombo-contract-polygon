@@ -39,7 +39,7 @@ const IProvider = artifacts.require('IPoolAddressesProvider');
 const SimpleToken = artifacts.require('SimpleToken');
 const ATOKEN_DUST = ether('0.00001');
 
-contract('Aave V3', function([_, user, someone]) {
+contract('Aave V3', function([_, user]) {
   const aTokenAddress = ADAI_V3_TOKEN;
   const tokenAddress = DAI_TOKEN;
   const awmaticAddress = AWMATIC_V3;
@@ -287,7 +287,6 @@ contract('Aave V3', function([_, user, someone]) {
           depositAmount.add(interestMax).sub(handlerReturn)
         );
         expectEqWithinBps(await balanceUser.delta(), value, 100);
-
         profileGas(receipt);
       });
     });

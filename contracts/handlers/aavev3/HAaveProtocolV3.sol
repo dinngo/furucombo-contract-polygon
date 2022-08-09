@@ -2,22 +2,13 @@
 
 pragma solidity 0.8.10;
 
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-
 import "../../interface/IProxy.sol";
 import "../HandlerBase.sol";
 import "../wmatic/IWMATIC.sol";
 import "./IPool.sol";
 import "./IFlashLoanReceiver.sol";
-import "./IPoolAddressesProvider.sol";
 
-// import "./libraries/DataTypes.sol";
-
-contract HAaveProtocolV3 is
-    HandlerBase //, IFlashLoanReceiver {
-{
-    using SafeERC20 for IERC20;
-
+contract HAaveProtocolV3 is HandlerBase, IFlashLoanReceiver {
     // prettier-ignore
     address public constant PROVIDER = 0xa97684ead0e402dC232d5A977953DF7ECBaB3CDb;
     // prettier-ignore
@@ -100,90 +91,87 @@ contract HAaveProtocolV3 is
         _updateToken(WMATIC);
     }
 
-    // function flashLoan(
-    //     address[] calldata assets,
-    //     uint256[] calldata amounts,
-    //     uint256[] calldata modes,
-    //     bytes calldata params
-    // ) external payable {
-    //     _notMaticToken(assets);
-    //     _requireMsg(
-    //         assets.length == amounts.length,
-    //         "flashLoan",
-    //         "assets and amounts do not match"
-    //     );
+    function flashLoan(
+        address[] calldata assets,
+        uint256[] calldata amounts,
+        uint256[] calldata modes,
+        bytes calldata params
+    ) external payable {
+        _notMaticToken(assets);
+        _requireMsg(
+            assets.length == amounts.length,
+            "flashLoan",
+            "assets and amounts do not match"
+        );
 
-    //     _requireMsg(
-    //         assets.length == modes.length,
-    //         "flashLoan",
-    //         "assets and modes do not match"
-    //     );
+        _requireMsg(
+            assets.length == modes.length,
+            "flashLoan",
+            "assets and modes do not match"
+        );
 
-    //     address onBehalfOf = _getSender();
-    //     address pool =
-    //         ILendingPoolAddressesProviderV2(PROVIDER).getLendingPool();
+        address onBehalfOf = _getSender();
+        address pool = IPoolAddressesProvider(PROVIDER).getPool();
 
-    //     try
-    //         ILendingPoolV2(pool).flashLoan(
-    //             address(this),
-    //             assets,
-    //             amounts,
-    //             modes,
-    //             onBehalfOf,
-    //             params,
-    //             REFERRAL_CODE
-    //         )
-    //     {} catch Error(string memory reason) {
-    //         _revertMsg("flashLoan", reason);
-    //     } catch {
-    //         _revertMsg("flashLoan");
-    //     }
+        try
+            IPool(pool).flashLoan(
+                address(this),
+                assets,
+                amounts,
+                modes,
+                onBehalfOf,
+                params,
+                REFERRAL_CODE
+            )
+        {} catch Error(string memory reason) {
+            _revertMsg("flashLoan", reason);
+        } catch {
+            _revertMsg("flashLoan");
+        }
 
-    //     // approve lending pool zero
-    //     for (uint256 i = 0; i < assets.length; i++) {
-    //         _tokenApproveZero(assets[i], pool);
-    //         if (modes[i] != 0) _updateToken(assets[i]);
-    //     }
-    // }
+        // approve pool zero
+        for (uint256 i = 0; i < assets.length; i++) {
+            _tokenApproveZero(assets[i], pool);
+            if (modes[i] != 0) _updateToken(assets[i]);
+        }
+    }
 
-    // function executeOperation(
-    //     address[] memory assets,
-    //     uint256[] memory amounts,
-    //     uint256[] memory premiums,
-    //     address initiator,
-    //     bytes memory params
-    // ) external override returns (bool) {
-    //     _notMaticToken(assets);
-    //     _requireMsg(
-    //         msg.sender ==
-    //             ILendingPoolAddressesProviderV2(PROVIDER).getLendingPool(),
-    //         "executeOperation",
-    //         "invalid caller"
-    //     );
+    function executeOperation(
+        address[] memory assets,
+        uint256[] memory amounts,
+        uint256[] memory premiums,
+        address initiator,
+        bytes memory params
+    ) external override returns (bool) {
+        _notMaticToken(assets);
+        _requireMsg(
+            msg.sender == IPoolAddressesProvider(PROVIDER).getPool(),
+            "executeOperation",
+            "invalid caller"
+        );
 
-    //     _requireMsg(
-    //         initiator == address(this),
-    //         "executeOperation",
-    //         "not initiated by the proxy"
-    //     );
+        _requireMsg(
+            initiator == address(this),
+            "executeOperation",
+            "not initiated by the proxy"
+        );
 
-    //     (address[] memory tos, bytes32[] memory configs, bytes[] memory datas) =
-    //         abi.decode(params, (address[], bytes32[], bytes[]));
-    //     IProxy(address(this)).execs(tos, configs, datas);
+        (address[] memory tos, bytes32[] memory configs, bytes[] memory datas) =
+            abi.decode(params, (address[], bytes32[], bytes[]));
+        IProxy(address(this)).execs(tos, configs, datas);
 
-    //     address pool =
-    //         ILendingPoolAddressesProviderV2(PROVIDER).getLendingPool();
-    //     for (uint256 i = 0; i < assets.length; i++) {
-    //         uint256 amountOwing = amounts[i] + premiums[i];
-    //         _tokenApprove(assets[i], pool, amountOwing);
-    //     }
-    //     return true;
-    // }
+        address pool = IPoolAddressesProvider(PROVIDER).getPool();
+        for (uint256 i = 0; i < assets.length; i++) {
+            uint256 amountOwing = amounts[i] + premiums[i];
+            _tokenApprove(assets[i], pool, amountOwing);
+        }
+        return true;
+    }
 
     /* ========== INTERNAL FUNCTIONS ========== */
 
     function _supply(address asset, uint256 amount) internal {
-        (address pool, address aToken) = _getLendingPoolAndAToken(asset);
+        (address pool, address aToken) = _getPoolAndAToken(asset);
         _tokenApprove(asset, pool, amount);
         try
             IPool(pool).supply(asset, amount, address(this), REFERRAL_CODE)
@@ -200,7 +188,7 @@ contract HAaveProtocolV3 is
         internal
         returns (uint256 withdrawAmount)
     {
-        (address pool, address aToken) = _getLendingPoolAndAToken(asset);
+        (address pool, address aToken) = _getPoolAndAToken(asset);
         amount = _getBalance(aToken, amount);
 
         try IPool(pool).withdraw(asset, amount, address(this)) returns (
@@ -264,7 +252,7 @@ contract HAaveProtocolV3 is
             : IERC20(reserve.variableDebtTokenAddress).balanceOf(onBehalfOf);
     }
 
-    function _getLendingPoolAndAToken(address underlying)
+    function _getPoolAndAToken(address underlying)
         internal
         view
         returns (address pool, address aToken)
