@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ## [unreleased]
 
+- Support Aave v3 supply/supplyETH/withdraw/withdrawETH in `HAaveProtocolV3`.
+- Support Aave v3 borrow/borrowETH/repay/repayETH/flashloan in `HAaveProtocolV3`.
+
 ## [1.14.0] - 2022-07-27
 
 ### Added
