@@ -62,8 +62,8 @@ contract('Aave V3', function([_, user]) {
       utils.asciiToHex('AaveProtocolV3')
     );
     this.provider = await IProvider.at(AAVEPROTOCOL_V3_PROVIDER);
-    this.PoolAddress = await this.provider.getPool();
-    this.Pool = await IPool.at(this.PoolAddress);
+    this.poolAddress = await this.provider.getPool();
+    this.pool = await IPool.at(this.poolAddress);
     this.token = await IToken.at(tokenAddress);
     this.aToken = await IAToken.at(aTokenAddress);
     this.wmatic = await IToken.at(WMATIC_TOKEN);
@@ -197,22 +197,22 @@ contract('Aave V3', function([_, user]) {
   });
 
   describe('Withdraw', function() {
-    var depositAmount = ether('5');
+    var supplyAmount = ether('5');
 
     describe('Matic', function() {
       beforeEach(async function() {
-        await this.wmatic.approve(this.Pool.address, depositAmount, {
+        await this.wmatic.approve(this.pool.address, supplyAmount, {
           from: wmaticProviderAddress,
         });
-        await this.Pool.deposit(this.wmatic.address, depositAmount, user, 0, {
+        await this.pool.supply(this.wmatic.address, supplyAmount, user, 0, {
           from: wmaticProviderAddress,
         });
 
-        depositAmount = await this.awmatic.balanceOf(user);
+        supplyAmount = await this.awmatic.balanceOf(user);
       });
 
       it('partial', async function() {
-        const value = depositAmount.div(new BN(2));
+        const value = supplyAmount.div(new BN(2));
         const to = this.hAaveV3.address;
         const data = abi.simpleEncode('withdrawETH(uint256)', value);
         await this.awmatic.transfer(this.proxy.address, value, { from: user });
@@ -229,7 +229,7 @@ contract('Aave V3', function([_, user]) {
           getHandlerReturn(receipt, ['uint256'])[0]
         );
         const aTokenUserAfter = await this.awmatic.balanceOf(user);
-        const interestMax = depositAmount.mul(new BN(1)).div(new BN(10000));
+        const interestMax = supplyAmount.mul(new BN(1)).div(new BN(10000));
 
         // Verify handler return
         expect(value).to.be.bignumber.eq(handlerReturn);
@@ -238,17 +238,17 @@ contract('Aave V3', function([_, user]) {
           await this.awmatic.balanceOf(this.proxy.address)
         ).to.be.bignumber.zero;
         // Verify user balance
-        // (deposit - withdraw) <= aTokenAfter < (deposit + interestMax - withdraw)
-        expect(aTokenUserAfter).to.be.bignumber.gte(depositAmount.sub(value));
+        // (supply - withdraw) <= aTokenAfter < (supply + interestMax - withdraw)
+        expect(aTokenUserAfter).to.be.bignumber.gte(supplyAmount.sub(value));
         expect(aTokenUserAfter).to.be.bignumber.lt(
-          depositAmount.add(interestMax).sub(value)
+          supplyAmount.add(interestMax).sub(value)
         );
         expect(await balanceUser.delta()).to.be.bignumber.eq(value);
         profileGas(receipt);
       });
 
       it('max amount', async function() {
-        const value = depositAmount.div(new BN(2));
+        const value = supplyAmount.div(new BN(2));
         const to = this.hAaveV3.address;
         const data = abi.simpleEncode('withdrawETH(uint256)', MAX_UINT256);
         await this.awmatic.transfer(this.proxy.address, value, { from: user });
@@ -265,7 +265,7 @@ contract('Aave V3', function([_, user]) {
           getHandlerReturn(receipt, ['uint256'])[0]
         );
         const aTokenUserAfter = await this.awmatic.balanceOf(user);
-        const interestMax = depositAmount.mul(new BN(1)).div(new BN(10000));
+        const interestMax = supplyAmount.mul(new BN(1)).div(new BN(10000));
 
         // Verify handler return
         // value  <= handlerReturn  <= value*1.01
@@ -278,13 +278,13 @@ contract('Aave V3', function([_, user]) {
           await this.awmatic.balanceOf(this.proxy.address)
         ).to.be.bignumber.zero;
         // Verify user balance
-        // (deposit - withdraw) <= aTokenAfter < (deposit + interestMax - withdraw)
-        // NOTE: aTokenUserAfter == (depositAmount - withdraw - 1) (sometime, Ganache bug maybe)
+        // (supply - withdraw) <= aTokenAfter < (supply + interestMax - withdraw)
+        // NOTE: aTokenUserAfter == (supplyAmount - withdraw - 1) (sometime, Ganache bug maybe)
         expect(aTokenUserAfter).to.be.bignumber.gte(
-          depositAmount.sub(handlerReturn.add(new BN(1)))
+          supplyAmount.sub(handlerReturn.add(new BN(1)))
         );
         expect(aTokenUserAfter).to.be.bignumber.lt(
-          depositAmount.add(interestMax).sub(handlerReturn)
+          supplyAmount.add(interestMax).sub(handlerReturn)
         );
         expectEqWithinBps(await balanceUser.delta(), value, 100);
         profileGas(receipt);
@@ -293,18 +293,18 @@ contract('Aave V3', function([_, user]) {
 
     describe('Token', function() {
       beforeEach(async function() {
-        await this.token.approve(this.Pool.address, depositAmount, {
+        await this.token.approve(this.pool.address, supplyAmount, {
           from: providerAddress,
         });
-        await this.Pool.deposit(this.token.address, depositAmount, user, 0, {
+        await this.pool.supply(this.token.address, supplyAmount, user, 0, {
           from: providerAddress,
         });
 
-        depositAmount = await this.aToken.balanceOf(user);
+        supplyAmount = await this.aToken.balanceOf(user);
       });
 
       it('partial', async function() {
-        const value = depositAmount.div(new BN(2));
+        const value = supplyAmount.div(new BN(2));
         const to = this.hAaveV3.address;
         const data = abi.simpleEncode(
           'withdraw(address,uint256)',
@@ -326,7 +326,7 @@ contract('Aave V3', function([_, user]) {
         );
         const aTokenUserAfter = await this.aToken.balanceOf(user);
         const tokenUserAfter = await this.token.balanceOf(user);
-        const interestMax = depositAmount.mul(new BN(1)).div(new BN(10000));
+        const interestMax = supplyAmount.mul(new BN(1)).div(new BN(10000));
 
         // Verify handler return
         expect(value).to.be.bignumber.eq(handlerReturn);
@@ -339,10 +339,10 @@ contract('Aave V3', function([_, user]) {
         ).to.be.bignumber.zero;
 
         // Verify user balance
-        // (deposit - withdraw) <= aTokenAfter < (deposit + interestMax - withdraw)
-        expect(aTokenUserAfter).to.be.bignumber.gte(depositAmount.sub(value));
+        // (supply - withdraw) <= aTokenAfter < (supply + interestMax - withdraw)
+        expect(aTokenUserAfter).to.be.bignumber.gte(supplyAmount.sub(value));
         expect(aTokenUserAfter).to.be.bignumber.lt(
-          depositAmount.add(interestMax).sub(value)
+          supplyAmount.add(interestMax).sub(value)
         );
         expect(tokenUserAfter).to.be.bignumber.eq(value);
         expect(await balanceUser.delta()).to.be.bignumber.eq(ether('0'));
@@ -350,7 +350,7 @@ contract('Aave V3', function([_, user]) {
       });
 
       it('max amount', async function() {
-        const value = depositAmount.div(new BN(2));
+        const value = supplyAmount.div(new BN(2));
         const to = this.hAaveV3.address;
         const data = abi.simpleEncode(
           'withdraw(address,uint256)',
@@ -372,7 +372,7 @@ contract('Aave V3', function([_, user]) {
         );
         const aTokenUserAfter = await this.aToken.balanceOf(user);
         const tokenUserAfter = await this.token.balanceOf(user);
-        const interestMax = depositAmount.mul(new BN(1)).div(new BN(10000));
+        const interestMax = supplyAmount.mul(new BN(1)).div(new BN(10000));
 
         // Verify handler return
         // value  <= handlerReturn  <= value*1.01
@@ -388,13 +388,13 @@ contract('Aave V3', function([_, user]) {
           await this.token.balanceOf(this.proxy.address)
         ).to.be.bignumber.zero;
         // Verify user balance
-        // (deposit - withdraw -1) <= aTokenAfter < (deposit + interestMax - withdraw)
-        // NOTE: aTokenUserAfter == (depositAmount - withdraw - 1) (sometime, Ganache bug maybe)
+        // (supply - withdraw -1) <= aTokenAfter < (supply + interestMax - withdraw)
+        // NOTE: aTokenUserAfter == (supplyAmount - withdraw - 1) (sometime, Ganache bug maybe)
         expect(aTokenUserAfter).to.be.bignumber.gte(
-          depositAmount.sub(handlerReturn.add(new BN(1)))
+          supplyAmount.sub(handlerReturn.add(new BN(1)))
         );
         expect(aTokenUserAfter).to.be.bignumber.lt(
-          depositAmount.add(interestMax).sub(handlerReturn)
+          supplyAmount.add(interestMax).sub(handlerReturn)
         );
         expect(tokenUserAfter).to.be.bignumber.eq(handlerReturn);
         expect(await balanceUser.delta()).to.be.bignumber.eq(ether('0'));
@@ -430,7 +430,7 @@ contract('Aave V3', function([_, user]) {
         const tokenUserAfter = await this.token.balanceOf(user);
 
         // Verify handler return
-        expect(handlerReturn).to.be.bignumber.gte(depositAmount);
+        expect(handlerReturn).to.be.bignumber.gte(supplyAmount);
         // Verify proxy balance
         expect(
           await this.aToken.balanceOf(this.proxy.address)
@@ -446,7 +446,7 @@ contract('Aave V3', function([_, user]) {
       });
 
       it('should revert: not enough balance', async function() {
-        const value = depositAmount.add(ether('10'));
+        const value = supplyAmount.add(ether('10'));
         const to = this.hAaveV3.address;
         const data = abi.simpleEncode(
           'withdraw(address,uint256)',
@@ -468,7 +468,7 @@ contract('Aave V3', function([_, user]) {
       });
 
       it('should revert: not supported token', async function() {
-        const value = depositAmount.add(ether('10'));
+        const value = supplyAmount.add(ether('10'));
         const to = this.hAaveV3.address;
         const data = abi.simpleEncode(
           'withdraw(address,uint256)',

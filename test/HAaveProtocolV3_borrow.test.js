@@ -29,6 +29,7 @@ const {
   profileGas,
   tokenProviderQuick,
   expectEqWithinBps,
+  mwei,
 } = require('./utils/utils');
 
 const HAaveV3 = artifacts.require('HAaveProtocolV3');
@@ -82,7 +83,7 @@ contract('Aave V3', function([_, user, someone]) {
   });
 
   describe('Borrow with Stable Rate', function() {
-    const depositAmount = ether('10000');
+    const supplyAmount = ether('10000');
     const borrowTokenAddr = USDC_TOKEN;
     const rateMode = AAVE_RATEMODE.STABLE;
     const debtTokenAddr = AUSDC_V3_DEBT_STABLE;
@@ -96,16 +97,16 @@ contract('Aave V3', function([_, user, someone]) {
     });
 
     beforeEach(async function() {
-      // Deposit
-      await this.token.approve(this.pool.address, depositAmount, {
+      // Supply
+      await this.token.approve(this.pool.address, supplyAmount, {
         from: providerAddress,
       });
       expect(await this.aToken.balanceOf(user)).to.be.bignumber.zero;
-      await this.pool.deposit(this.token.address, depositAmount, user, 0, {
+      await this.pool.supply(this.token.address, supplyAmount, user, 0, {
         from: providerAddress,
       });
       expect(await this.aToken.balanceOf(user)).to.be.bignumber.eq(
-        depositAmount
+        supplyAmount
       );
 
       borrowTokenUserBefore = await this.borrowToken.balanceOf(user);
@@ -113,7 +114,7 @@ contract('Aave V3', function([_, user, someone]) {
     });
 
     it('borrow token', async function() {
-      const borrowAmount = new BN('1000000'); // 1e6
+      const borrowAmount = mwei('1');
       const to = this.hAaveV3.address;
       const data = abi.simpleEncode(
         'borrow(address,uint256,uint256)',
@@ -254,7 +255,7 @@ contract('Aave V3', function([_, user, someone]) {
     **/
 
     it('should revert: borrow token over the collateral value', async function() {
-      const borrowAmount = new BN('20000000000'); // 20000 * 1e6
+      const borrowAmount = mwei('20000');
       const to = this.hAaveV3.address;
       const data = abi.simpleEncode(
         'borrow(address,uint256,uint256)',
@@ -274,7 +275,7 @@ contract('Aave V3', function([_, user, someone]) {
     });
 
     it('should revert: borrow token without approveDelegation', async function() {
-      const borrowAmount = new BN('2000000'); // 1e6
+      const borrowAmount = mwei('2');
       const to = this.hAaveV3.address;
       const data = abi.simpleEncode(
         'borrow(address,uint256,uint256)',
@@ -290,7 +291,7 @@ contract('Aave V3', function([_, user, someone]) {
     });
 
     it('should revert: borrow token approveDelegation < borrow amount', async function() {
-      const borrowAmount = new BN('2000000'); // 1e6
+      const borrowAmount = mwei('2');
       const to = this.hAaveV3.address;
       const data = abi.simpleEncode(
         'borrow(address,uint256,uint256)',
@@ -301,7 +302,7 @@ contract('Aave V3', function([_, user, someone]) {
 
       await this.debtToken.approveDelegation(
         this.proxy.address,
-        borrowAmount.sub(new BN('1000000')),
+        borrowAmount.sub(mwei('1')),
         {
           from: user,
         }
@@ -379,7 +380,7 @@ contract('Aave V3', function([_, user, someone]) {
   });
 
   describe('Borrow with Variable Rate', function() {
-    const depositAmount = ether('10000');
+    const supplyAmount = ether('10000');
     const borrowTokenAddr = WETH_TOKEN;
     const rateMode = AAVE_RATEMODE.VARIABLE;
     const debtTokenAddr = AWETH_V3_DEBT_VARIABLE;
@@ -397,16 +398,16 @@ contract('Aave V3', function([_, user, someone]) {
     });
 
     beforeEach(async function() {
-      // Deposit
-      await this.token.approve(this.pool.address, depositAmount, {
+      // Supply
+      await this.token.approve(this.pool.address, supplyAmount, {
         from: providerAddress,
       });
 
       expect(await this.aToken.balanceOf(user)).to.be.bignumber.zero;
-      await this.pool.deposit(this.token.address, depositAmount, user, 0, {
+      await this.pool.supply(this.token.address, supplyAmount, user, 0, {
         from: providerAddress,
       });
-      expectEqWithinBps(await this.aToken.balanceOf(user), depositAmount, 10);
+      expectEqWithinBps(await this.aToken.balanceOf(user), supplyAmount, 10);
 
       borrowTokenUserBefore = await this.borrowToken.balanceOf(user);
       borrowWMATICUserBefore = await this.wmatic.balanceOf(user);

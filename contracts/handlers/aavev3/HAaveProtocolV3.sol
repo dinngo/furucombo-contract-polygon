@@ -176,9 +176,9 @@ contract HAaveProtocolV3 is HandlerBase, IFlashLoanReceiver {
         try
             IPool(pool).supply(asset, amount, address(this), REFERRAL_CODE)
         {} catch Error(string memory reason) {
-            _revertMsg("deposit", reason);
+            _revertMsg("supply", reason);
         } catch {
-            _revertMsg("deposit");
+            _revertMsg("supply");
         }
         _tokenApproveZero(asset, pool);
         _updateToken(aToken);

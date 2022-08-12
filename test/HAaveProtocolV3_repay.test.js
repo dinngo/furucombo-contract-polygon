@@ -27,6 +27,7 @@ const {
   getHandlerReturn,
   expectEqWithinBps,
   tokenProviderQuick,
+  mwei,
 } = require('./utils/utils');
 
 const HAaveV3 = artifacts.require('HAaveProtocolV3');
@@ -76,8 +77,8 @@ contract('Aave V3', function([_, user]) {
   });
 
   describe('Repay Stable Rate', function() {
-    var depositAmount = ether('10000');
-    const borrowAmount = new BN('2000000'); // 1e6
+    var supplyAmount = ether('10000');
+    const borrowAmount = mwei('2');
     const borrowTokenAddr = USDC_TOKEN;
     const rateMode = AAVE_RATEMODE.STABLE;
     const debtTokenAddr = AUSDC_V3_DEBT_STABLE;
@@ -94,15 +95,15 @@ contract('Aave V3', function([_, user]) {
 
     beforeEach(async function() {
       // Deposit
-      await this.token.approve(this.pool.address, depositAmount, {
+      await this.token.approve(this.pool.address, supplyAmount, {
         from: providerAddress,
       });
       expect(await this.aToken.balanceOf(user)).to.be.bignumber.zero;
-      await this.pool.deposit(this.token.address, depositAmount, user, 0, {
+      await this.pool.supply(this.token.address, supplyAmount, user, 0, {
         from: providerAddress,
       });
       expect(await this.aToken.balanceOf(user)).to.be.bignumber.eq(
-        depositAmount
+        supplyAmount
       );
 
       // Borrow
@@ -186,7 +187,7 @@ contract('Aave V3', function([_, user]) {
     });
 
     it('whole', async function() {
-      const extraNeed = new BN('1000000'); // 1e6
+      const extraNeed = mwei('1');
       const repayAmount = borrowAmount.add(extraNeed);
       const to = this.hAaveV3.address;
       const data = abi.simpleEncode(
@@ -334,7 +335,7 @@ contract('Aave V3', function([_, user]) {
     **/
 
     it('should revert: not enough balance', async function() {
-      const repayAmount = new BN('500000'); // 1e6
+      const repayAmount = mwei('0.5');
       const to = this.hAaveV3.address;
       const data = abi.simpleEncode(
         'repay(address,uint256,uint256,address)',
@@ -346,7 +347,7 @@ contract('Aave V3', function([_, user]) {
 
       await this.borrowToken.transfer(
         this.proxy.address,
-        repayAmount.sub(new BN('100000')),
+        repayAmount.sub(mwei('0.1')),
         { from: user }
       );
       await this.proxy.updateTokenMock(this.borrowToken.address);
@@ -378,7 +379,7 @@ contract('Aave V3', function([_, user]) {
     });
 
     it('should revert: wrong rate mode', async function() {
-      const repayAmount = new BN('500000'); // 1e6
+      const repayAmount = mwei('0.5');
       const to = this.hAaveV3.address;
       const unborrowedRateMode = (rateMode % 2) + 1;
       const data = abi.simpleEncode(
@@ -401,7 +402,7 @@ contract('Aave V3', function([_, user]) {
   });
 
   describe('Repay Variable Rate', function() {
-    var depositAmount = ether('10000');
+    var supplyAmount = ether('10000');
     const borrowAmount = ether('2');
     const borrowTokenAddr = WMATIC_TOKEN;
     const rateMode = AAVE_RATEMODE.VARIABLE;
@@ -419,13 +420,13 @@ contract('Aave V3', function([_, user]) {
 
     beforeEach(async function() {
       // Deposit
-      await this.token.approve(this.pool.address, depositAmount, {
+      await this.token.approve(this.pool.address, supplyAmount, {
         from: providerAddress,
       });
-      await this.pool.deposit(this.token.address, depositAmount, user, 0, {
+      await this.pool.supply(this.token.address, supplyAmount, user, 0, {
         from: providerAddress,
       });
-      depositAmount = await this.aToken.balanceOf(user);
+      supplyAmount = await this.aToken.balanceOf(user);
 
       // Borrow
       await this.pool.borrow(

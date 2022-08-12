@@ -543,7 +543,6 @@ contract('AaveV3 flashloan', function([_, user, someone]) {
       );
 
       // Get 1st flashloan cube data
-      const to1 = this.hAaveV3.address;
       const data1 = _getFlashloanCubeData(
         [this.tokenA.address, this.tokenB.address], // assets
         [value, value], // amounts
@@ -636,7 +635,6 @@ contract('AaveV3 flashloan', function([_, user, someone]) {
       );
 
       // Get flashloan cube data
-      const to1 = this.hAaveV3.address;
       const data1 = _getFlashloanCubeData(
         [this.tokenA.address, this.tokenB.address], // assets
         [value, value], // amounts
