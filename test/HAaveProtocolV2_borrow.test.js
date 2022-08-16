@@ -406,7 +406,7 @@ contract('Aave V2', function([_, user, someone]) {
         0,
         { from: providerAddress }
       );
-      expectEqWithinBps(await this.aToken.balanceOf(user), depositAmount, 10);
+      expectEqWithinBps(await this.aToken.balanceOf(user), depositAmount, 1);
 
       borrowTokenUserBefore = await this.borrowToken.balanceOf(user);
       borrowWMATICUserBefore = await this.wmatic.balanceOf(user);
@@ -446,16 +446,11 @@ contract('Aave V2', function([_, user, someone]) {
       expect(
         borrowTokenUserAfter.sub(borrowTokenUserBefore)
       ).to.be.bignumber.eq(borrowAmount);
-
-      //  borrowAmount <= (debtTokenUserAfter-debtTokenUserBefore) < borrowAmount + interestMax
-      const interestMax = borrowAmount.mul(new BN(1)).div(new BN(10000));
-      expect(debtTokenUserAfter.sub(debtTokenUserBefore)).to.be.bignumber.gte(
-        borrowAmount
+      expectEqWithinBps(
+        debtTokenUserAfter.sub(debtTokenUserBefore),
+        borrowAmount,
+        1
       );
-      expect(debtTokenUserAfter.sub(debtTokenUserBefore)).to.be.bignumber.lt(
-        borrowAmount.add(interestMax)
-      );
-
       profileGas(receipt);
     });
 
@@ -496,16 +491,11 @@ contract('Aave V2', function([_, user, someone]) {
       expect(
         borrowWMATICUserAfter.sub(borrowWMATICUserBefore)
       ).to.be.bignumber.eq(borrowAmount);
-
-      //  borrowAmount - 1 <= (debtTokenUserAfter-debtTokenUserBefore) < borrowAmount + interestMax
-      const interestMax = borrowAmount.mul(new BN(1)).div(new BN(10000));
-      expect(debtWMATICUserAfter.sub(debtWMATICUserBefore)).to.be.bignumber.gte(
-        borrowAmount.sub(new BN(1))
+      expectEqWithinBps(
+        debtWMATICUserAfter.sub(debtWMATICUserBefore),
+        borrowAmount,
+        1
       );
-      expect(debtWMATICUserAfter.sub(debtWMATICUserBefore)).to.be.bignumber.lt(
-        borrowAmount.add(interestMax)
-      );
-
       profileGas(receipt);
     });
 
@@ -542,14 +532,10 @@ contract('Aave V2', function([_, user, someone]) {
       expect(balancerUserAfter.sub(balancerUserBefore)).to.be.bignumber.eq(
         borrowAmount
       );
-
-      //  borrowAmount - 1 <= (debtTokenUserAfter-debtTokenUserBefore) < borrowAmount + interestMax
-      const interestMax = borrowAmount.mul(new BN(1)).div(new BN(10000));
-      expect(debtWMATICUserAfter.sub(debtWMATICUserBefore)).to.be.bignumber.gte(
-        borrowAmount.sub(new BN(1))
-      );
-      expect(debtWMATICUserAfter.sub(debtWMATICUserBefore)).to.be.bignumber.lt(
-        borrowAmount.add(interestMax)
+      expectEqWithinBps(
+        debtWMATICUserAfter.sub(debtWMATICUserBefore),
+        borrowAmount,
+        1
       );
       profileGas(receipt);
     });
