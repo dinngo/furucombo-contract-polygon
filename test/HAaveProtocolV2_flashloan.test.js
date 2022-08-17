@@ -149,7 +149,7 @@ contract('AaveV2 flashloan', function([_, user, someone]) {
         0,
         { from: this.tokenBProvider }
       );
-      expectEqWithinBps(await this.aTokenB.balanceOf(user), depositAmount, 10);
+      expectEqWithinBps(await this.aTokenB.balanceOf(user), depositAmount, 1);
     });
 
     it('single asset with no debt', async function() {
@@ -274,12 +274,12 @@ contract('AaveV2 flashloan', function([_, user, someone]) {
       expectEqWithinBps(
         await this.tokenA.balanceOf(user),
         tokenAUser.add(value).add(value),
-        10
+        1
       );
       expectEqWithinBps(
         await this.variableDebtTokenA.balanceOf(user),
         value,
-        10
+        1
       );
       expect(await balanceUser.delta()).to.be.bignumber.eq(ether('0'));
     });
