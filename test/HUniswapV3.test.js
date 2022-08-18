@@ -28,6 +28,7 @@ const {
   getCallData,
   tokenProviderSushi,
   mwei,
+  expectEqWithinBps,
 } = require('./utils/utils');
 
 const HUniswapV3 = artifacts.require('HUniswapV3');
@@ -2571,8 +2572,10 @@ async function verifyExactOutputFromEther(
   expect(await nativeTokenProxyBalance.delta()).to.be.bignumber.eq(ether('0'));
 
   // Verify if user's native token balance is correct
-  expect(await nativeTokenUserBalance.delta()).to.be.bignumber.eq(
-    ether('0').sub(tokenInExpAmt)
+  expectEqWithinBps(
+    ether('0').sub(await nativeTokenUserBalance.delta()),
+    tokenInExpAmt,
+    10
   );
 }
 
