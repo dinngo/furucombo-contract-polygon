@@ -2,8 +2,8 @@ const AAVE_POOL_V3 = '0x794a61358D6845594F94dc1DB02A252b5b4814aD';
 const utils = ethers.utils;
 
 // beta parameter
-const registryOwner = '0x64585922a9703d9EdE7d353a6522eb2970f75066';
-const registryAddress = '0x5E56d6c6F763d6B1f21723a11be98533E168C3c9';
+const registryOwner = '0xbE8F6FeFe32F18ea5fBdb51c76EFFC5481a45e00';
+const registryAddress = '0x78B95131bC21eC73DF5158CF7A018Ad7bADa5561';
 
 module.exports = async ({ getNamedAccounts, deployments }) => {
   const { deploy } = deployments;

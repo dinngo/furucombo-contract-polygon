@@ -118,9 +118,7 @@ contract('Aave V3', function([_, user]) {
       expect(await this.borrowToken.balanceOf(user)).to.be.bignumber.eq(
         borrowAmount
       );
-      expect(await this.debtToken.balanceOf(user)).to.be.bignumber.eq(
-        borrowAmount
-      );
+      expectEqWithinBps(await this.debtToken.balanceOf(user), borrowAmount, 1);
 
       borrowTokenUserBefore = await this.borrowToken.balanceOf(user);
       debtTokenUserBefore = await this.debtToken.balanceOf(user);
@@ -154,17 +152,9 @@ contract('Aave V3', function([_, user]) {
       );
       const borrowTokenUserAfter = await this.borrowToken.balanceOf(user);
       const debtTokenUserAfter = await this.debtToken.balanceOf(user);
-      const interestMax = borrowAmount.mul(new BN(1)).div(new BN(10000));
 
       // Verify handler return
-      // (debtAmountBefore - repayAmount -1) <= remainDebtAmount < (debtAmountBefore - repayAmount + interestMax)
-      // NOTE: handlerReturn == (debtAmountBefore - repayAmount -1) (sometime, Ganache bug maybe)
-      expect(handlerReturn).to.be.bignumber.gte(
-        debtTokenUserBefore.sub(repayAmount).sub(new BN(1))
-      );
-      expect(handlerReturn).to.be.bignumber.lt(
-        debtTokenUserBefore.sub(repayAmount).add(interestMax)
-      );
+      expectEqWithinBps(handlerReturn, debtTokenUserBefore.sub(repayAmount), 1);
 
       // Verify proxy balance
       expect(
@@ -172,12 +162,10 @@ contract('Aave V3', function([_, user]) {
       ).to.be.bignumber.zero;
 
       // Verify user balance
-      // (repayAmount - interestMax) < (debtTokenUserBefore - debtTokenUserAfter) <= repayAmount
-      expect(debtTokenUserBefore.sub(debtTokenUserAfter)).to.be.bignumber.gt(
-        repayAmount.sub(interestMax)
-      );
-      expect(debtTokenUserBefore.sub(debtTokenUserAfter)).to.be.bignumber.lte(
-        repayAmount
+      expectEqWithinBps(
+        debtTokenUserBefore.sub(debtTokenUserAfter),
+        repayAmount,
+        1
       );
       expect(
         borrowTokenUserBefore.sub(borrowTokenUserAfter)
@@ -217,7 +205,6 @@ contract('Aave V3', function([_, user]) {
       );
       const borrowTokenUserAfter = await this.borrowToken.balanceOf(user);
       const debtTokenUserAfter = await this.debtToken.balanceOf(user);
-      const interestMax = borrowAmount.mul(new BN(1)).div(new BN(10000));
 
       // Verify handler return
       expect(handlerReturn).to.be.bignumber.zero;
@@ -229,12 +216,7 @@ contract('Aave V3', function([_, user]) {
 
       // Verify user balance
       expect(debtTokenUserAfter).to.be.bignumber.zero;
-
-      // (extraNeed - interestMax) < borrowTokenUserAfter <= extraNeed
-      expect(borrowTokenUserAfter).to.be.bignumber.gt(
-        extraNeed.sub(interestMax)
-      );
-      expect(borrowTokenUserAfter).to.be.bignumber.lte(extraNeed);
+      expectEqWithinBps(borrowTokenUserAfter, extraNeed, 1);
       expect(await balanceUser.delta()).to.be.bignumber.eq(ether('0'));
       profileGas(receipt);
     });
@@ -441,11 +423,7 @@ contract('Aave V3', function([_, user]) {
       expect(await this.borrowToken.balanceOf(user)).to.be.bignumber.eq(
         borrowAmount
       );
-      expectEqWithinBps(
-        await this.debtToken.balanceOf(user),
-        borrowAmount,
-        100
-      );
+      expectEqWithinBps(await this.debtToken.balanceOf(user), borrowAmount, 1);
 
       borrowTokenUserBefore = await this.borrowToken.balanceOf(user);
       debtTokenUserBefore = await this.debtToken.balanceOf(user);
@@ -478,17 +456,9 @@ contract('Aave V3', function([_, user]) {
       );
       const borrowTokenUserAfter = await this.borrowToken.balanceOf(user);
       const debtTokenUserAfter = await this.debtToken.balanceOf(user);
-      const interestMax = borrowAmount.mul(new BN(1)).div(new BN(10000));
 
       // Verify handler return
-      // (debtAmountBefore - repayAmount -1) <= remainDebtAmount < (debtAmountBefore - repayAmount + interestMax)
-      // NOTE: handlerReturn == (debtAmountBefore - repayAmount -1) (sometime, Ganache bug maybe)
-      expect(handlerReturn).to.be.bignumber.gte(
-        debtTokenUserBefore.sub(repayAmount).sub(new BN(1))
-      );
-      expect(handlerReturn).to.be.bignumber.lt(
-        debtTokenUserBefore.sub(repayAmount).add(interestMax)
-      );
+      expectEqWithinBps(handlerReturn, debtTokenUserBefore.sub(repayAmount), 1);
 
       // Verify proxy balance
       expect(
@@ -496,12 +466,10 @@ contract('Aave V3', function([_, user]) {
       ).to.be.bignumber.zero;
 
       // Verify user balance
-      // (repayAmount - interestMax) < (debtTokenUserBefore - debtTokenUserAfter) <= repayAmount
-      expect(debtTokenUserBefore.sub(debtTokenUserAfter)).to.be.bignumber.gt(
-        repayAmount.sub(interestMax)
-      );
-      expect(debtTokenUserBefore.sub(debtTokenUserAfter)).to.be.bignumber.lte(
-        repayAmount
+      expectEqWithinBps(
+        debtTokenUserBefore.sub(debtTokenUserAfter),
+        repayAmount,
+        1
       );
       expect(
         borrowTokenUserBefore.sub(borrowTokenUserAfter)
@@ -531,17 +499,9 @@ contract('Aave V3', function([_, user]) {
         getHandlerReturn(receipt, ['uint256'])[0]
       );
       const debtTokenUserAfter = await this.debtToken.balanceOf(user);
-      const interestMax = borrowAmount.mul(new BN(1)).div(new BN(10000));
 
       // Verify handler return
-      // (debtAmountBefore - repayAmount -1) <= remainDebtAmount < (debtAmountBefore - repayAmount + interestMax)
-      // NOTE: handlerReturn == (debtAmountBefore - repayAmount -1) (sometime, Ganache bug maybe)
-      expect(handlerReturn).to.be.bignumber.gte(
-        debtTokenUserBefore.sub(repayAmount).sub(new BN(1))
-      );
-      expect(handlerReturn).to.be.bignumber.lt(
-        debtTokenUserBefore.sub(repayAmount).add(interestMax)
-      );
+      expectEqWithinBps(handlerReturn, debtTokenUserBefore.sub(repayAmount), 1);
 
       // Verify proxy balance
       expect(
@@ -549,12 +509,10 @@ contract('Aave V3', function([_, user]) {
       ).to.be.bignumber.zero;
 
       // Verify user balance
-      // (repayAmount - interestMax) < (debtTokenUserBefore - debtTokenUserAfter) <= repayAmount
-      expect(debtTokenUserBefore.sub(debtTokenUserAfter)).to.be.bignumber.gt(
-        repayAmount.sub(interestMax)
-      );
-      expect(debtTokenUserBefore.sub(debtTokenUserAfter)).to.be.bignumber.lte(
-        repayAmount
+      expectEqWithinBps(
+        debtTokenUserBefore.sub(debtTokenUserAfter),
+        repayAmount,
+        1
       );
       expect(await balanceUser.delta()).to.be.bignumber.eq(
         ether('0').sub(repayAmount)
@@ -593,7 +551,6 @@ contract('Aave V3', function([_, user]) {
       );
       const borrowTokenUserAfter = await this.borrowToken.balanceOf(user);
       const debtTokenUserAfter = await this.debtToken.balanceOf(user);
-      const interestMax = borrowAmount.mul(new BN(1)).div(new BN(10000));
 
       // Verify handler return
       expect(handlerReturn).to.be.bignumber.zero;
@@ -605,12 +562,7 @@ contract('Aave V3', function([_, user]) {
 
       // Verify user balance
       expect(debtTokenUserAfter).to.be.bignumber.zero;
-
-      // (extraNeed - interestMax) < borrowTokenUserAfter <= extraNeed
-      expect(borrowTokenUserAfter).to.be.bignumber.gt(
-        extraNeed.sub(interestMax)
-      );
-      expect(borrowTokenUserAfter).to.be.bignumber.lte(extraNeed);
+      expectEqWithinBps(borrowTokenUserAfter, extraNeed, 1);
       expect(await balanceUser.delta()).to.be.bignumber.eq(ether('0'));
       profileGas(receipt);
     });
@@ -639,7 +591,6 @@ contract('Aave V3', function([_, user]) {
       );
       const debtTokenUserAfter = await this.debtToken.balanceOf(user);
       const borrowWMATICUserAfter = await this.wmatic.balanceOf(user);
-      const interestMax = borrowAmount.mul(new BN(1)).div(new BN(10000));
 
       // Verify handler return
       expect(handlerReturn).to.be.bignumber.zero;
@@ -651,17 +602,14 @@ contract('Aave V3', function([_, user]) {
 
       // Verify user balance
       expect(debtTokenUserAfter).to.be.bignumber.zero;
+      expectEqWithinBps(
+        borrowWMATICUserAfter.sub(borrowWMATICUserBefore),
+        extraNeed,
+        1
+      );
       expect(await balanceUser.delta()).to.be.bignumber.eq(
         ether('0').sub(repayAmount)
       );
-      // (extraNeed - interestMax) < (borrowWMATICUserAfter - borrowWMATICUserBefore) <= extraNeed
-      // NOTE: Extra repay MATIC will return WMATIC
-      expect(
-        borrowWMATICUserAfter.sub(borrowWMATICUserBefore)
-      ).to.be.bignumber.gt(extraNeed.sub(interestMax));
-      expect(
-        borrowWMATICUserAfter.sub(borrowWMATICUserBefore)
-      ).to.be.bignumber.lte(extraNeed);
       profileGas(receipt);
     });
 
