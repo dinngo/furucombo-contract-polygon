@@ -139,4 +139,7 @@ module.exports = {
     '0xc1426e8cdac7d0d5c911219007db6366856d7c6e82baade601db7aa3c3343dd8',
     '0xed112d2d07db65f0ff74ad495d1ca35e89d51ea233be7ab2cc275d69559c97fa',
   ],
+
+  // Handler Type
+  HANDLER_TYPE: { TOKEN: 0, CUSTOM: 1, OTHERS: 2 },
 };
