@@ -3,6 +3,7 @@
 pragma solidity 0.8.10;
 
 import "../Proxy.sol";
+import "../Config.sol";
 import "./debug/GasProfiler.sol";
 
 contract ProxyMock is Proxy, GasProfiler {
@@ -34,5 +35,9 @@ contract ProxyMock is Proxy, GasProfiler {
 
     function updateTokenMock(address token) public {
         stack.setAddress(token);
+    }
+
+    function setHandlerType(Config.HandlerType handlerType) public {
+        stack.setHandlerType(handlerType);
     }
 }
