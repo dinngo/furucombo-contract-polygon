@@ -1,7 +1,7 @@
 const AAVE_POOL_V3 = '0x794a61358D6845594F94dc1DB02A252b5b4814aD';
 const utils = ethers.utils;
 
-// beta parameter
+// beta parameter (fee version)
 const registryOwner = '0xbE8F6FeFe32F18ea5fBdb51c76EFFC5481a45e00';
 const registryAddress = '0x78B95131bC21eC73DF5158CF7A018Ad7bADa5561';
 
@@ -74,7 +74,10 @@ async function betaDeployment(hAaveProtocolV3) {
 
   const registerCallerData = registerCallerInterface.encodeFunctionData(
     'registerCaller',
-    [AAVE_POOL_V3, utils.formatBytes32String('HAaveProtocolV3')]
+    [
+      AAVE_POOL_V3,
+      utils.hexConcat([hAaveProtocolV3.address, '0x000000000000000000000000']),
+    ]
   );
 
   const registerCallerDataCustomData =
