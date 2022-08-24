@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## [unreleased]
 
+## [2.0.0] - 2022-08-26
+
 ### Added
 
 - Support Aave v3 supply/supplyETH/withdraw/withdrawETH in `HAaveProtocolV3`.
