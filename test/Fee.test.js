@@ -27,6 +27,7 @@ const {
   checkCacheClean,
   tokenProviderQuick,
   impersonateAndInjectEther,
+  sendEther,
 } = require('./utils/utils');
 
 const Proxy = artifacts.require('Proxy');
@@ -38,6 +39,7 @@ const FeeCollectorMock = artifacts.require('FeeCollectorMock');
 const HFunds = artifacts.require('HFunds');
 const IToken = artifacts.require('IERC20');
 const IUsdt = artifacts.require('IERC20Usdt');
+const ActionsMock = artifacts.require('ActionsMock');
 
 const BASE = ether('1');
 const BASIS_FEE_RATE = ether('0.01'); // 1%
@@ -568,7 +570,7 @@ contract('Fee', function([_, feeCollector, user]) {
       );
     });
 
-    it('eth + token', async function() {
+    it('eth + token by using msg.value', async function() {
       await this.token.transfer(this.proxy.address, tokenAmount, {
         from: user,
       });
@@ -586,6 +588,73 @@ contract('Fee', function([_, feeCollector, user]) {
         {
           from: user,
           value: ethAmount,
+        }
+      );
+      const feeRateUser = BASIS_FEE_RATE.mul(RULE1_DISCOUNT)
+        .div(BASE)
+        .mul(RULE2_DISCOUNT)
+        .div(BASE);
+      const feeETH = ethAmount.mul(feeRateUser).div(BASE);
+      const feeToken = tokenAmount.mul(feeRateUser).div(BASE);
+
+      // Verify event
+      await expectEvent.inTransaction(receipt.tx, this.proxy, 'ChargeFee', {
+        tokenIn: NATIVE_TOKEN_ADDRESS,
+        feeAmount: feeETH,
+      });
+
+      // Verify event
+      await expectEvent.inTransaction(receipt.tx, this.proxy, 'ChargeFee', {
+        tokenIn: tokenAddress,
+        feeAmount: feeToken,
+      });
+
+      // Fee collector
+      expect(await balanceFeeCollector.delta()).to.be.bignumber.eq(feeETH);
+      expect(await this.token.balanceOf.call(feeCollector)).to.be.bignumber.eq(
+        feeToken
+      );
+      // Proxy
+      expect(await balanceProxy.delta()).to.be.zero;
+      expect(await this.token.balanceOf.call(this.proxy.address)).to.be.zero;
+      // User
+      expect(await balanceUser.delta()).to.be.bignumber.eq(
+        ether('0').sub(feeETH)
+      );
+      expect(await this.token.balanceOf.call(user)).to.be.bignumber.eq(
+        tokenAmount.sub(feeToken)
+      );
+    });
+
+    it('eth + token by using update token', async function() {
+      // Send token to proxy
+      const mock = await ActionsMock.new();
+      await this.token.transfer(this.proxy.address, tokenAmount, {
+        from: user,
+      });
+
+      // Send ether to proxy through Mock contract, because the proxy does not allow to receive ether from EOA
+      await mock.sendEther(this.proxy.address, {
+        from: user,
+        value: ethAmount,
+      });
+
+      const tos = [this.hFunds.address];
+      const configs = [ZERO_BYTES32];
+      const ruleIndexes = ['0', '1'];
+      const datas = [
+        abi.simpleEncode('updateTokensAndCharge(address[])', [
+          NATIVE_TOKEN_ADDRESS,
+          tokenAddress,
+        ]),
+      ];
+      const receipt = await this.proxy.batchExec(
+        tos,
+        configs,
+        datas,
+        ruleIndexes,
+        {
+          from: user,
         }
       );
       const feeRateUser = BASIS_FEE_RATE.mul(RULE1_DISCOUNT)

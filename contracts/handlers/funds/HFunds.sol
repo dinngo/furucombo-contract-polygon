@@ -45,19 +45,28 @@ contract HFunds is HandlerBase {
         uint256[] memory amountsInProxy = new uint256[](tokens.length);
 
         for (uint256 i = 0; i < tokens.length; i++) {
-            _notMaticToken(tokens[i]);
-            uint256 amount = _getBalance(tokens[i], type(uint256).max);
+            address token = tokens[i];
+            _notMaticToken(token);
+            uint256 amount = _getBalance(token, type(uint256).max);
+
             if (feeRate > 0) {
                 uint256 fee = _calFee(amount, feeRate);
-                IERC20(tokens[i]).safeTransfer(collector, fee);
+                if ((token == address(0) || token == NATIVE_TOKEN_ADDRESS)) {
+                    // It will fail if fee collector is gnosis contract, because .transfer() will only consume 2300 gas limit.
+                    // Replacing .transfer() with .call('') to avoid out of gas
+                    (bool success, ) = collector.call{value: fee}("");
+                    require(success, "Send fee to collector failed");
+                } else {
+                    IERC20(token).safeTransfer(collector, fee);
+
+                    // Update involved token
+                    _updateToken(token);
+                }
                 amountsInProxy[i] = amount - fee;
-                emit ChargeFee(tokens[i], fee);
+                emit ChargeFee(token, fee);
             } else {
                 amountsInProxy[i] = amount;
             }
-
-            // Update involved token
-            _updateToken(tokens[i]);
         }
         return amountsInProxy;
     }

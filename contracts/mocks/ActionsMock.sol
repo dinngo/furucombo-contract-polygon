@@ -12,4 +12,8 @@ contract ActionsMock {
     ) external {
         IERC20(token).approve(to, amount);
     }
+
+    function sendEther(address payable to) external payable {
+        to.transfer(msg.value);
+    }
 }

@@ -257,6 +257,14 @@ async function checkCacheClean(proxyAddr) {
     .be.zero;
 }
 
+async function sendEther(sender, to, value) {
+  await web3.eth.sendTransaction({
+    from: sender,
+    to: to,
+    value: value,
+  });
+}
+
 module.exports = {
   profileGas,
   evmSnapshot,
@@ -283,4 +291,5 @@ module.exports = {
   impersonateAndInjectEther,
   callExternalApi,
   checkCacheClean,
+  sendEther,
 };
