@@ -35,6 +35,33 @@ contract HFunds is HandlerBase {
         return balances;
     }
 
+    function updateTokensAndCharge(address[] calldata tokens)
+        external
+        payable
+        returns (uint256[] memory)
+    {
+        uint256 feeRate = cache._getFeeRate();
+        address collector = cache._getFeeCollector();
+        uint256[] memory amountsInProxy = new uint256[](tokens.length);
+
+        for (uint256 i = 0; i < tokens.length; i++) {
+            _notMaticToken(tokens[i]);
+            uint256 amount = _getBalance(tokens[i], type(uint256).max);
+            if (feeRate > 0) {
+                uint256 fee = _calFee(amount, feeRate);
+                IERC20(tokens[i]).safeTransfer(collector, fee);
+                amountsInProxy[i] = amount - fee;
+                emit ChargeFee(tokens[i], fee);
+            } else {
+                amountsInProxy[i] = amount;
+            }
+
+            // Update involved token
+            _updateToken(tokens[i]);
+        }
+        return amountsInProxy;
+    }
+
     function inject(address[] calldata tokens, uint256[] calldata amounts)
         external
         payable

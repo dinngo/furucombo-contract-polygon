@@ -28,6 +28,7 @@ const {
 } = require('./utils/utils');
 
 const HAaveV3 = artifacts.require('HAaveProtocolV3');
+const FeeRuleRegistry = artifacts.require('FeeRuleRegistry');
 const Registry = artifacts.require('Registry');
 const Proxy = artifacts.require('ProxyMock');
 const IToken = artifacts.require('IERC20');
@@ -35,7 +36,6 @@ const IAToken = artifacts.require('IATokenV3');
 const IPool = artifacts.require('IPool');
 const IProvider = artifacts.require('IPoolAddressesProvider');
 const SimpleToken = artifacts.require('SimpleToken');
-
 const IStableDebtToken = artifacts.require('IStableDebtToken');
 const IVariableDebtToken = artifacts.require('IVariableDebtTokenV3');
 
@@ -51,8 +51,12 @@ contract('Aave V3', function([_, user, someone]) {
   before(async function() {
     providerAddress = await tokenProviderQuick(tokenAddress);
 
+    this.feeRuleRegistry = await FeeRuleRegistry.new('0', _);
     this.registry = await Registry.new();
-    this.proxy = await Proxy.new(this.registry.address);
+    this.proxy = await Proxy.new(
+      this.registry.address,
+      this.feeRuleRegistry.address
+    );
     this.hAaveV3 = await HAaveV3.new();
     await this.registry.register(
       this.hAaveV3.address,

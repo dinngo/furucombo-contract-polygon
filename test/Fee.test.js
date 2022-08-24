@@ -511,4 +511,215 @@ contract('Fee', function([_, feeCollector, user]) {
       );
     });
   });
+
+  describe('update token and charge fee', function() {
+    it('eth + token -> no index', async function() {
+      await this.token.transfer(this.proxy.address, tokenAmount, {
+        from: user,
+      });
+      const tos = [this.hFunds.address];
+      const configs = [ZERO_BYTES32];
+      const ruleIndexes = [];
+      const datas = [
+        abi.simpleEncode('updateTokensAndCharge(address[])', [
+          this.token.address,
+        ]),
+      ];
+      const receipt = await this.proxy.batchExec(
+        tos,
+        configs,
+        datas,
+        ruleIndexes,
+        {
+          from: user,
+          value: ethAmount,
+        }
+      );
+      const feeRateUser = BASIS_FEE_RATE;
+      const feeETH = ethAmount.mul(feeRateUser).div(BASE);
+      const feeToken = tokenAmount.mul(feeRateUser).div(BASE);
+
+      // Verify event
+      await expectEvent.inTransaction(receipt.tx, this.proxy, 'ChargeFee', {
+        tokenIn: NATIVE_TOKEN_ADDRESS,
+        feeAmount: feeETH,
+      });
+
+      // Verify event
+      await expectEvent.inTransaction(receipt.tx, this.proxy, 'ChargeFee', {
+        tokenIn: tokenAddress,
+        feeAmount: feeToken,
+      });
+
+      // Fee collector
+      expect(await balanceFeeCollector.delta()).to.be.bignumber.eq(feeETH);
+      expect(await this.token.balanceOf.call(feeCollector)).to.be.bignumber.eq(
+        feeToken
+      );
+      // Proxy
+      expect(await balanceProxy.delta()).to.be.zero;
+      expect(await this.token.balanceOf.call(this.proxy.address)).to.be.zero;
+      // User
+      expect(await balanceUser.delta()).to.be.bignumber.eq(
+        ether('0').sub(feeETH)
+      );
+      expect(await this.token.balanceOf.call(user)).to.be.bignumber.eq(
+        tokenAmount.sub(feeToken)
+      );
+    });
+
+    it('eth + token', async function() {
+      await this.token.transfer(this.proxy.address, tokenAmount, {
+        from: user,
+      });
+      const tos = [this.hFunds.address];
+      const configs = [ZERO_BYTES32];
+      const ruleIndexes = ['0', '1'];
+      const datas = [
+        abi.simpleEncode('updateTokensAndCharge(address[])', [tokenAddress]),
+      ];
+      const receipt = await this.proxy.batchExec(
+        tos,
+        configs,
+        datas,
+        ruleIndexes,
+        {
+          from: user,
+          value: ethAmount,
+        }
+      );
+      const feeRateUser = BASIS_FEE_RATE.mul(RULE1_DISCOUNT)
+        .div(BASE)
+        .mul(RULE2_DISCOUNT)
+        .div(BASE);
+      const feeETH = ethAmount.mul(feeRateUser).div(BASE);
+      const feeToken = tokenAmount.mul(feeRateUser).div(BASE);
+
+      // Verify event
+      await expectEvent.inTransaction(receipt.tx, this.proxy, 'ChargeFee', {
+        tokenIn: NATIVE_TOKEN_ADDRESS,
+        feeAmount: feeETH,
+      });
+
+      // Verify event
+      await expectEvent.inTransaction(receipt.tx, this.proxy, 'ChargeFee', {
+        tokenIn: tokenAddress,
+        feeAmount: feeToken,
+      });
+
+      // Fee collector
+      expect(await balanceFeeCollector.delta()).to.be.bignumber.eq(feeETH);
+      expect(await this.token.balanceOf.call(feeCollector)).to.be.bignumber.eq(
+        feeToken
+      );
+      // Proxy
+      expect(await balanceProxy.delta()).to.be.zero;
+      expect(await this.token.balanceOf.call(this.proxy.address)).to.be.zero;
+      // User
+      expect(await balanceUser.delta()).to.be.bignumber.eq(
+        ether('0').sub(feeETH)
+      );
+      expect(await this.token.balanceOf.call(user)).to.be.bignumber.eq(
+        tokenAmount.sub(feeToken)
+      );
+    });
+
+    it('token + token', async function() {
+      await this.token.transfer(this.proxy.address, tokenAmount, {
+        from: user,
+      });
+      await this.token2.transfer(this.proxy.address, token2Amount, {
+        from: user,
+      });
+      const tos = [this.hFunds.address];
+      const configs = [ZERO_BYTES32];
+      const ruleIndexes = ['0', '1'];
+      const datas = [
+        abi.simpleEncode('updateTokensAndCharge(address[])', [
+          tokenAddress,
+          token2Address,
+        ]),
+      ];
+      const receipt = await this.proxy.batchExec(
+        tos,
+        configs,
+        datas,
+        ruleIndexes,
+        {
+          from: user,
+        }
+      );
+      const feeRateUser = BASIS_FEE_RATE.mul(RULE1_DISCOUNT)
+        .div(BASE)
+        .mul(RULE2_DISCOUNT)
+        .div(BASE);
+      const feeToken = tokenAmount.mul(feeRateUser).div(BASE);
+      const feeToken2 = token2Amount.mul(feeRateUser).div(BASE);
+
+      // Verify event
+      await expectEvent.inTransaction(receipt.tx, this.proxy, 'ChargeFee', {
+        tokenIn: tokenAddress,
+        feeAmount: feeToken,
+      });
+
+      // Verify event
+      await expectEvent.inTransaction(receipt.tx, this.proxy, 'ChargeFee', {
+        tokenIn: token2Address,
+        feeAmount: feeToken2,
+      });
+
+      // Fee collector
+      expect(await this.token.balanceOf.call(feeCollector)).to.be.bignumber.eq(
+        feeToken
+      );
+      expect(await this.token2.balanceOf.call(feeCollector)).to.be.bignumber.eq(
+        feeToken2
+      );
+      // Proxy
+      expect(await this.token.balanceOf.call(this.proxy.address)).to.be.zero;
+      expect(await this.token2.balanceOf.call(this.proxy.address)).to.be.zero;
+      // User
+      expect(await balanceUser.delta()).to.be.bignumber.eq(ether('0'));
+      expect(await this.token.balanceOf.call(user)).to.be.bignumber.eq(
+        tokenAmount.sub(feeToken)
+      );
+      expect(await this.token2.balanceOf.call(user)).to.be.bignumber.eq(
+        token2Amount.sub(feeToken2)
+      );
+    });
+
+    it('zero fee', async function() {
+      // Set basis fee rate to 0
+      await this.feeRuleRegistry.setBasisFeeRate(ether('0'));
+      expect(await this.feeRuleRegistry.basisFeeRate.call()).to.be.zero;
+
+      const tos = [this.hFunds.address];
+      const configs = [ZERO_BYTES32];
+      const ruleIndexes = ['0', '1'];
+      const datas = [
+        abi.simpleEncode('updateTokensAndCharge(address[])', [tokenAddress]),
+      ];
+      const receipt = await this.proxy.batchExec(
+        tos,
+        configs,
+        datas,
+        ruleIndexes,
+        {
+          from: user,
+          value: ethAmount,
+        }
+      );
+      // Fee collector
+      expect(await balanceFeeCollector.delta()).to.be.zero;
+      expect(await this.token.balanceOf.call(feeCollector)).to.be.zero;
+      // Proxy
+      expect(await balanceProxy.delta()).to.be.zero;
+      expect(await this.token.balanceOf.call(this.proxy.address)).to.be.zero;
+      // User
+      expect(await balanceUser.delta()).to.be.bignumber.eq(ether('0'));
+      expect(await this.token.balanceOf.call(user)).to.be.bignumber.eq(
+        tokenAmount
+      );
+    });
+  });
 });
