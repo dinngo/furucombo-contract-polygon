@@ -30,6 +30,7 @@ const {
 
 const HFurucombo = artifacts.require('HFurucomboStaking');
 const Registry = artifacts.require('Registry');
+const FeeRuleRegistry = artifacts.require('FeeRuleRegistry');
 const Proxy = artifacts.require('ProxyMock');
 const IToken = artifacts.require('IERC20');
 const SimpleToken = artifacts.require('SimpleToken');
@@ -45,7 +46,11 @@ contract('Furucombo', function([_, user, someone]) {
     providerAddress = await tokenProviderQuick(tokenAddress);
 
     this.registry = await Registry.new();
-    this.proxy = await Proxy.new(this.registry.address);
+    this.feeRuleRegistry = await FeeRuleRegistry.new('0', _);
+    this.proxy = await Proxy.new(
+      this.registry.address,
+      this.feeRuleRegistry.address
+    );
     this.hFurucombo = await HFurucombo.new();
     await this.registry.register(
       this.hFurucombo.address,

@@ -24,6 +24,7 @@ const {
 } = require('./utils/constants');
 const { evmRevert, evmSnapshot, tokenProviderQuick } = require('./utils/utils');
 
+const FeeRuleRegistry = artifacts.require('FeeRuleRegistry');
 const Registry = artifacts.require('Registry');
 const Proxy = artifacts.require('ProxyMock');
 const HAaveV3 = artifacts.require('HAaveProtocolV3');
@@ -42,8 +43,12 @@ contract('AaveV3 flashloan', function([_, user, someone]) {
   let balanceProxy;
 
   before(async function() {
+    this.feeRuleRegistry = await FeeRuleRegistry.new('0', _);
     this.registry = await Registry.new();
-    this.proxy = await Proxy.new(this.registry.address);
+    this.proxy = await Proxy.new(
+      this.registry.address,
+      this.feeRuleRegistry.address
+    );
     // Register aave v3 handler
     this.hAaveV3 = await HAaveV3.new();
     await this.registry.register(
@@ -506,7 +511,7 @@ contract('AaveV3 flashloan', function([_, user, someone]) {
       const to = [to1, to2];
       const config = [ZERO_BYTES32, ZERO_BYTES32];
       const data = [data1, data2];
-      const receipt = await this.proxy.batchExec(to, config, data, {
+      const receipt = await this.proxy.batchExec(to, config, data, [], {
         from: user,
         value: ether('0.1'),
       });
@@ -568,7 +573,7 @@ contract('AaveV3 flashloan', function([_, user, someone]) {
       const to = [this.hAaveV3.address];
       const config = [ZERO_BYTES32];
       const data = [data2];
-      const receipt = await this.proxy.batchExec(to, config, data, {
+      const receipt = await this.proxy.batchExec(to, config, data, [], {
         from: user,
         value: ether('0.1'),
       });
@@ -646,7 +651,7 @@ contract('AaveV3 flashloan', function([_, user, someone]) {
       const to = [this.hAaveV3.address];
       const config = [ZERO_BYTES32];
       const data = [data1];
-      const receipt = await this.proxy.batchExec(to, config, data, {
+      const receipt = await this.proxy.batchExec(to, config, data, [], {
         from: user,
         value: ether('0.1'),
       });

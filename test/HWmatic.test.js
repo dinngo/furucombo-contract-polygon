@@ -15,6 +15,7 @@ const {
 
 const HWmatic = artifacts.require('HWmatic');
 const Registry = artifacts.require('Registry');
+const FeeRuleRegistry = artifacts.require('FeeRuleRegistry');
 const Proxy = artifacts.require('ProxyMock');
 const IToken = artifacts.require('IERC20');
 
@@ -28,7 +29,11 @@ contract('Wmatic', function([_, user]) {
 
     this.token = await IToken.at(tokenAddress);
     this.registry = await Registry.new();
-    this.proxy = await Proxy.new(this.registry.address);
+    this.feeRuleRegistry = await FeeRuleRegistry.new('0', _);
+    this.proxy = await Proxy.new(
+      this.registry.address,
+      this.feeRuleRegistry.address
+    );
     this.hWmatic = await HWmatic.new();
     await this.registry.register(
       this.hWmatic.address,

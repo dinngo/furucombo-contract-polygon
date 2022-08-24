@@ -8,6 +8,10 @@ All notable changes to this project will be documented in this file.
 
 - Support Aave v3 supply/supplyETH/withdraw/withdrawETH in `HAaveProtocolV3`.
 - Support Aave v3 borrow/borrowETH/repay/repayETH/flashloan in `HAaveProtocolV3`.
+- Add fee flow for ether and token in `Proxy` and `HFunds` respectively.
+- Add `FeeRuleRegistry` for fee related configurations.
+- Add `RuleBase` as the base of future rules.
+- Duplicate `inject` for `addFunds` in `HFunds`.
 
 ## [1.14.0] - 2022-07-27
 

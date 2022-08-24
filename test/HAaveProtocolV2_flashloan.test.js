@@ -30,6 +30,7 @@ const {
 } = require('./utils/utils');
 
 const Registry = artifacts.require('Registry');
+const FeeRuleRegistry = artifacts.require('FeeRuleRegistry');
 const Proxy = artifacts.require('ProxyMock');
 const HAaveV2 = artifacts.require('HAaveProtocolV2');
 const HMock = artifacts.require('HMock');
@@ -48,7 +49,11 @@ contract('AaveV2 flashloan', function([_, user, someone]) {
 
   before(async function() {
     this.registry = await Registry.new();
-    this.proxy = await Proxy.new(this.registry.address);
+    this.feeRuleRegistry = await FeeRuleRegistry.new('0', _);
+    this.proxy = await Proxy.new(
+      this.registry.address,
+      this.feeRuleRegistry.address
+    );
     // Register aave v2 handler
     this.hAaveV2 = await HAaveV2.new();
     await this.registry.register(
@@ -513,7 +518,7 @@ contract('AaveV2 flashloan', function([_, user, someone]) {
       const to = [to1, to2];
       const config = [ZERO_BYTES32, ZERO_BYTES32];
       const data = [data1, data2];
-      const receipt = await this.proxy.batchExec(to, config, data, {
+      const receipt = await this.proxy.batchExec(to, config, data, [], {
         from: user,
         value: ether('0.1'),
       });
@@ -578,7 +583,7 @@ contract('AaveV2 flashloan', function([_, user, someone]) {
       const config = [ZERO_BYTES32];
       const data = [data2];
 
-      const receipt = await this.proxy.batchExec(to, config, data, {
+      const receipt = await this.proxy.batchExec(to, config, data, [], {
         from: user,
         value: ether('0.1'),
       });
@@ -658,7 +663,7 @@ contract('AaveV2 flashloan', function([_, user, someone]) {
       const to = [this.hAaveV2.address];
       const config = [ZERO_BYTES32];
       const data = [data1];
-      const receipt = await this.proxy.batchExec(to, config, data, {
+      const receipt = await this.proxy.batchExec(to, config, data, [], {
         from: user,
         value: ether('0.1'),
       });

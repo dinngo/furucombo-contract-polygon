@@ -15,6 +15,7 @@ const {
 
 const HFurucomboFunds = artifacts.require('HFurucomboFunds');
 const Registry = artifacts.require('Registry');
+const FeeRuleRegistry = artifacts.require('FeeRuleRegistry');
 const Proxy = artifacts.require('ProxyMock');
 const IToken = artifacts.require('IERC20');
 const IShareToken = artifacts.require('IShareToken');
@@ -25,7 +26,11 @@ contract('HFurucomboFunds', function([_, user, dummy]) {
 
   before(async function() {
     this.registry = await Registry.new();
-    this.proxy = await Proxy.new(this.registry.address);
+    this.feeRuleRegistry = await FeeRuleRegistry.new('0', _);
+    this.proxy = await Proxy.new(
+      this.registry.address,
+      this.feeRuleRegistry.address
+    );
     this.hFurucomboFunds = await HFurucomboFunds.new();
     await this.registry.register(
       this.hFurucomboFunds.address,

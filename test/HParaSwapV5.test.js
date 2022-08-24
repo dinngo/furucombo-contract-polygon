@@ -13,9 +13,6 @@ const {
   USDC_TOKEN,
   NATIVE_TOKEN_ADDRESS,
   NATIVE_TOKEN_DECIMAL,
-  FURUCOMBO_PROXY,
-  FURUCOMBO_REGISTRY,
-  FURUCOMBO_REGISTRY_OWNER,
 } = require('./utils/constants');
 const { ZERO_BYTES32 } = constants;
 const {
@@ -35,6 +32,7 @@ const queryString = require('query-string');
 const HParaSwapV5 = artifacts.require('HParaSwapV5');
 const IRegistry = artifacts.require('IRegistry');
 const Registry = artifacts.require('Registry');
+const FeeRuleRegistry = artifacts.require('FeeRuleRegistry');
 const IProxy = artifacts.require('IProxy');
 const Proxy = artifacts.require('ProxyMock');
 const IToken = artifacts.require('IERC20');
@@ -115,27 +113,19 @@ contract('ParaSwapV5', function([_, user, user2]) {
   let initialEvmId;
   before(async function() {
     initialEvmId = await evmSnapshot();
-
-    await impersonateAndInjectEther(FURUCOMBO_REGISTRY_OWNER);
-
     this.registry = await Registry.new();
-    this.onchainRegistry = await IRegistry.at(FURUCOMBO_REGISTRY);
-
     this.hParaSwap = await HParaSwapV5.new();
-
-    await this.onchainRegistry.register(
-      this.hParaSwap.address,
-      utils.asciiToHex('ParaSwapV5'),
-      { from: FURUCOMBO_REGISTRY_OWNER }
-    );
 
     await this.registry.register(
       this.hParaSwap.address,
       utils.asciiToHex('ParaSwapV5')
     );
 
-    this.proxy = await Proxy.new(this.registry.address);
-    this.onchainProxy = await IProxy.at(FURUCOMBO_PROXY);
+    this.feeRuleRegistry = await FeeRuleRegistry.new('0', _);
+    this.proxy = await Proxy.new(
+      this.registry.address,
+      this.feeRuleRegistry.address
+    );
   });
 
   beforeEach(async function() {
@@ -149,7 +139,9 @@ contract('ParaSwapV5', function([_, user, user2]) {
     await evmRevert(initialEvmId);
   });
 
-  describe('with on chain proxy', function() {
+  // Because on-chain Proxy is not fee-charged proxy.
+  // Skip on-chain proxy test cases until on-chain proxy is fee-charged.
+  describe.skip('with on chain proxy', function() {
     const configs = [ZERO_BYTES32];
     describe('MATIC to Token', function() {
       const tokenAddress = DAI_TOKEN;

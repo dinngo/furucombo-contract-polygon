@@ -24,6 +24,7 @@ const {
 } = require('./utils/utils');
 
 const Proxy = artifacts.require('ProxyMock');
+const FeeRuleRegistry = artifacts.require('FeeRuleRegistry');
 const Registry = artifacts.require('Registry');
 const HCurve = artifacts.require('HCurve');
 const ICurveHandler = artifacts.require('ICurveHandler');
@@ -33,13 +34,17 @@ contract('Curve Factory Meta', function([_, user]) {
   const slippage = new BN('3');
   let id;
   before(async function() {
+    this.feeRuleRegistry = await FeeRuleRegistry.new('0', _);
     this.registry = await Registry.new();
     this.hCurve = await HCurve.new();
     await this.registry.register(
       this.hCurve.address,
       utils.asciiToHex('HCurve')
     );
-    this.proxy = await Proxy.new(this.registry.address);
+    this.proxy = await Proxy.new(
+      this.registry.address,
+      this.feeRuleRegistry.address
+    );
     this.zap = await ICurveHandler.at(CURVE_FACTORY_ZAP_META_USD);
     this.tusdSwap = await ICurveHandler.at(CURVE_FACTORY_TUSD);
   });
